@@ -1,16 +1,32 @@
 ###QT project file
 INCLUDEPATH += /usr/local/include/
 LIBS += -L"/usr/local/lib/" -lcurl.4
+LIBS += -framework SystemConfiguration
 
-QT += widgets charts
+QT += widgets charts network
 
-SOURCES += main.cpp client.cpp \ 
-            clientMarketFuncs.cpp clientOrderFuncs.cpp \
-            exceptions.cpp
-HEADERS += client.hpp exceptions.hpp
-CONFIG += debug
 TARGET = tradebot
+CONFIG += debug
 DESTDIR = ../bin/
 QMAKE_CXXFLAGS += -std=c++17
+
+SOURCES += TradeBot.cpp
+HEADERS += TradeBot.hpp
+SOURCES += lunoclientOrderFuncs.cpp lunoclientMarketFuncs.cpp
+HEADERS += lunoTypes.hpp lunoclient.hpp
+SOURCES += localbitcoinClient.cpp
+HEADERS += localbitcoinClient.hpp
+SOURCES += ../ext/hash-library/sha256.cpp
+HEADERS += ../ext/hash-library/hmac.h ../ext/hash-library/sha256.h
+SOURCES += client.cpp
+HEADERS += client.hpp
+SOURCES += exceptions.cpp
+HEADERS += exceptions.hpp
+SOURCES += Chart.cpp
+HEADERS += Chart.hpp
+SOURCES += objectivec.mm
+HEADERS += objectivec.h 
+SOURCES += main.cpp
+            
 
 
