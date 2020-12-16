@@ -178,25 +178,15 @@ namespace Luno {
                     color: inherit;
                     text-decoration: none;
                 }
-                td, th {
+                td {
                     padding: 2px 4px 1px 2px;
                     text-align: center;
-                }
-                tr th {
-                    color: rgb(173, 176, 182);
-                    position: sticky;
-                    z-index: 100;
-                    top: 0px;
                 }
                 .Ask a {color: rgb(222, 81, 65);}
                 .Bid a {color: rgb(94, 186, 137);}
                 .Mid {padding: 5px 2px;}
                 </style>
-                <table width=100%>
-                    <tr>
-                        <th>PRICE</th>
-                        <th>VOLUME</th>
-                    </tr>)";
+                <table width=100%>)";
         
         for (auto order = this->asks.rbegin(); order != this->asks.rend(); order++){
             ss << "\n<tr><a href=\"" << order->price << "\">";

@@ -28,7 +28,7 @@
 #include "localbitcoinClient.hpp"
 #include "objectivec.h"
 #include "Chart.hpp"
-
+#include "TradeBot_OrderPanel.hpp"
 
 QTextEdit& operator<< (QTextEdit& stream, std::string str);
 QTextBrowser& operator<< (QTextBrowser& stream, std::string str);
@@ -50,6 +50,8 @@ private:
     void formCandles();
     void darkTheme();
     void lightTheme();
+    
+    std::string lastTrades();
 private:
     bool nightmode;
     std::thread thread;
@@ -58,7 +60,8 @@ private:
     QPushButton* resetView;
     QTimer* timer;
     QTextEdit* text;
-    QTextBrowser* orderview;
+    OrderPanel *orderPanel;
+    
     
     Luno::LunoClient lunoClient;
     LocalBitcoin::LocalBitcoinClient LocalBclient;

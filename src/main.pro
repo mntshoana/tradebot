@@ -10,8 +10,8 @@ CONFIG += debug
 DESTDIR = ../bin/
 QMAKE_CXXFLAGS += -std=c++17
 
-SOURCES += TradeBot.cpp
-HEADERS += TradeBot.hpp
+SOURCES += TradeBot.cpp TradeBot_Label.cpp TradeBot_OrderPanel.cpp
+HEADERS += TradeBot.hpp TradeBot_Label.hpp TradeBot_OrderPanel.hpp
 SOURCES += lunoclientOrderFuncs.cpp lunoclientMarketFuncs.cpp
 HEADERS += lunoTypes.hpp lunoclient.hpp
 SOURCES += localbitcoinClient.cpp

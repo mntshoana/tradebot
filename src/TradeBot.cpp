@@ -1,5 +1,34 @@
 #include "TradeBot.hpp"
 
+#define CSV_FILE_PATH "/Users/macgod/Dev/tradebot2/tradebot/src/data/"
+
+/*class Label : public QTextBrowser {
+public:
+    Label(std::string title, QWidget* parent = nullptr ) : QTextBrowser(parent) {
+        setReadOnly(true);
+        std::stringstream ss;
+        ss << std::fixed;
+        ss << R"(
+                <style>
+                table {width: 100%;}
+                tr { padding: 15px;}
+                td, th {
+                    padding: 2px 4px 1px 2px;
+                    text-align: center;
+                }
+                tr th {
+                    color: rgb(173, 176, 182);
+                }
+                </style>
+                <table width=100%>
+                    <tr>)";
+        ss << title;
+        ss << "</tr>";
+        ss << "</table>\n";
+        setHtml(ss.str().c_str());
+    }
+};
+*/
 QTextEdit& operator<< (QTextEdit& stream, std::string str)
 {
     stream.append(str.c_str());
@@ -16,13 +45,11 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     text->setGeometry(0, 500, 1180, 220);
     text->setText("");
     
-    orderview = new QTextBrowser(this);
-    orderview->setGeometry(1180, 0, 200, 720);
-    orderview->setText("");
-    orderview->setReadOnly(true);
-    orderview->setOpenLinks(false);
-    connect(orderview, &QTextBrowser::anchorClicked, this, &TradeBot::clickedLink);
+    orderPanel = new OrderPanel(this);
+    connect(orderPanel->orderview, &QTextBrowser::anchorClicked, this, &TradeBot::clickedLink);
+    connect(orderPanel->tradeview, &QTextBrowser::anchorClicked, this, &TradeBot::clickedLink);
     
+
     set   = nullptr; // A single candle is a set, which is appended to a series
     series = nullptr;
     catagories = new QStringList(); // Labels of x-axis
@@ -115,6 +142,13 @@ void TradeBot::darkTheme(){
     axisX->setLabelsBrush(light);
     axisY->setLabelsBrush(light);
     
+    orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
+                                        background-color: #1e1e1e;
+                                        color: white;
+                                        border: none;
+                                 } QGroupBox::title {
+                                        background-color:transparent;
+                                 })");
     nightmode = true;
 }
 void TradeBot::lightTheme(){
@@ -136,6 +170,13 @@ void TradeBot::lightTheme(){
     axisX->setLabelsBrush(dark);
     axisY->setLabelsBrush(dark);
     
+    orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
+                                        background-color: white;
+                                        color: black;
+                                        border: none;
+                                 } QGroupBox::title {
+                                        background-color:transparent;
+                                 })");
     nightmode = false;
 }
 void TradeBot::OnUpdate() {
@@ -147,13 +188,15 @@ void TradeBot::OnUpdate() {
     
     if (*count == 0) { // Initiate app
         try{
-            *orderview << lunoClient.getOrderBook("XBTZAR").Format();
-            auto step = orderview->verticalScrollBar()->singleStep();
-            orderview->verticalScrollBar()->setValue(step * 90);
+            *(orderPanel->orderview) << lunoClient.getOrderBook("XBTZAR").Format();
+            auto step = orderPanel->orderview->verticalScrollBar()->singleStep();
+            orderPanel->orderview->verticalScrollBar()->setValue(step * 97.8);
         }
         catch (ResponseEx ex){
             *text << ex.String();
         }
+        
+        orderPanel->tradeview->setHtml(lastTrades().c_str());
         
         try {
             std::this_thread::sleep_for(std::chrono::milliseconds(1100));
@@ -165,12 +208,13 @@ void TradeBot::OnUpdate() {
         /*
         try {
             *text << LocalBclient.getBuyAds("cn", "China");
-            //*text << lunoClient.postLimitOrder("XBTZAR", "ASK", 0.01222739 , 250019);
+        //  *text << lunoClient.postLimitOrder("XBTZAR", "ASK", 0.01222739 , 250019);
         }
         catch (ResponseEx ex){
             *text << ex.String();
         }*/
          
+        orderPanel->tradeview->setHtml(lastTrades().c_str());
         thread = std::thread([this]{
             loadLocalTicks();
             emit finishedUpdate();
@@ -179,20 +223,24 @@ void TradeBot::OnUpdate() {
     }
     else if (*count % 5 == 0){
         try{
-            auto y = orderview->verticalScrollBar()->value();
+            auto y = orderPanel->orderview->verticalScrollBar()->value();
             std::string update = lunoClient.getOrderBook("XBTZAR").Format();
-            orderview->setHtml("");
-            *orderview << update;
+            orderPanel->orderview->setHtml("");
+            *(orderPanel->orderview) << update;
             if (y != 0)
-                orderview->verticalScrollBar()->setValue(y);
+                orderPanel->orderview->verticalScrollBar()->setValue(y);
             else{
-                auto step = orderview->verticalScrollBar()->singleStep();
-                orderview->verticalScrollBar()->setValue(step * 90);
+                auto step = orderPanel->orderview->verticalScrollBar()->singleStep();
+                orderPanel->orderview->verticalScrollBar()->setValue(step * 90);
             }
         }
         catch (ResponseEx ex){
             *text << ex.String();
         }
+        
+        auto y = orderPanel->tradeview->verticalScrollBar()->value();
+        orderPanel->tradeview->setHtml(lastTrades().c_str());
+        orderPanel->tradeview->verticalScrollBar()->setValue(y);
         
         formCandles();
         
@@ -216,6 +264,11 @@ void TradeBot::OnUpdate() {
         emit finishedUpdate();
     }
     else if (*count % 2 == 1 ){
+
+        auto y = orderPanel->tradeview->verticalScrollBar()->value();
+        orderPanel->tradeview->setHtml(lastTrades().c_str());
+        orderPanel->tradeview->verticalScrollBar()->setValue(y);
+        
         if (*latestTimestamp == 0 || *latestTimestamp < *timestamp) {
             // latestTimestamp could be 0 (by internet error)
             // or
@@ -242,7 +295,7 @@ void TradeBot::OnFinishedUpdate(){
     timer->start(1000);
 }
 void TradeBot::clickedLink(const QUrl& url){
-    *text << url.path().toStdString();
+    orderPanel->txtPrice->setText( url.path().toStdString().c_str());
     return;
 }
 
@@ -261,7 +314,7 @@ QtCharts::QCandlestickSet* TradeBot::makeCandlestick(const long long timestamp,
 }
 
 void TradeBot::loadLocalTicks(){
-    file.open("../data/XBTZAR.csv", std::ios::in);
+    file.open(std::string(CSV_FILE_PATH) + "XBTZAR.csv" , std::ios::in);
     if (file.good()){
         file >> ticks;
         if (ticks.size() > 0){
@@ -270,11 +323,12 @@ void TradeBot::loadLocalTicks(){
                 while (ticks.size() > 0 && ticks.back().sequence != ticks.size())
                     ticks.pop_back();
                 file.close();
-                file.open("XBTZAR2.csv", std::ios::out | std::ios::app);
+                file.open(CSV_FILE_PATH, std::ios::out | std::ios::app);
                 file << ticks;
                 file.close();
-                remove("XBTZAR.csv");
-                rename("XBTZAR2.csv", "XBTZAR.csv");
+                remove( (std::string(CSV_FILE_PATH) + "XBTZAR.csv").c_str() );
+                rename( (std::string(CSV_FILE_PATH) + "XBTZAR2.csv").c_str(),
+                        (std::string(CSV_FILE_PATH) + "XBTZAR.csv" ).c_str());
             }
         }
         if (ticks.size() > 0){
@@ -308,7 +362,7 @@ void TradeBot::downloadTicks(){
     if (moreticks.size() > 0){
         ticks.insert(ticks.end(), moreticks.begin(), moreticks.end());
         *timestamp = moreticks.back().timestamp;
-        file.open("XBTZAR.csv", std::ios::out | std::ios::app);
+        file.open( std::string(CSV_FILE_PATH) + "XBTZAR.csv", std::ios::out | std::ios::app);
         file << moreticks;
         file.close();
     }
@@ -421,4 +475,42 @@ void TradeBot::formCandles(){
         timeframe->setVisible(true);
     }
     *timestamp = ticks.back().timestamp;
+}
+
+std::string TradeBot::lastTrades() {
+    std::stringstream ss;
+    ss << std::fixed;
+    ss << R"(
+            <style>
+            table {width: 100%;}
+            tr { padding: 15px;}
+            a {
+                color: inherit;
+                text-decoration: none;
+            }
+            td {
+                padding: 2px 1px 1px 1px;
+                text-align: center;
+            }
+            .Ask a {color: rgb(222, 81, 65);}
+            .Bid a {color: rgb(94, 186, 137);}
+            </style>
+            <table width=100%>)";
+    
+    if (ticks.size() > 0){
+        
+        for (size_t i = ticks.size() - 1; i >= ticks.size()- 21; i--){
+            ss << "\n<tr> <a href=\"" << ticks[i].price << "\">";
+            ss << "\n<td>" << QDateTime::fromMSecsSinceEpoch(ticks[i].timestamp).toString("hh:mm").toStdString() << "</td>";
+            ss << (ticks[i].isBuy ? "\n<td class=Ask>" : "\n<td class=Bid>" ) ;
+            ss << std::setprecision(0);
+            ss << "<a href=\"" << ticks[i].price << "\">";
+            ss  << ticks[i].price;
+            ss << "</a></td>";
+            ss << "\n<td>" << std::setprecision(6)<< ticks[i].volume << "</td>";
+            ss << "\n</a></tr>";
+        }
+        ss << "</table>\n";
+    }
+    return ss.str();
 }
