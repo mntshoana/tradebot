@@ -2,33 +2,6 @@
 
 #define CSV_FILE_PATH "/Users/macgod/Dev/tradebot2/tradebot/src/data/"
 
-/*class Label : public QTextBrowser {
-public:
-    Label(std::string title, QWidget* parent = nullptr ) : QTextBrowser(parent) {
-        setReadOnly(true);
-        std::stringstream ss;
-        ss << std::fixed;
-        ss << R"(
-                <style>
-                table {width: 100%;}
-                tr { padding: 15px;}
-                td, th {
-                    padding: 2px 4px 1px 2px;
-                    text-align: center;
-                }
-                tr th {
-                    color: rgb(173, 176, 182);
-                }
-                </style>
-                <table width=100%>
-                    <tr>)";
-        ss << title;
-        ss << "</tr>";
-        ss << "</table>\n";
-        setHtml(ss.str().c_str());
-    }
-};
-*/
 QTextEdit& operator<< (QTextEdit& stream, std::string str)
 {
     stream.append(str.c_str());
@@ -40,55 +13,32 @@ QTextBrowser& operator<< (QTextBrowser& stream, std::string str)
     return stream;
 }
 
+// Constructor
 TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     text = new QTextEdit(this);
     text->setGeometry(0, 500, 1180, 220);
     text->setText("");
-    
-    orderPanel = new OrderPanel(this);
-    connect(orderPanel->orderview, &QTextBrowser::anchorClicked, this, &TradeBot::clickedLink);
-    connect(orderPanel->tradeview, &QTextBrowser::anchorClicked, this, &TradeBot::clickedLink);
-    
 
-    set   = nullptr; // A single candle is a set, which is appended to a series
-    series = nullptr;
-    catagories = new QStringList(); // Labels of x-axis
-    
-    chart = new Chart();
-    chart->setContentsMargins(60, -5, 0, -20);
-    chart->setTitle("Luno Historical Data");
-    chart->legend()->setAlignment(Qt::AlignBottom);
-    chart->legend()->setVisible(true);
-    chart->prepCandleStickSeries(series, "XBTZAR");
-    chart->createDefaultAxes(); // after adding series (=after prepCandleStickSeries)
-    chart->setVisible(false);
-    
-    chartView = new ChartView(chart, this);
-    chartView->setGeometry(0, 0, 1180, 500);
-    
-    connect(this, &TradeBot::finishedUpdate, this, &TradeBot::OnFinishedUpdate);
-    
-    resetView = new QPushButton(chartView);
-    resetView->setGeometry(0, 60, 90, 30);
-    resetView->setText("Reset View");
-    resetView->setVisible(false);
-    connect(resetView, &QPushButton::clicked, this,[this](){
-        chart->zoomReset();
-        axisY->setRange(0, *limit);
-        axisX->setRange(catagories->first(), catagories->last());
+    orderPanel = new OrderPanel(this);
+    connect(orderPanel->request, &QPushButton::clicked, this,[this](){
+        try {
+        if (orderPanel->isBuy)
+            *text << lunoClient.postLimitOrder("XBTZAR", "BID", atof(orderPanel->txtAmount->text().toStdString().c_str()),
+                atoi(orderPanel->txtPrice->text().toStdString().c_str()));
+       else
+           *text << lunoClient.postLimitOrder("XBTZAR", "ASK", atof(orderPanel->txtAmount->text().toStdString().c_str()),
+               atof(orderPanel->txtPrice->text().toStdString().c_str()));
+        }
+        catch (ResponseEx ex){
+            *text << ex.String();
+        }
     });
     
-    QStringList timeframeList;
-    timeframeList << "1 MONTH"
-                << "2 WEEKS" << "1 WEEK" << "1 DAY"
-                << "4 HOURS" << "1 HOUR" << "30 MINUTES" << "5 MINUTES";
-    timeframe = new QComboBox(chartView);
-    timeframe->setGeometry(690, 28, 120, 18);
-    timeframe->addItems(timeframeList);
-    timeframe->setCurrentIndex(0);
-    timeframe->setVisible(false);
+    chartPanel = new ChartPanel(this);
     
-    connect(timeframe, &QComboBox::currentTextChanged, this, [this](const QString &str){*text << str.toStdString();});
+    connect(this, &TradeBot::finishedUpdate, this, &TradeBot::OnFinishedUpdate);
+    connect(chartPanel->timeframe, &QComboBox::currentTextChanged,
+        this, [this](const QString &str){*text << str.toStdString();});
     
     // Theme
     if (isDarkMode())
@@ -98,12 +48,6 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     
     timestamp = new unsigned long long(0);
     latestTimestamp = new unsigned long long(0);
-    timeInterval = new unsigned long long(0);
-    
-    // candle stick pieces
-    low = new float (-1.f);    open = new float (-1.f);
-    high = new float (-1.f);   close = new float (-1.f);
-    limit = new float(-1.f);
     
     timer = new QTimer(this);
     timer->setSingleShot(true);
@@ -125,23 +69,10 @@ TradeBot::~TradeBot() {
 
 void TradeBot::darkTheme(){
     // Theme
-    chart->setBackgroundBrush(QBrush( QColor(30,30,30) ));
-    chart->setTitleBrush(QBrush(Qt::white));
-    chart->legend()->setLabelColor(Qt::white);
-    
-    chartView->setBackgroundBrush(QBrush(QColor(30,30,30)));
-    
-    axisX = qobject_cast<QtCharts::QBarCategoryAxis*>(chart->axes(Qt::Horizontal).at(0));
-    axisY = qobject_cast<QtCharts::QValueAxis*>(chart->axes(Qt::Vertical).at(0));
+    QColor chartBackground(30,30,30);
+    QColor light(230,230,230);
     QColor dark(50,50,50);
-    axisX->setGridLineColor(dark);
-    axisX->setLinePenColor(dark);
-    axisY->setLinePenColor(dark);
-    axisY->setGridLineColor(dark);
-    QBrush light(QColor(230,230,230));
-    axisX->setLabelsBrush(light);
-    axisY->setLabelsBrush(light);
-    
+    QColor darker(25,25,25);
     orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
                                         background-color: #1e1e1e;
                                         color: white;
@@ -149,26 +80,17 @@ void TradeBot::darkTheme(){
                                  } QGroupBox::title {
                                         background-color:transparent;
                                  })");
+    QPalette p = chartPanel->palette();
+    p.setColor(QPalette::Window, darker);
+    chartPanel->setPalette(p);
+    p.setColor(QPalette::Window, darker);
+    chartPanel->chart->setPalette(p);
     nightmode = true;
 }
 void TradeBot::lightTheme(){
     // Theme
-    chart->setBackgroundBrush(QBrush( Qt::white ));
-    chart->setTitleBrush(QBrush(Qt::black));
-    chart->legend()->setLabelColor(Qt::black);
-    
-    chartView->setBackgroundBrush(QBrush(Qt::white));
-    
-    axisX = qobject_cast<QtCharts::QBarCategoryAxis*>(chart->axes(Qt::Horizontal).at(0));
-    axisY = qobject_cast<QtCharts::QValueAxis*>(chart->axes(Qt::Vertical).at(0));
-    QColor light(230,230,230);
-    axisX->setGridLineColor(light);
-    axisX->setLinePenColor(light);
-    axisY->setLinePenColor(light);
-    axisY->setGridLineColor(light);
+    QColor light(253,253,253);
     QBrush dark(QColor(20,20,20));
-    axisX->setLabelsBrush(dark);
-    axisY->setLabelsBrush(dark);
     
     orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
                                         background-color: white;
@@ -177,13 +99,26 @@ void TradeBot::lightTheme(){
                                  } QGroupBox::title {
                                         background-color:transparent;
                                  })");
+    
+    QPalette p = chartPanel->palette();
+    p.setColor(QPalette::Window, Qt::white);
+    chartPanel->setPalette(p);
+    p.setColor(QPalette::Window, light);
+    chartPanel->chart->setPalette(p);
     nightmode = false;
+}
+
+void TradeBot::OnFinishedUpdate(){
+    if (*count == 0)
+        chartPanel->loadChart(ticks.begin(), ticks.end());
+    
+    *count = *count +1;
+    timer->start(1000);
 }
 void TradeBot::OnUpdate() {
     timer->stop();
     if (*count > 60) {
         *count = 1;
-        //text->clear();
     }
     
     if (*count == 0) { // Initiate app
@@ -208,7 +143,6 @@ void TradeBot::OnUpdate() {
         /*
         try {
             *text << LocalBclient.getBuyAds("cn", "China");
-        //  *text << lunoClient.postLimitOrder("XBTZAR", "ASK", 0.01222739 , 250019);
         }
         catch (ResponseEx ex){
             *text << ex.String();
@@ -242,7 +176,7 @@ void TradeBot::OnUpdate() {
         orderPanel->tradeview->setHtml(lastTrades().c_str());
         orderPanel->tradeview->verticalScrollBar()->setValue(y);
         
-        formCandles();
+        //chartPanel->loadChart(ticks.begin(), ticks.end());
         
         if (*count % 30 == 0){
             //Theme
@@ -285,32 +219,6 @@ void TradeBot::OnUpdate() {
     else {
         emit finishedUpdate();
     }
-}
-
-void TradeBot::OnFinishedUpdate(){
-    //*text << "Completed " + std::to_string(*count);
-    if (*count == 0)
-        formCandles();
-    *count = *count +1;
-    timer->start(1000);
-}
-void TradeBot::clickedLink(const QUrl& url){
-    orderPanel->txtPrice->setText( url.path().toStdString().c_str());
-    return;
-}
-
-QtCharts::QCandlestickSet* TradeBot::makeCandlestick(const long long timestamp,
-                                           const float open, const float high,
-                                           const float low, const float close)
-{
-    QtCharts::QCandlestickSet *candlestickSet = new QtCharts::QCandlestickSet(open, high, low, close, timestamp);
-    QPen pen;
-    if (open <= close)
-        pen.setColor(QColor(110, 182, 139)); // Green
-    else
-        pen.setColor(QColor(218, 89, 96)); // Red
-    candlestickSet->setPen(pen);
-    return candlestickSet;
 }
 
 void TradeBot::loadLocalTicks(){
@@ -370,7 +278,7 @@ void TradeBot::downloadTicks(){
 }
 
 void TradeBot::downloadTicks(size_t reps){
-    for (int i = 1; i < reps; i++){
+    for (size_t i = 1; i < reps; i++){
         try{
             downloadTicks();
         }
@@ -386,95 +294,6 @@ void TradeBot::downloadTicks(size_t reps){
         *text << ex.String();
     }
     emit finishedUpdate();
-}
-
-void TradeBot::updateInterval(const std::string& period){
-    QDate date = QDateTime::fromMSecsSinceEpoch(*timestamp).date();
-    if (period == "1 MONTH"){
-        QTime day(23,59,59,999);
-        QDateTime monthEnd(QDate(date.year(), date.month(), date.daysInMonth()), day); // +8 UTC
-        *timeInterval = monthEnd.toMSecsSinceEpoch();
-    }
-    else if (period == "2 WEEKS")
-        ;
-    else if (period == "1 WEEK")
-        ;
-    else if (period == "1 DAY"){
-        QTime day(23,59,59,999);
-        QDateTime dayEnd(QDate(date.year(), date.month(), date.day()), day); // +8 UTC
-        *timeInterval = dayEnd.toMSecsSinceEpoch();
-    }
-    else if (period == "4 HOURS")
-        ;
-    else if (period == "1 HOUR")
-        ;
-    else if (period == "30 MINUTES")
-        ;
-    else if (period == "5 MINUTES")
-        ;
-}
-void TradeBot::formCandles(){
-    if (ticks.size() == 0)
-        return;
-    // Form candle sticks from ticks
-    std::string period = timeframe->currentText().toStdString();
-    for (size_t i = 0; i < ticks.size(); i++){
-        if (i == 0){
-            *open = *low = *high = *close = ticks[0].price;
-            *timestamp = ticks[0].timestamp;
-            updateInterval(period);
-            series->clear();
-            catagories->clear();
-        }
-        if (*high < ticks[i].price)
-            *high = ticks[i].price;
-        if (*low > ticks[i].price)
-            *low = ticks[i].price;
-        *close = ticks[i].price;
-        
-        if (i < ticks.size() -1) {
-            if (ticks[i+1].timestamp > *timeInterval) {
-                set = makeCandlestick(ticks[i].timestamp, *open, *high, *low, *close);
-                *high = *low = *open = *close = ticks[i+1].price;
-                series->append(set);
-                *catagories << QDateTime::fromMSecsSinceEpoch(set->timestamp()).toString("dd-MM-yyyy");
-                if (set->high() > *limit)
-                    *limit = set->high() * 1.01;
-                *timestamp = ticks[i+1].timestamp;
-                updateInterval(period);
-            }
-        }
-        if (i == ticks.size()-1){
-            set = makeCandlestick(ticks[i].timestamp, *open, *high, *low, *close);
-            series->append(set);
-            *catagories << QDateTime::fromMSecsSinceEpoch(set->timestamp()).toString("dd-MM-yyyy");
-            if (set->high() > *limit)
-                *limit = set->high() * 1.01;
-        }
-    }
-     
-    
-    if (!chart->isVisible()){
-        axisX = qobject_cast<QtCharts::QBarCategoryAxis*>(chart->axes(Qt::Horizontal).at(0));
-        axisY = qobject_cast<QtCharts::QValueAxis*>(chart->axes(Qt::Vertical).at(0));
-        axisX->setCategories(*catagories);
-        if (axisY->max() < *limit){
-            axisY->setRange(0, *limit);
-        }
-        axisY->setTickCount(10);
-        axisY->setTickInterval(30000);
-        axisY->setTickAnchor(0);
-        axisY->applyNiceNumbers();
-        axisY->setLabelFormat("  %7.0f");
-        chart->setVisible(true);
-        chart->removeAxis(axisY);
-        chart->addAxis(axisY, Qt::AlignRight);
-        series->attachAxis(axisY);
-        axisY->setTickType(QValueAxis::TicksDynamic);
-        resetView->setVisible(true);
-        timeframe->setVisible(true);
-    }
-    *timestamp = ticks.back().timestamp;
 }
 
 std::string TradeBot::lastTrades() {

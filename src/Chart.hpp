@@ -1,6 +1,6 @@
 #ifndef Chart_hpp
 #define Chart_hpp
-
+/*
 #include <QtCharts/QChart>
 #include <QtCharts/QChartView>
 
@@ -40,5 +40,5 @@ private:
     bool gestureEvent(QGestureEvent *event);
     void zoomEvent(qreal zoomFactor);
 };
-//------------------------------------------
+//------------------------------------------*/
 #endif /* Chart_hpp */

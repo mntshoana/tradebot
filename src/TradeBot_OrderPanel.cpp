@@ -17,7 +17,9 @@ OrderPanel::OrderPanel(QWidget* parent) {
     tradeview->setReadOnly(true);
     tradeview->setOpenLinks(false);
     
-    liveTradeLabel = new Label("<th>Buy</th> <th>Sell</th>", parent);
+    isBuy = true;
+    liveTradeLabel = new Label("<th class=Chosen><a href=buy> Buy </a> </th>"
+                               "<th> <a href=sell> Sell </a> </th>", parent);
     liveTradeLabel->setGeometry(1180, 580, 200, 30);
     livetradeview = new QGroupBox(parent);
     livetradeview->setGeometry(1180, 610, 200, 109);
@@ -30,5 +32,37 @@ OrderPanel::OrderPanel(QWidget* parent) {
     livetradeviewLayout->addWidget(txtPrice, 1, 2);
     livetradeviewLayout->addWidget(lblAmount, 2, 1);
     livetradeviewLayout->addWidget(txtAmount, 2, 2);
+    
+    request = new QPushButton(parent);
+    request->setGeometry(1220, 670, 90, 30);
+    request->setText("Bid");
+    
+    livetradeviewLayout->addWidget(request, 3, 1, 1, 2, Qt::AlignmentFlag::AlignCenter);
     livetradeview->setLayout(livetradeviewLayout);
+    
+    
+    connect(orderview, &QTextBrowser::anchorClicked, this, &OrderPanel::clickedLink);
+    connect(tradeview, &QTextBrowser::anchorClicked, this, &OrderPanel::clickedLink);
+    connect(liveTradeLabel, &QTextBrowser::anchorClicked, this, &OrderPanel::changeIsBuy);
+}
+
+void OrderPanel::clickedLink(const QUrl& url){
+    txtPrice->setText( url.path().toStdString().c_str());
+    return;
+}
+
+void OrderPanel::changeIsBuy(const QUrl& url) {
+    if (url.path().toStdString() == "buy"){
+        isBuy = true;
+        liveTradeLabel->rename("<th class=Chosen><a href=buy> Buy </a> </th>"
+                               "<th> <a href=sell> Sell </a> </th>");
+        request->setText("Bid");
+    }
+    else {
+        isBuy = false;
+        liveTradeLabel->rename("<th><a href=buy> Buy </a> </th>"
+                               "<th class=Chosen> <a href=sell> Sell </a> </th>");
+        request->setText("Ask");
+    }
+    
 }

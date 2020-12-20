@@ -1,5 +1,5 @@
 #include "Chart.hpp"
-
+/*
 #include <QtGui/QMouseEvent>
 #include <QtWidgets/QGesture>
 
@@ -88,4 +88,4 @@ bool Chart::gestureEvent(QGestureEvent *event) {
     }
     return true;
 }
-//------------------------------------------
+//------------------------------------------*/

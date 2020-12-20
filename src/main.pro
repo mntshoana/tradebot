@@ -3,15 +3,19 @@ INCLUDEPATH += /usr/local/include/
 LIBS += -L"/usr/local/lib/" -lcurl.4
 LIBS += -framework SystemConfiguration
 
-QT += widgets charts network
+QT += widgets network ##charts
 
 TARGET = tradebot
 CONFIG += debug
 DESTDIR = ../bin/
 QMAKE_CXXFLAGS += -std=c++17
 
-SOURCES += TradeBot.cpp TradeBot_Label.cpp TradeBot_OrderPanel.cpp
-HEADERS += TradeBot.hpp TradeBot_Label.hpp TradeBot_OrderPanel.hpp
+SOURCES += TradeBot.cpp \
+            TradeBot_Label.cpp TradeBot_OrderPanel.cpp \
+            TradeBot_ChartPanel.cpp
+HEADERS += TradeBot.hpp \
+            TradeBot_Label.hpp TradeBot_OrderPanel.hpp \
+            TradeBot_ChartPanel.hpp
 SOURCES += lunoclientOrderFuncs.cpp lunoclientMarketFuncs.cpp
 HEADERS += lunoTypes.hpp lunoclient.hpp
 SOURCES += localbitcoinClient.cpp

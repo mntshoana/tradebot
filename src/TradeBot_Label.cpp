@@ -2,6 +2,10 @@
 
 Label::Label(std::string title, QWidget* parent) : QTextBrowser(parent) {
     setReadOnly(true);
+    rename(title);
+}
+
+void Label::rename(std::string title) {
     std::stringstream ss;
     ss << std::fixed;
     ss << R"(
@@ -14,6 +18,14 @@ Label::Label(std::string title, QWidget* parent) : QTextBrowser(parent) {
             }
             tr th {
                 color: rgb(173, 176, 182);
+            }
+            a {
+                color: rgb(173, 176, 182);
+                text-decoration: none;
+            }
+            .Chosen a {
+                color: white;
+                text-decoration: underline rgb(255, 241, 86) solid;
             }
             </style>
             <table width=100%>
