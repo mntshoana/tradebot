@@ -28,4 +28,4 @@ or
 ````
 qmake ../src -spec macx-xcode
 ````
-Note: I have not include the login credentials, you will need to add your own. I have not included the .csv data file indended to store any downloaded ticks. Should you choose to run this code, it will not run without making a .csv and providing this path in the "TradeBot.cpp" file, line 2. You will also need to upadte the main.pro file with your the location for libcurl, (i.e, include paths, libs).
+Note: I have not included the header file with the login credentials, you will need to add your own. I have also not included the .csv data file used to store any downloaded ticks by this code, as this way of storing data is not optimimal. Changes will be made, but should you choose to run this code, know that it will not save any ticks without having a .csv file in the data folder. Remember to provide this path in the "TradeBot.cpp" file, line 2. You will also need to upadte the main.pro file with the location for your libcurl, (i.e, include paths, libs).
