@@ -1,10 +1,3 @@
-//
-//  TradeBot_ChartPanel.cpp
-//  tradebot
-//
-//  Created by Motsoaledi Neo Tshoana on 2020/12/18.
-//
-
 #include "TradeBot_ChartPanel.hpp"
 
 // Constructor
@@ -29,12 +22,18 @@ void CandleStick::color(QPainter &painter){
 //------------------------------------------------
 
 // Constructor
-Chart::Chart (QWidget *parent) : QWidget(parent){
-    setGeometry(100, 50, 980, 400);
+Chart::Chart( QWidget *parent) : QWidget(parent){
+    setGeometry(0, 0, 980, 400);
     setAutoFillBackground(true);
     min = 0;
     max = 2000;
     setFocusPolicy(Qt::ClickFocus);
+    left = 0;
+    top = 0;
+    wIncrement = 980 * 0.01; // 1% of width
+    scaledIncrements = 1.8 * wIncrement;
+    setFocusPolicy(Qt::NoFocus);
+    
 }
 
 void Chart::append (unsigned long long timestamp, int open, int close, int high, int low) {
@@ -55,48 +54,23 @@ std::vector<unsigned long long> Chart::timeAxis(){
 }
 
 void Chart::paintEvent(QPaintEvent * event){
-    int x = 0;
-    int width = 980 * 0.01;
     QPainter painter(this);
-    for (CandleStick &candle : candles){
+    for (size_t i = 0; i < candles.size(); i++) {
+        if ( (i+1) * scaledIncrements < left && left > 0)
+            continue;
+
+        if ((i+1) * scaledIncrements > left + 980 + wIncrement)
+            break;
+        CandleStick& candle = candles.at(i);
+        
+        int x = i * scaledIncrements - left;
         candle.color(painter);
-        painter.drawLine(x + (width/2), scaleY(candle.high), x + (width/2), scaleY(candle.low));
+        painter.drawLine(x + (wIncrement/2), scaleY(candle.high) + top, x + (wIncrement/2), scaleY(candle.low) + top);
         int y1 = scaleY(candle.open);
         int y2 = scaleY(candle.close);
-        QRect rect(x, std::max(y1, y2) , width, abs(y1 - y2));
+        QRect rect(x, std::max(y1, y2) + top , wIncrement, abs(y1 - y2));
         painter.drawRect(rect);
-        x += 1.8 * width;
-        
     }
-}
-
-void Chart::keyPressEvent(QKeyEvent *event) {
-    switch (event->key()) {
-    case Qt::Key_Plus:
-        //zoomIn();
-        break;
-    case Qt::Key_Minus:
-        //zoomOut();
-        break;
-    case Qt::Key_Left:
-        scroll(-10, 0);
-        break;
-    case Qt::Key_Right:  
-        scroll(10, 0);
-        break;
-    case Qt::Key_Up:
-        scroll(0, 10);
-        break;
-    case Qt::Key_Down:
-        //if (axisY->min() - 10 > 0)
-            scroll(0, -10);
-        break;
-    default:
-        //QGraphicsView::keyPressEvent(event);
-        QWidget::keyPressEvent(event);
-        break;
-    }
-    update();
 }
 
 int Chart::scaleY(int y){
@@ -108,15 +82,14 @@ int Chart::scaleY(int y){
 //Constructor
 ChartPanel::ChartPanel(QWidget* parent) : QWidget(parent) {
     setGeometry(0, 0, 1180, 500);
-    
-    area = new QScrollArea(this);
-    chart = new Chart(area);
-    area->setGeometry(100, 50, 980, 400);
-    area->setWidget(chart);
+    chart = new Chart(this);
+    chart->setGeometry(100, 50, 980, 400);
     
     resetView = new QPushButton(this);
     resetView->setGeometry(0, 60, 90, 30);
     resetView->setText("Reset View");
+    connect(resetView, &QPushButton::clicked,
+            this, [this](){chart->left = chart->top = 0; chart->update(); update();});
     
     QStringList timeframeList;
     timeframeList << "1 MONTH"
@@ -134,23 +107,45 @@ ChartPanel::ChartPanel(QWidget* parent) : QWidget(parent) {
 void ChartPanel::paintEvent(QPaintEvent *e){
     if (chart->count() == 0)
         return;
-    int x = 100;
-    int width = 980 * 0.01;
+    
     QPainter painter(this);
+    // X-Axis
     std::vector<unsigned long long> timeAxis = chart->timeAxis();
+    std::string period = timeframe->currentText().toStdString();
     for (size_t i = 0; i < timeAxis.size(); i++) {
-        if (i % 5 == 0 && x < 1080) {
-            painter.drawLine(x +(width/2), 454, x+(width/2), 453);
-            painter.setFont(QFont("Arial", 12));
-            painter.drawText(QRect(x,459, 60, 30), Qt::AlignLeft,
-                             QDateTime::fromMSecsSinceEpoch(timeAxis[i]).toString("dd MMM, yyyy").toStdString().c_str());
-        }
-        x += 1.8 * width;
+        if (i % 5 != 0)
+            continue;
+        
+        if ( (i+5) * chart->scaledIncrements < chart->left && chart->left > 0)
+            continue;
+        if ( (i+5) * chart->scaledIncrements > chart->left + 980 + 100 + chart->wIncrement)
+            break;
+        
+        int x = 100; // left margin
+        x += i * chart->scaledIncrements - chart->left;
+        std::string time = QDateTime::fromMSecsSinceEpoch(timeAxis[i]).toString("dd MMM, yyyy").toStdString();
+        if (period == "4 HOURS" || period ==  "1 HOUR" ||
+            period ==  "30 MINUTES" || period ==  "5 MINUTES")
+            time = QDateTime::fromMSecsSinceEpoch(timeAxis[i]).toString("hh:mm dd.MM.yy").toStdString();
+        
+        painter.drawLine(x + (chart->wIncrement/2), 454, x+(chart->wIncrement/2), 455);
+        painter.setFont(QFont("Arial", 12));
+        if (x < 100)
+            painter.drawText(QRect(100, 459, 70 - (100- x), 30), Qt::AlignRight,
+                             time.c_str());
+        else if (x+70 > 1080)
+            painter.drawText(QRect(x,459, 1080 - x, 30), Qt::AlignLeft,
+                         time.c_str());
+        else
+            painter.drawText(QRect(x,459, 70, 30), Qt::AlignLeft,
+                         time.c_str());
     }
     
+    // Y-Axis
     float y = chart->getMax();
     float lowerBound = chart->getMin();
     float dif = y - lowerBound;
+    y += dif * chart->top / 400;
     for (size_t yAxis = 50; yAxis < 450; yAxis += 40) {
         
         painter.drawLine(1090, yAxis, 1092, yAxis);
@@ -162,6 +157,9 @@ void ChartPanel::paintEvent(QPaintEvent *e){
 
 void ChartPanel::loadChart(std::vector<Luno::Trade>::iterator itr,
                            std::vector<Luno::Trade>::iterator end){
+    if (chart->count() > 0)
+        chart->clear();
+    
     int open, close, high, low;
     unsigned long long timestamp;
     std::string period = timeframe->currentText().toStdString();
@@ -194,30 +192,6 @@ void ChartPanel::loadChart(std::vector<Luno::Trade>::iterator itr,
         }
         itr++;
     }
-         
-        /*
-        if (!chart->isVisible()){
-            axisX = qobject_cast<QtCharts::QBarCategoryAxis*>(chart->axes(Qt::Horizontal).at(0));
-            axisY = qobject_cast<QtCharts::QValueAxis*>(chart->axes(Qt::Vertical).at(0));
-            axisX->setCategories(*catagories);
-            if (axisY->max() < *limit){
-                axisY->setRange(0, *limit);
-            }
-            axisY->setTickCount(10);
-            axisY->setTickInterval(30000);
-            axisY->setTickAnchor(0);
-            axisY->applyNiceNumbers();
-            axisY->setLabelFormat("  %7.0f");
-            chart->setVisible(true);
-            chart->removeAxis(axisY);
-            chart->addAxis(axisY, Qt::AlignRight);
-            series->attachAxis(axisY);
-            axisY->setTickType(QValueAxis::TicksDynamic);
-            resetView->setVisible(true);
-            timeframe->setVisible(true);
-        }
-        *timestamp = ticks.back().timestamp
-    }*/
 }
 
 unsigned long long ChartPanel::updateInterval(const std::string& period,
@@ -228,24 +202,49 @@ unsigned long long ChartPanel::updateInterval(const std::string& period,
         QDateTime monthEnd(QDate(date.year(), date.month(), date.daysInMonth()), day); // +8 UTC
         return monthEnd.toMSecsSinceEpoch();
     }
-    else if (period == "2 WEEKS")
-        ;
-    else if (period == "1 WEEK")
-        ;
+    else if (period == "2 WEEKS"){
+        QTime day(23,59,59,999);
+        QDateTime timeEnd(QDate(date), day); // +8 UTC
+        return timeEnd.addDays(13).toMSecsSinceEpoch();
+    }
+    else if (period == "1 WEEK"){
+        QTime day(23,59,59,999);
+        QDateTime timeEnd(QDate(date), day); // +8 UTC
+        return timeEnd.addDays(6).toMSecsSinceEpoch();
+    }
     else if (period == "1 DAY"){
         QTime day(23,59,59,999);
         QDateTime dayEnd(QDate(date.year(), date.month(), date.day()), day); // +8 UTC
         return dayEnd.toMSecsSinceEpoch();
     }
-    else if (period == "4 HOURS")
-        ;
-    else if (period == "1 HOUR")
-        ;
-    else if (period == "30 MINUTES")
-        ;
-    else if (period == "5 MINUTES")
-        ;
-    return 0;
+    else if (period == "4 HOURS"){
+        QDateTime day(QDateTime::fromMSecsSinceEpoch(timestamp));
+        QTime time(day.time().addSecs(4 * 60 * 60));
+        day.setTime(time);
+        return day.toMSecsSinceEpoch();
+    }
+    else if (period == "1 HOUR"){
+        QDateTime day(QDateTime::fromMSecsSinceEpoch(timestamp));
+        QTime time(day.time().addSecs(60 * 60));
+        day.setTime(time);
+        return day.toMSecsSinceEpoch();
+    }
+    else if (period == "30 MINUTES"){
+        QDateTime day(QDateTime::fromMSecsSinceEpoch(timestamp));
+        QTime time(day.time().addSecs(30 * 60));
+        day.setTime(time);
+        return day.toMSecsSinceEpoch();
+    }
+        
+    else if (period == "5 MINUTES"){
+        {
+            QDateTime day(QDateTime::fromMSecsSinceEpoch(timestamp));
+            QTime time(day.time().addSecs(5 * 60));
+            day.setTime(time);
+            return day.toMSecsSinceEpoch();
+        }
+    }
+    return updateInterval("1 MONTH", timestamp); // default
 }
 
 void ChartPanel::keyPressEvent(QKeyEvent *event) {
@@ -257,22 +256,24 @@ void ChartPanel::keyPressEvent(QKeyEvent *event) {
         //zoomOut();
         break;
     case Qt::Key_Left:
-        area->scroll(-10, 0);
+        chart->left -= 10;
         break;
     case Qt::Key_Right:
-        area->scroll(10, 0);
+        chart->left += 10;
         break;
     case Qt::Key_Up:
-        area->scroll(0, 10);
+        chart->top += 10;
         break;
     case Qt::Key_Down:
-        //if (axisY->min() - 10 > 0)
-            area->scroll(0, -10);
+        if (chart->top <= 0)
+            break;
+        chart->top -= 10;
         break;
     default:
         //QGraphicsView::keyPressEvent(event);
         QWidget::keyPressEvent(event);
         break;
     }
+    chart->update();
     update();
 }

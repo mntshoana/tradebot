@@ -38,7 +38,12 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     
     connect(this, &TradeBot::finishedUpdate, this, &TradeBot::OnFinishedUpdate);
     connect(chartPanel->timeframe, &QComboBox::currentTextChanged,
-        this, [this](const QString &str){*text << str.toStdString();});
+        this, [this](const QString &str){
+        *text << str.toStdString();
+        chartPanel->loadChart(ticks.begin(), ticks.end());
+        chartPanel->chart->update();
+        chartPanel->update();
+    });
     
     // Theme
     if (isDarkMode())
@@ -109,9 +114,11 @@ void TradeBot::lightTheme(){
 }
 
 void TradeBot::OnFinishedUpdate(){
-    if (*count == 0)
+    if (*count == 0){
         chartPanel->loadChart(ticks.begin(), ticks.end());
-    
+        chartPanel->chart->update();
+        chartPanel->update();
+    }
     *count = *count +1;
     timer->start(1000);
 }
