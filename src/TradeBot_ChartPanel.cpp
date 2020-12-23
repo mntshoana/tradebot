@@ -24,15 +24,14 @@ void CandleStick::color(QPainter &painter){
 // Constructor
 Chart::Chart( QWidget *parent) : QWidget(parent){
     setGeometry(0, 0, 980, 400);
-    setAutoFillBackground(true);
     min = 0;
     max = 2000;
-    setFocusPolicy(Qt::ClickFocus);
     left = 0;
     top = 0;
     wIncrement = 980 * 0.01; // 1% of width
     scaledIncrements = 1.8 * wIncrement;
     setFocusPolicy(Qt::NoFocus);
+    setAutoFillBackground(true);
     
 }
 
@@ -53,10 +52,19 @@ std::vector<unsigned long long> Chart::timeAxis(){
     return timeAxis;
 }
 
+void Chart::scale( qreal scaleF){ /*
+    left += width() * -( 1 - scaleF );
+    int yDistance = max - min;
+    max += yDistance * -( 1 - scaleF);
+    min += yDistance * ( 1 - scaleF);
+    wIncrement *= scaleF;
+    scaledIncrements = 1.8 * wIncrement;*/
+}
+
 void Chart::paintEvent(QPaintEvent * event){
     QPainter painter(this);
     for (size_t i = 0; i < candles.size(); i++) {
-        if ( (i+1) * scaledIncrements < left && left > 0)
+        if ((i+1) * scaledIncrements < left && left > 0)
             continue;
 
         if ((i+1) * scaledIncrements > left + 980 + wIncrement)
@@ -82,6 +90,9 @@ int Chart::scaleY(int y){
 //Constructor
 ChartPanel::ChartPanel(QWidget* parent) : QWidget(parent) {
     setGeometry(0, 0, 1180, 500);
+    grabGesture(Qt::PanGesture);
+    grabGesture(Qt::PinchGesture);
+    
     chart = new Chart(this);
     chart->setGeometry(100, 50, 980, 400);
     
@@ -89,7 +100,12 @@ ChartPanel::ChartPanel(QWidget* parent) : QWidget(parent) {
     resetView->setGeometry(0, 60, 90, 30);
     resetView->setText("Reset View");
     connect(resetView, &QPushButton::clicked,
-            this, [this](){chart->left = chart->top = 0; chart->update(); update();});
+            this, [this](){
+                    chart->left = chart->top = 0;
+                    chart->update(); update();
+                    chart->wIncrement = 980 * 0.01; // 1% of width
+                    chart->scaledIncrements = 1.8 * chart->wIncrement;
+    });
     
     QStringList timeframeList;
     timeframeList << "1 MONTH"
@@ -181,14 +197,12 @@ void ChartPanel::loadChart(std::vector<Luno::Trade>::iterator itr,
             if ((itr+1)->timestamp > timeInterval) {
                 chart->append(itr->timestamp, open, close, high, low);
                 high = low = open = close = (itr+1)->price;
-                //*catagories << QDateTime::fromMSecsSinceEpoch(set->timestamp()).toString("dd-MM-yyyy");
                 timestamp = (itr+1)->timestamp;
                 timeInterval = updateInterval(period, timestamp);
             }
         }
         if (itr + 1 == end){
             chart->append(timestamp, open, close, high, low);
-            //*catagories << QDateTime::fromMSecsSinceEpoch(set->timestamp()).toString("dd-MM-yyyy");
         }
         itr++;
     }
@@ -249,12 +263,6 @@ unsigned long long ChartPanel::updateInterval(const std::string& period,
 
 void ChartPanel::keyPressEvent(QKeyEvent *event) {
     switch (event->key()) {
-    case Qt::Key_Plus:
-        //zoomIn();
-        break;
-    case Qt::Key_Minus:
-        //zoomOut();
-        break;
     case Qt::Key_Left:
         chart->left -= 10;
         break;
@@ -269,11 +277,57 @@ void ChartPanel::keyPressEvent(QKeyEvent *event) {
             break;
         chart->top -= 10;
         break;
+    case Qt::Key_Plus:
+        emit zoomEvent(1.02);
+        break;
+    case Qt::Key_Minus:
+         emit zoomEvent(0.98);
+        break;
+        
     default:
-        //QGraphicsView::keyPressEvent(event);
         QWidget::keyPressEvent(event);
         break;
     }
+    chart->update();
+    update();
+}
+
+void ChartPanel::wheelEvent (QWheelEvent *event) {
+    QPoint numDegrees = event->angleDelta() / 16;
+    numDegrees.rx() *= -1;
+    if (chart->top + numDegrees.ry() < 0)
+        numDegrees.ry() = 0;
+    if (numDegrees.rx() > -2 && numDegrees.rx() < 2 && numDegrees.ry() > -2 && numDegrees.ry() < 2)
+        return; // limit scroll only to two units or less
+    chart->top += numDegrees.ry();
+    chart->left += numDegrees.rx();
+    chart->update();
+    update();
+}
+
+bool ChartPanel::gestureEvent(QGestureEvent *event) {
+    if (QGesture *gesture = event->gesture(Qt::PanGesture)) {
+        QPanGesture *pan = static_cast<QPanGesture *>(gesture);
+        ChartPanel::scroll(-(pan->delta().x()), pan->delta().y());
+    }
+
+    if (QGesture *gesture = event->gesture(Qt::PinchGesture)) {
+        QPinchGesture *pinch = static_cast<QPinchGesture *>(gesture);
+        if (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged)
+            emit zoomEvent(pinch->scaleFactor());
+    }
+    chart->update();
+    update();
+    return true;
+}
+bool ChartPanel::event(QEvent *event) {
+    if (event->type() == QEvent::Gesture)
+        return gestureEvent(static_cast<QGestureEvent*>(event));
+    return QWidget::event(event);
+}
+
+void ChartPanel::zoomEvent (qreal zoomFactor){
+    chart->scale(zoomFactor);
     chart->update();
     update();
 }

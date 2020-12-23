@@ -19,7 +19,7 @@
 #include "lunoclient.hpp"
 #include "localbitcoinClient.hpp"
 #include "objectivec.h"
-//#include "Chart.hpp" removed from Qt 6
+
 #include "TradeBot_OrderPanel.hpp"
 #include "TradeBot_ChartPanel.hpp"
 
@@ -33,9 +33,6 @@ public:
     TradeBot (QWidget *parent = 0);
     virtual ~TradeBot();
 private:
-    /*QtCharts::QCandlestickSet* makeCandlestick(const long long timestamp,
-                                               const float open, const float high,
-                                               const float low, const float close);*/
     void updateInterval(const std::string& period);
     void loadLocalTicks();
     void downloadTicks();

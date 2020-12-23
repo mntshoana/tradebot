@@ -11,8 +11,6 @@
 #include <QKeyEvent>
 #include <QPaintEvent>
 
-#include <QScrollArea>
-
 #include <vector>
 
 #include "lunoclient.hpp"
@@ -49,10 +47,13 @@ public:
     size_t count() {return candles.size(); }
     void clear() {candles.clear();}
     virtual void paintEvent(QPaintEvent *e) override;
-    //virtual void wheelEvent(QWheelEvent *event) override;
+    
+    public slots:
+    void scale(qreal scaleF);
 };
 
 class ChartPanel : public QWidget {
+    Q_OBJECT
 public:
     Chart* chart;
     QPushButton* resetView;
@@ -66,6 +67,12 @@ public:
         
     virtual void paintEvent(QPaintEvent * e) final;
     virtual void keyPressEvent (QKeyEvent *event) override;
+    virtual void wheelEvent (QWheelEvent *event) override;
+    virtual bool gestureEvent(QGestureEvent *event);
+    virtual bool event(QEvent *event) override;
+    
+    public slots:
+    virtual void zoomEvent (qreal zoomFactor);
 };
 
 #endif /* TradeBot_ChartPanel_hpp */
