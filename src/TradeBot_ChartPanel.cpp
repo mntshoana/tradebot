@@ -120,7 +120,7 @@ ChartPanel::ChartPanel(QWidget* parent) : QWidget(parent) {
     setFocusPolicy(Qt::ClickFocus);
 }
 
-void ChartPanel::paintEvent(QPaintEvent *e){
+void ChartPanel::paintEvent(QPaintEvent *event){
     if (chart->count() == 0)
         return;
     

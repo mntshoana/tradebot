@@ -13,9 +13,6 @@
 #include <QtCore/QDateTime>
 #include <QTimer>
 
-#include <QScrollBar>
-#include <QLayout>
-
 #include "lunoclient.hpp"
 #include "localbitcoinClient.hpp"
 #include "objectivec.h"

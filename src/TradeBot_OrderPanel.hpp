@@ -4,6 +4,7 @@
 #include "TradeBot_Label.hpp"
 
 #include <QLayout>
+#include <QScrollBar>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>

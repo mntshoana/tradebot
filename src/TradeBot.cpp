@@ -74,9 +74,6 @@ TradeBot::~TradeBot() {
 
 void TradeBot::darkTheme(){
     // Theme
-    QColor chartBackground(30,30,30);
-    QColor light(230,230,230);
-    QColor dark(50,50,50);
     QColor darker(25,25,25);
     orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
                                         background-color: #1e1e1e;
