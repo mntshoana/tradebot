@@ -29,7 +29,8 @@ Chart::Chart( QWidget *parent) : QWidget(parent){
     left = 0;
     top = 0;
     wIncrement = 980 * 0.01; // 1% of width
-    scaledIncrements = 1.8 * wIncrement;
+    scaledXIncrements = 1.8 * wIncrement;
+    scaledYIncrements = (max - min) / 400;
     setFocusPolicy(Qt::NoFocus);
     setAutoFillBackground(true);
     
@@ -37,10 +38,14 @@ Chart::Chart( QWidget *parent) : QWidget(parent){
 
 void Chart::append (unsigned long long timestamp, int open, int close, int high, int low) {
     candles.push_back(CandleStick(timestamp, open, close, high, low));
-    if (low < min)
+    if (low < min){
         min = low;
-    if (high > max)
+        scaledYIncrements = (max - min) / 400;
+    }
+    if (high > max){
         max = high * 1.1;
+        scaledYIncrements = (max - min) / 400;
+    }
     
 }
 
@@ -52,26 +57,27 @@ std::vector<unsigned long long> Chart::timeAxis(){
     return timeAxis;
 }
 
-void Chart::scale( qreal scaleF){ /*
-    left += width() * -( 1 - scaleF );
-    int yDistance = max - min;
-    max += yDistance * -( 1 - scaleF);
-    min += yDistance * ( 1 - scaleF);
+void Chart::scale( qreal scaleF){
     wIncrement *= scaleF;
-    scaledIncrements = 1.8 * wIncrement;*/
+    scaledXIncrements = 1.8 * wIncrement;
+    
+    int yDistance = max - min;
+    max -= yDistance/2 * -( 1 - scaleF);
+    min += yDistance/2 * -( 1 - scaleF);
+    scaledYIncrements = (max - min) / 400;
 }
 
 void Chart::paintEvent(QPaintEvent * event){
     QPainter painter(this);
     for (size_t i = 0; i < candles.size(); i++) {
-        if ((i+1) * scaledIncrements < left && left > 0)
+        if ((i+1) * scaledXIncrements < left && left > 0)
             continue;
 
-        if ((i+1) * scaledIncrements > left + 980 + wIncrement)
+        if ((i+1) * scaledXIncrements > left + 980 + wIncrement)
             break;
         CandleStick& candle = candles.at(i);
         
-        int x = i * scaledIncrements - left;
+        int x = i * scaledXIncrements - left;
         candle.color(painter);
         painter.drawLine(x + (wIncrement/2), scaleY(candle.high) + top, x + (wIncrement/2), scaleY(candle.low) + top);
         int y1 = scaleY(candle.open);
@@ -82,7 +88,7 @@ void Chart::paintEvent(QPaintEvent * event){
 }
 
 int Chart::scaleY(int y){
-    return 400 - int((y / (float)max ) * 400);
+    return 400 - (y / scaledYIncrements );
 }
 
 //-------------------------------------------------
@@ -104,7 +110,7 @@ ChartPanel::ChartPanel(QWidget* parent) : QWidget(parent) {
                     chart->left = chart->top = 0;
                     chart->update(); update();
                     chart->wIncrement = 980 * 0.01; // 1% of width
-                    chart->scaledIncrements = 1.8 * chart->wIncrement;
+                    chart->scaledXIncrements = 1.8 * chart->wIncrement;
     });
     
     QStringList timeframeList;
@@ -132,13 +138,13 @@ void ChartPanel::paintEvent(QPaintEvent *event){
         if (i % 5 != 0)
             continue;
         
-        if ( (i+5) * chart->scaledIncrements < chart->left && chart->left > 0)
+        if ( (i+5) * chart->scaledXIncrements < chart->left && chart->left > 0)
             continue;
-        if ( (i+5) * chart->scaledIncrements > chart->left + 980 + 100 + chart->wIncrement)
+        if ( (i+5) * chart->scaledXIncrements > chart->left + 980 + 100 + chart->wIncrement)
             break;
         
         int x = 100; // left margin
-        x += i * chart->scaledIncrements - chart->left;
+        x += i * chart->scaledXIncrements - chart->left;
         std::string time = QDateTime::fromMSecsSinceEpoch(timeAxis[i]).toString("dd MMM, yyyy").toStdString();
         if (period == "4 HOURS" || period ==  "1 HOUR" ||
             period ==  "30 MINUTES" || period ==  "5 MINUTES")
@@ -273,8 +279,8 @@ void ChartPanel::keyPressEvent(QKeyEvent *event) {
         chart->top += 10;
         break;
     case Qt::Key_Down:
-        if (chart->top <= 0)
-            break;
+        //if (chart->top <= 0)
+          //  break;
         chart->top -= 10;
         break;
     case Qt::Key_Plus:

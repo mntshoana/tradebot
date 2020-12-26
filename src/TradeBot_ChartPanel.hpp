@@ -40,7 +40,7 @@ public:
     int getMax() const {return max;}
     
     int left, top;
-    int scaledIncrements;
+    int scaledXIncrements, scaledYIncrements;
     float wIncrement;
     void append(unsigned long long timestamp, int open, int close, int high, int low);
     std::vector<unsigned long long> timeAxis();
