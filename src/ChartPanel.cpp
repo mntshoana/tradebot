@@ -1,4 +1,4 @@
-#include "TradeBot_ChartPanel.hpp"
+#include "ChartPanel.hpp"
 
 // Constructor
 CandleStick::CandleStick(unsigned long long timestamp,

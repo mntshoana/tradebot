@@ -2,47 +2,33 @@
 
 #define CSV_FILE_PATH "/Users/macgod/Dev/tradebot2/tradebot/src/data/"
 
-QTextEdit& operator<< (QTextEdit& stream, std::string str)
-{
-    stream.append(str.c_str());
-    return stream;
-}
-QTextBrowser& operator<< (QTextBrowser& stream, std::string str)
-{
-    stream.append(str.c_str());
-    return stream;
-}
-
 // Constructor
 TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
-    text = new QTextEdit(this);
-    text->setGeometry(0, 500, 1180, 220);
-    text->setText("");
-
-    orderPanel = new OrderPanel(this);
-    connect(orderPanel->request, &QPushButton::clicked, this,[this](){
+    homeWindow = new HomeWindow(this);
+    connect(homeWindow->orderPanel->request,
+            &QPushButton::clicked, this,[this](){
         try {
-        if (orderPanel->isBuy)
-            *text << lunoClient.postLimitOrder("XBTZAR", "BID", atof(orderPanel->txtAmount->text().toStdString().c_str()),
-                atoi(orderPanel->txtPrice->text().toStdString().c_str()));
+        if (homeWindow->orderPanel->isBuy)
+            *(homeWindow->text) << lunoClient.postLimitOrder("XBTZAR", "BID", atof(homeWindow->orderPanel->txtAmount->text().toStdString().c_str()),
+                atoi(homeWindow->orderPanel->txtPrice->text().toStdString().c_str()));
        else
-           *text << lunoClient.postLimitOrder("XBTZAR", "ASK", atof(orderPanel->txtAmount->text().toStdString().c_str()),
-               atof(orderPanel->txtPrice->text().toStdString().c_str()));
+           *(homeWindow->text) << lunoClient.postLimitOrder("XBTZAR", "ASK", atof(homeWindow->orderPanel->txtAmount->text().toStdString().c_str()),
+               atof(homeWindow->orderPanel->txtPrice->text().toStdString().c_str()));
         }
         catch (ResponseEx ex){
-            *text << ex.String();
+            *(homeWindow->text) << ex.String();
         }
     });
     
-    chartPanel = new ChartPanel(this);
+    homeWindow->chartPanel = new ChartPanel(this);
     
     connect(this, &TradeBot::finishedUpdate, this, &TradeBot::OnFinishedUpdate);
-    connect(chartPanel->timeframe, &QComboBox::currentTextChanged,
+    connect(homeWindow->chartPanel->timeframe, &QComboBox::currentTextChanged,
         this, [this](const QString &str){
-        *text << str.toStdString();
-        chartPanel->loadChart(ticks.begin(), ticks.end());
-        chartPanel->chart->update();
-        chartPanel->update();
+        *(homeWindow->text) << str.toStdString();
+        homeWindow->chartPanel->loadChart(ticks.begin(), ticks.end());
+        homeWindow->chartPanel->chart->update();
+        homeWindow->chartPanel->update();
     });
     
     // Theme
@@ -57,36 +43,33 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     timer = new QTimer(this);
     timer->setSingleShot(true);
     connect(timer, &QTimer::timeout, this, &TradeBot::OnUpdate);
-    count = new size_t(0); // counts the timeouts triggered by timer
+    timerCount = new size_t(0); // counts the timeouts triggered by timer
     timer->start(100);
 }
 
 TradeBot::~TradeBot() {
-    delete count;
-    count = nullptr;
+    delete timerCount;
+    timerCount = nullptr;
     
     delete timestamp;
     timestamp = nullptr;
-    
-    delete high; delete low; delete open; delete close; delete limit;
-    high = low = open = close = limit = nullptr;
 }
 
 void TradeBot::darkTheme(){
     // Theme
     QColor darker(25,25,25);
-    orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
+    homeWindow->orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
                                         background-color: #1e1e1e;
                                         color: white;
                                         border: none;
                                  } QGroupBox::title {
                                         background-color:transparent;
                                  })");
-    QPalette p = chartPanel->palette();
+    QPalette p = homeWindow->chartPanel->palette();
     p.setColor(QPalette::Window, darker);
-    chartPanel->setPalette(p);
+    homeWindow->chartPanel->setPalette(p);
     p.setColor(QPalette::Window, darker);
-    chartPanel->chart->setPalette(p);
+    homeWindow->chartPanel->chart->setPalette(p);
     nightmode = true;
 }
 void TradeBot::lightTheme(){
@@ -94,7 +77,7 @@ void TradeBot::lightTheme(){
     QColor light(253,253,253);
     QBrush dark(QColor(20,20,20));
     
-    orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
+    homeWindow->orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
                                         background-color: white;
                                         color: black;
                                         border: none;
@@ -102,47 +85,47 @@ void TradeBot::lightTheme(){
                                         background-color:transparent;
                                  })");
     
-    QPalette p = chartPanel->palette();
+    QPalette p = homeWindow->chartPanel->palette();
     p.setColor(QPalette::Window, Qt::white);
-    chartPanel->setPalette(p);
+    homeWindow->chartPanel->setPalette(p);
     p.setColor(QPalette::Window, light);
-    chartPanel->chart->setPalette(p);
+    homeWindow->chartPanel->chart->setPalette(p);
     nightmode = false;
 }
 
 void TradeBot::OnFinishedUpdate(){
-    if (*count == 0){
-        chartPanel->loadChart(ticks.begin(), ticks.end());
-        chartPanel->chart->update();
-        chartPanel->update();
+    if (*timerCount == 0){
+        homeWindow->chartPanel->loadChart(ticks.begin(), ticks.end());
+        homeWindow->chartPanel->chart->update();
+        homeWindow->chartPanel->update();
     }
-    *count = *count +1;
+    *timerCount = *timerCount +1;
     timer->start(1000);
 }
 void TradeBot::OnUpdate() {
     timer->stop();
-    if (*count > 60) {
-        *count = 1;
+    if (*timerCount > 60) {
+        *timerCount = 1;
     }
     
-    if (*count == 0) { // Initiate app
+    if (*timerCount == 0) { // Initiate app
         try{
-            *(orderPanel->orderview) << lunoClient.getOrderBook("XBTZAR").Format();
-            auto step = orderPanel->orderview->verticalScrollBar()->singleStep();
-            orderPanel->orderview->verticalScrollBar()->setValue(step * 97.8);
+            *(homeWindow->orderPanel->orderview) << lunoClient.getOrderBook("XBTZAR").Format();
+            auto step = homeWindow->orderPanel->orderview->verticalScrollBar()->singleStep();
+            homeWindow->orderPanel->orderview->verticalScrollBar()->setValue(step * 97.8);
         }
         catch (ResponseEx ex){
-            *text << ex.String();
+            *(homeWindow->text) << ex.String();
         }
         
-        orderPanel->tradeview->setHtml(lastTrades().c_str());
+        homeWindow->orderPanel->tradeview->setHtml(lastTrades().c_str());
         
         try {
             std::this_thread::sleep_for(std::chrono::milliseconds(1100));
             *latestTimestamp = lunoClient.getTicker("XBTZAR").timestamp;
         }
         catch (ResponseEx ex){
-            *text << ex.String();
+            *(homeWindow->text) << ex.String();
         }
         /*
         try {
@@ -152,37 +135,37 @@ void TradeBot::OnUpdate() {
             *text << ex.String();
         }*/
          
-        orderPanel->tradeview->setHtml(lastTrades().c_str());
+        homeWindow->orderPanel->tradeview->setHtml(lastTrades().c_str());
         thread = std::thread([this]{
             loadLocalTicks();
             emit finishedUpdate();
         });
         thread.detach();
     }
-    else if (*count % 5 == 0){
+    else if (*timerCount % 5 == 0){
         try{
-            auto y = orderPanel->orderview->verticalScrollBar()->value();
+            auto y = homeWindow->orderPanel->orderview->verticalScrollBar()->value();
             std::string update = lunoClient.getOrderBook("XBTZAR").Format();
-            orderPanel->orderview->setHtml("");
-            *(orderPanel->orderview) << update;
+            homeWindow->orderPanel->orderview->setHtml("");
+            *(homeWindow->orderPanel->orderview) << update;
             if (y != 0)
-                orderPanel->orderview->verticalScrollBar()->setValue(y);
+                homeWindow->orderPanel->orderview->verticalScrollBar()->setValue(y);
             else{
-                auto step = orderPanel->orderview->verticalScrollBar()->singleStep();
-                orderPanel->orderview->verticalScrollBar()->setValue(step * 90);
+                auto step = homeWindow->orderPanel->orderview->verticalScrollBar()->singleStep();
+                homeWindow->orderPanel->orderview->verticalScrollBar()->setValue(step * 90);
             }
         }
         catch (ResponseEx ex){
-            *text << ex.String();
+            *(homeWindow->text) << ex.String();
         }
         
-        auto y = orderPanel->tradeview->verticalScrollBar()->value();
-        orderPanel->tradeview->setHtml(lastTrades().c_str());
-        orderPanel->tradeview->verticalScrollBar()->setValue(y);
+        auto y = homeWindow->orderPanel->tradeview->verticalScrollBar()->value();
+        homeWindow->orderPanel->tradeview->setHtml(lastTrades().c_str());
+        homeWindow->orderPanel->tradeview->verticalScrollBar()->setValue(y);
         
         //chartPanel->loadChart(ticks.begin(), ticks.end());
         
-        if (*count % 30 == 0){
+        if (*timerCount % 30 == 0){
             //Theme
             if (nightmode && !isDarkMode())
                 lightTheme();
@@ -195,17 +178,17 @@ void TradeBot::OnUpdate() {
                     *latestTimestamp = lunoClient.getTicker("XBTZAR").timestamp;
                 }
                 catch (ResponseEx ex){
-                    *text << ex.String();
+                    *(homeWindow->text) << ex.String();
                 }
             }
         }
         emit finishedUpdate();
     }
-    else if (*count % 2 == 1 ){
+    else if (*timerCount % 2 == 1 ){
 
-        auto y = orderPanel->tradeview->verticalScrollBar()->value();
-        orderPanel->tradeview->setHtml(lastTrades().c_str());
-        orderPanel->tradeview->verticalScrollBar()->setValue(y);
+        auto y = homeWindow->orderPanel->tradeview->verticalScrollBar()->value();
+        homeWindow->orderPanel->tradeview->setHtml(lastTrades().c_str());
+        homeWindow->orderPanel->tradeview->verticalScrollBar()->setValue(y);
         
         if (*latestTimestamp == 0 || *latestTimestamp < *timestamp) {
             // latestTimestamp could be 0 (by internet error)
@@ -287,7 +270,7 @@ void TradeBot::downloadTicks(size_t reps){
             downloadTicks();
         }
         catch (ResponseEx ex){
-            *text << ex.String();
+            *(homeWindow->text) << ex.String();
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1100));
     }
@@ -295,7 +278,7 @@ void TradeBot::downloadTicks(size_t reps){
         downloadTicks();
     }
     catch (ResponseEx ex){
-        *text << ex.String();
+        *(homeWindow->text) << ex.String();
     }
     emit finishedUpdate();
 }

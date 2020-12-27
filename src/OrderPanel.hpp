@@ -1,7 +1,7 @@
 #ifndef TradeBot_OrderPanel_hpp
 #define TradeBot_OrderPanel_hpp
 
-#include "TradeBot_Label.hpp"
+#include "Label.hpp"
 
 #include <QLayout>
 #include <QScrollBar>

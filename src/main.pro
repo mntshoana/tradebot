@@ -11,11 +11,11 @@ DESTDIR = ../bin/
 QMAKE_CXXFLAGS += -std=c++17
 
 SOURCES += TradeBot.cpp \
-            TradeBot_Label.cpp TradeBot_OrderPanel.cpp \
-            TradeBot_ChartPanel.cpp
+            Label.cpp OrderPanel.cpp ChartPanel.cpp \
+            Window.cpp
 HEADERS += TradeBot.hpp \
-            TradeBot_Label.hpp TradeBot_OrderPanel.hpp \
-            TradeBot_ChartPanel.hpp
+            Label.hpp OrderPanel.hpp ChartPanel.hpp \
+            Window.hpp
 SOURCES += lunoclientOrderFuncs.cpp lunoclientMarketFuncs.cpp
 HEADERS += lunoTypes.hpp lunoclient.hpp
 SOURCES += localbitcoinClient.cpp

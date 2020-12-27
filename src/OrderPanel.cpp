@@ -1,4 +1,4 @@
-#include "TradeBot_OrderPanel.hpp"
+#include "OrderPanel.hpp"
 
 OrderPanel::OrderPanel(QWidget* parent) {
     orderViewLabel = new Label("<th>PRICE</th> <th>VOLUME</th>", parent);

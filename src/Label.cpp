@@ -1,4 +1,4 @@
-#include "TradeBot_Label.hpp"
+#include "Label.hpp"
 
 Label::Label(std::string title, QWidget* parent) : QTextBrowser(parent) {
     setReadOnly(true);

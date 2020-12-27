@@ -7,9 +7,6 @@
 #include <QApplication>
 #include <QPalette>
 
-#include <QTextEdit>
-#include <QTextBrowser>
-
 #include <QtCore/QDateTime>
 #include <QTimer>
 
@@ -17,11 +14,7 @@
 #include "localbitcoinClient.hpp"
 #include "objectivec.h"
 
-#include "TradeBot_OrderPanel.hpp"
-#include "TradeBot_ChartPanel.hpp"
-
-QTextEdit& operator<< (QTextEdit& stream, std::string str);
-QTextBrowser& operator<< (QTextBrowser& stream, std::string str);
+#include "Window.hpp"
 
 class TradeBot : public QWidget
 {
@@ -43,19 +36,16 @@ private:
     std::thread thread;
     
     QTimer* timer;
-    QTextEdit* text;
-    OrderPanel *orderPanel;
-    ChartPanel *chartPanel;
+    
+    HomeWindow* homeWindow;
     
     Luno::LunoClient lunoClient;
     LocalBitcoin::LocalBitcoinClient LocalBclient;
 
-    size_t* count;
+    size_t* timerCount;
     
     std::fstream file;
     unsigned long long *timestamp, *latestTimestamp;
-    float *high, *low, *open, *close;
-    float *limit;
     
     std::vector<Luno::Trade> ticks, moreticks;
     
