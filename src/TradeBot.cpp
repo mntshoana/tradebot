@@ -33,9 +33,9 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     
     // Theme
     if (isDarkMode())
-        darkTheme();
+        homeWindow->darkTheme();
     else
-        lightTheme();
+        homeWindow->lightTheme();
     
     timestamp = new unsigned long long(0);
     latestTimestamp = new unsigned long long(0);
@@ -53,44 +53,6 @@ TradeBot::~TradeBot() {
     
     delete timestamp;
     timestamp = nullptr;
-}
-
-void TradeBot::darkTheme(){
-    // Theme
-    QColor darker(25,25,25);
-    homeWindow->orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
-                                        background-color: #1e1e1e;
-                                        color: white;
-                                        border: none;
-                                 } QGroupBox::title {
-                                        background-color:transparent;
-                                 })");
-    QPalette p = homeWindow->chartPanel->palette();
-    p.setColor(QPalette::Window, darker);
-    homeWindow->chartPanel->setPalette(p);
-    p.setColor(QPalette::Window, darker);
-    homeWindow->chartPanel->chart->setPalette(p);
-    nightmode = true;
-}
-void TradeBot::lightTheme(){
-    // Theme
-    QColor light(253,253,253);
-    QBrush dark(QColor(20,20,20));
-    
-    homeWindow->orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
-                                        background-color: white;
-                                        color: black;
-                                        border: none;
-                                 } QGroupBox::title {
-                                        background-color:transparent;
-                                 })");
-    
-    QPalette p = homeWindow->chartPanel->palette();
-    p.setColor(QPalette::Window, Qt::white);
-    homeWindow->chartPanel->setPalette(p);
-    p.setColor(QPalette::Window, light);
-    homeWindow->chartPanel->chart->setPalette(p);
-    nightmode = false;
 }
 
 void TradeBot::OnFinishedUpdate(){
@@ -167,10 +129,10 @@ void TradeBot::OnUpdate() {
         
         if (*timerCount % 30 == 0){
             //Theme
-            if (nightmode && !isDarkMode())
-                lightTheme();
-            if (!nightmode && isDarkMode())
-                darkTheme();
+            if (homeWindow->nightmode && !isDarkMode())
+                homeWindow->lightTheme();
+            if (!homeWindow->nightmode && isDarkMode())
+                homeWindow->darkTheme();
             //Check errors
             if (*latestTimestamp == 0){
                 try {

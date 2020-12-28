@@ -27,12 +27,9 @@ private:
     void loadLocalTicks();
     void downloadTicks();
     void downloadTicks(size_t reps);
-    void darkTheme();
-    void lightTheme();
     
     std::string lastTrades();
 private:
-    bool nightmode;
     std::thread thread;
     
     QTimer* timer;
