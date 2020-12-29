@@ -11,23 +11,27 @@ QTextEdit& operator<< (QTextEdit& stream, std::string str);
 QTextBrowser& operator<< (QTextBrowser& stream, std::string str);
 
 class Window {
-public:
+private:
     virtual void darkTheme() = 0;
     virtual void lightTheme() = 0;
+public:
+    virtual void updateTheme() = 0;
     
     bool nightmode;
 };
 
 class HomeWindow : public Window {
+private:
+    virtual void darkTheme();
+    virtual void lightTheme();
 public:
     HomeWindow (QWidget *parent = 0);
     
     QTextEdit* text;
     OrderPanel *orderPanel;
     ChartPanel *chartPanel;
-    
-    virtual void darkTheme();
-    virtual void lightTheme();
+
+    virtual void updateTheme();
 };
 
 #endif /* Window_hpp */

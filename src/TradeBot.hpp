@@ -31,11 +31,9 @@ private:
     std::string lastTrades();
 private:
     std::thread thread;
-    
     QTimer* timer;
     
     HomeWindow* homeWindow;
-    
     Luno::LunoClient lunoClient;
     LocalBitcoin::LocalBitcoinClient LocalBclient;
 

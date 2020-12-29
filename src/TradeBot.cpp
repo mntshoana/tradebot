@@ -19,9 +19,6 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
             *(homeWindow->text) << ex.String();
         }
     });
-    
-    homeWindow->chartPanel = new ChartPanel(this);
-    
     connect(this, &TradeBot::finishedUpdate, this, &TradeBot::OnFinishedUpdate);
     connect(homeWindow->chartPanel->timeframe, &QComboBox::currentTextChanged,
         this, [this](const QString &str){
@@ -30,12 +27,6 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
         homeWindow->chartPanel->chart->update();
         homeWindow->chartPanel->update();
     });
-    
-    // Theme
-    if (isDarkMode())
-        homeWindow->darkTheme();
-    else
-        homeWindow->lightTheme();
     
     timestamp = new unsigned long long(0);
     latestTimestamp = new unsigned long long(0);
@@ -129,10 +120,7 @@ void TradeBot::OnUpdate() {
         
         if (*timerCount % 30 == 0){
             //Theme
-            if (homeWindow->nightmode && !isDarkMode())
-                homeWindow->lightTheme();
-            if (!homeWindow->nightmode && isDarkMode())
-                homeWindow->darkTheme();
+            homeWindow->updateTheme();
             //Check errors
             if (*latestTimestamp == 0){
                 try {

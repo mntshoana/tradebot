@@ -17,6 +17,13 @@ HomeWindow::HomeWindow (QWidget *parent) {
     text->setText("");
 
     orderPanel = new OrderPanel(parent);
+    chartPanel = new ChartPanel(parent);
+    
+    // Theme
+    if (isDarkMode())
+        darkTheme();
+    else
+        lightTheme();
 }
 
 void HomeWindow::darkTheme(){
@@ -34,7 +41,6 @@ void HomeWindow::darkTheme(){
     chartPanel->setPalette(p);
     p.setColor(QPalette::Window, darker);
     chartPanel->chart->setPalette(p);
-    nightmode = true;
 }
 void HomeWindow::lightTheme() {
     // Theme
@@ -55,4 +61,12 @@ void HomeWindow::lightTheme() {
     p.setColor(QPalette::Window, light);
     chartPanel->chart->setPalette(p);
     nightmode = false;
+}
+
+void HomeWindow::updateTheme(){
+    //Theme
+    if (nightmode && !isDarkMode())
+        lightTheme();
+    if (!nightmode && isDarkMode())
+        darkTheme();
 }
