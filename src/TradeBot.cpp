@@ -82,10 +82,12 @@ void TradeBot::OnUpdate() {
         }
         /*
         try {
-            *text << LocalBclient.getBuyAds("cn", "China");
+            //*(homeWindow->text) << LocalBclient.getBuyAds("cn", "China");
+            
+            *(homeWindow->text) << lunoClient.getWithdrawal("11495685");
         }
         catch (ResponseEx ex){
-            *text << ex.String();
+            *(homeWindow->text) << ex.String();
         }*/
          
         homeWindow->orderPanel->tradeview->setHtml(lastTrades().c_str());

@@ -387,6 +387,18 @@ namespace Luno {
     template QTextEdit& operator << <QTextEdit>(QTextEdit&, UserTrade& order);
     template QTextEdit& operator << <QTextEdit>(QTextEdit&, std::vector<UserTrade>& order);
 
+    // GET ORDER DETAILS
+    //
+    //
+    std::string LunoClient::getOrderDetails(std::string id){
+        std::string uri = "https://api.mybitx.com/api/1/orders/" + id;
+        std::string res = this->request("GET", uri.c_str(), true);
+        
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        return res;
+    }
     // POST LIMIT ORDER
     //
     //
@@ -413,6 +425,75 @@ namespace Luno {
         std::string uri = "https://api.mybitx.com/api/1/stoporder?order_id=" + orderId;
         
         std::string res = this->request("POST", uri.c_str(), true);
+        
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        return res;
+    }
+
+    // GET RECIEVE ADDRESS
+    //
+    //
+    std::string LunoClient::getRecieveAddress(std::string asset){
+        std::string uri = "https://api.mybitx.com/api/1/funding_address";
+        uri += "?asset=" + asset;
+        std::string res = this->request("GET", uri.c_str(), true);
+        
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        return res;
+    }
+
+    // GET WITHDRAWAL LIST
+    //
+    //
+    std::string LunoClient::getWithdrawalList(){
+        std::string uri = "https://api.mybitx.com/api/1/withdrawals";
+        std::string res = this->request("GET", uri.c_str(), true);
+        
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        return res;
+    }
+
+    // REQUEST WITHDRAW
+    //
+    //
+    std::string LunoClient::withdraw(float amount){
+        std::string uri = "https://api.mybitx.com/api/1/withdrawals";
+        uri += "?type=ZAR_EFT";
+        uri += "&amount=" + std::to_string(amount);
+        
+        std::string res = this->request("POST", uri.c_str(), true);
+        
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        return res;
+    }
+
+    // GET WITHDRAWAL
+    //
+    //
+    std::string LunoClient::getWithdrawal(std::string id){
+        std::string uri = "https://api.mybitx.com/api/1/withdrawals/" + id;
+        std::string res = this->request("GET", uri.c_str(), true);
+        
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        return res;
+    }
+
+    // CANCEL WITHDRAWAL
+    //
+    //
+    std::string LunoClient::cancelWithdrawal(std::string id){
+        std::string uri = "https://api.mybitx.com/api/1/withdrawals/" + id;
+        std::string res = this->request("DELETE", uri.c_str(), true);
         
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);

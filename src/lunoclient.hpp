@@ -28,7 +28,7 @@ namespace Luno {
                                              bool sort = false,
                                              int limit = 0);
         // Post market order (mission funciton)
-        // Get order (missing function)
+        std::string getOrderDetails(std::string id);
         std::string postLimitOrder(std::string pair, std::string type, float volume, float price);
             // returns order id
         std::string stopOrder(std::string orderId);
@@ -41,16 +41,15 @@ namespace Luno {
         // Discard quote
 
         /* Send and Receive Functions */
-        // Get receive address
+        std::string getRecieveAddress(std::string asset);
         // Create receive address
         // Send
 
         /* Withdrawals Functions */
-        // List Withdrawal requests
-        // Request a withdrawal
+        std::string getWithdrawalList();
         std::string withdraw(float amount);
-        // Get withdrawal request
-        // Cancel Withdrawal
+        std::string getWithdrawal(std::string id);
+        std::string cancelWithdrawal(std::string id);
 
     };
 }
