@@ -43,7 +43,11 @@ namespace Luno {
         /* Send and Receive Functions */
         std::string getRecieveAddress(std::string asset);
         // Create receive address
-        // Send
+        
+        /*prototype*////////////////////////////////////////////////////////////////////////////////
+        /**/ std::string sendToAddress(std::string asset, std::string address, float amount);/////////////////////////////////////////////////////////////////
+        /* Danger: could lose asset*////////////////////////////////////////////////////////////////////////////
+        /*////////WARNING: FUNCTION NOT TESTED YET///////////////*/
 
         /* Withdrawals Functions */
         std::string getWithdrawalList();
