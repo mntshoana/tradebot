@@ -32,6 +32,7 @@ HomeView::~HomeView(){
     delete chartPanel;
     delete orderPanel;
 }
+
 void HomeView::darkTheme(){
     // Theme
     QColor darker(25,25,25);
@@ -91,6 +92,10 @@ P2PView::P2PView (QWidget *parent) {
     else
         lightTheme();
     
+}
+
+P2PView::~P2PView(){
+    delete text;
 }
 
 void P2PView::darkTheme() {

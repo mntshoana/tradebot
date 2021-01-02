@@ -42,6 +42,7 @@ private:
     
 public:
     P2PView (QWidget *parent = 0);
+    ~P2PView();
     
     QTextEdit* text;
     
