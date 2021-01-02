@@ -11,13 +11,14 @@ QTextBrowser& operator<< (QTextBrowser& stream, std::string str)
     return stream;
 }
 
-HomeWindow::HomeWindow (QWidget *parent) {
+HomeView::HomeView (QWidget *parent) {
     text = new QTextEdit(parent);
     text->setGeometry(0, 500, 1180, 220);
     text->setText("");
 
     orderPanel = new OrderPanel(parent);
     chartPanel = new ChartPanel(parent);
+    
     
     // Theme
     if (isDarkMode())
@@ -26,7 +27,12 @@ HomeWindow::HomeWindow (QWidget *parent) {
         lightTheme();
 }
 
-void HomeWindow::darkTheme(){
+HomeView::~HomeView(){
+    delete text;
+    delete chartPanel;
+    delete orderPanel;
+}
+void HomeView::darkTheme(){
     // Theme
     QColor darker(25,25,25);
     orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
@@ -42,7 +48,7 @@ void HomeWindow::darkTheme(){
     p.setColor(QPalette::Window, darker);
     chartPanel->chart->setPalette(p);
 }
-void HomeWindow::lightTheme() {
+void HomeView::lightTheme() {
     // Theme
     QColor light(253,253,253);
     QBrush dark(QColor(20,20,20));
@@ -63,7 +69,39 @@ void HomeWindow::lightTheme() {
     nightmode = false;
 }
 
-void HomeWindow::updateTheme(){
+void HomeView::updateTheme(){
+    //Theme
+    if (nightmode && !isDarkMode())
+        lightTheme();
+    if (!nightmode && isDarkMode())
+        darkTheme();
+}
+
+//-------------------------------------------------------
+
+P2PView::P2PView (QWidget *parent) {
+    text = new QTextEdit(parent);
+    text->setGeometry(0, 500, 1180, 220);
+    text->setText("Peer 2 Peer View");
+    text->show();
+    
+    // Theme
+    if (isDarkMode())
+        darkTheme();
+    else
+        lightTheme();
+    
+}
+
+void P2PView::darkTheme() {
+    
+}
+
+void P2PView::lightTheme() {
+    
+}
+
+void P2PView::updateTheme(){
     //Theme
     if (nightmode && !isDarkMode())
         lightTheme();

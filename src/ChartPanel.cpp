@@ -122,6 +122,10 @@ ChartPanel::ChartPanel(QWidget* parent) : QWidget(parent) {
     timeframe->addItems(timeframeList);
     timeframe->setCurrentIndex(0);
     
+    P2Pbutton = new QPushButton(this);
+    P2Pbutton->setGeometry(830, 28, 90, 30);
+    P2Pbutton->setText("P2P View");
+    
     setAutoFillBackground(true);
     setFocusPolicy(Qt::ClickFocus);
 }

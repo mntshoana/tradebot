@@ -11,7 +11,7 @@
 #include <QPushButton>
 
 
-class OrderPanel : public QObject {
+class OrderPanel : public QWidget {
     Q_OBJECT
     Label* orderViewLabel, *tradeViewLabel, *liveTradeLabel;
 public:
@@ -24,9 +24,7 @@ public:
     QLineEdit* txtPrice, *txtAmount;
     QPushButton* request;
     
-    OrderPanel(QWidget* parent = nullptr);
-    virtual ~OrderPanel() {}
-    
+    OrderPanel(QWidget* parent = nullptr);    
     
 private slots:
     void clickedLink(const QUrl& url);

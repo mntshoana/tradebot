@@ -33,7 +33,10 @@ private:
     std::thread thread;
     QTimer* timer;
     
-    HomeWindow* homeWindow;
+    HomeView* home;
+    P2PView* p2p;
+    Window* current;
+    
     Luno::LunoClient lunoClient;
     LocalBitcoin::LocalBitcoinClient LocalBclient;
 

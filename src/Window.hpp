@@ -20,17 +20,31 @@ public:
     bool nightmode;
 };
 
-class HomeWindow : public Window {
+class HomeView : public Window {
 private:
     virtual void darkTheme();
     virtual void lightTheme();
 public:
-    HomeWindow (QWidget *parent = 0);
+    HomeView (QWidget *parent = 0);
+    ~HomeView();
     
     QTextEdit* text;
     OrderPanel *orderPanel;
     ChartPanel *chartPanel;
 
+    virtual void updateTheme();
+};
+
+class P2PView : public Window {
+private:
+    virtual void darkTheme();
+    virtual void lightTheme();
+    
+public:
+    P2PView (QWidget *parent = 0);
+    
+    QTextEdit* text;
+    
     virtual void updateTheme();
 };
 
