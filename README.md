@@ -1,5 +1,5 @@
 # Tradebot
-This project is aimed at customizing an application, using c++. Hopefully, this can grow into an automated trading bot.
+This project is aimed at having a tradie application understanding, using c++. Hopefully, this can grow into an automated trading bot.
 
 This project was created using c++ for the sole purpose of :
     - using REST api 
