@@ -16,6 +16,8 @@ SOURCES += TradeBot.cpp \
 HEADERS += TradeBot.hpp \
             Label.hpp OrderPanel.hpp ChartPanel.hpp \
             Window.hpp
+SOURCES += requestManager.cpp
+HEADERS += requestManager.hpp
 SOURCES += lunoclientOrderFuncs.cpp lunoclientMarketFuncs.cpp
 HEADERS += lunoTypes.hpp lunoclient.hpp
 SOURCES += localbitcoinClient.cpp

@@ -12,6 +12,8 @@ class Job {
 };
 
 class requestManger {
+public: requestManger();
+    ~requestManger();
 private:
     QTimer* timer;
     std::queue<Job> marketQuew, fasterQueue;

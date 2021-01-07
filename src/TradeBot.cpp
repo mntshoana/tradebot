@@ -4,9 +4,8 @@
 
 // Constructor
 TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
-    home = new HomeView(this);
+    current = home = new HomeView(this);
     p2p = nullptr;
-    current = home;
     
     connect(home->orderPanel->request,
             &QPushButton::clicked, this,[this](){
@@ -128,8 +127,6 @@ void TradeBot::OnUpdate() {
         auto y = home->orderPanel->tradeview->verticalScrollBar()->value();
         home->orderPanel->tradeview->setHtml(lastTrades().c_str());
         home->orderPanel->tradeview->verticalScrollBar()->setValue(y);
-        
-        //chartPanel->loadChart(ticks.begin(), ticks.end());
         
         if (*timerCount % 30 == 0){
             //Theme
