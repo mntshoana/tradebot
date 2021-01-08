@@ -11,14 +11,16 @@ class Job {
     template <class R> R request();
 };
 
-class requestManger {
-public: requestManger();
-    ~requestManger();
+class requestManager : public QObject {
+Q_OBJECT
+public:  requestManager(QObject* parent = nullptr);
+        ~requestManager();
 private:
     QTimer* timer;
-    std::queue<Job> marketQuew, fasterQueue;
+    std::queue<Job> marketQueue, fasterQueue;
     
     Job dequeue();
+    void onUpdate();
 public:
     void enqueue(Job job);
     

@@ -12,6 +12,8 @@
 
 #include "lunoclient.hpp"
 #include "localbitcoinClient.hpp"
+#include "requestManager.hpp"
+
 #include "objectivec.h"
 
 #include "Window.hpp"
