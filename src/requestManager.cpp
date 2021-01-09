@@ -11,13 +11,19 @@ requestManager::~requestManager(){
 }
 
 void requestManager::onUpdate(){
-    
+        // every second
+    // deqeue 1 from marketQueue
+    // dequeue 5 from fastQueue
+    // repeat
 }
 
 Job dequeue(){
     return Job();//still incomplete
+    
+    // from whcih queue?
 }
 
 void enqueue(Job job){
-    
+    // check job type
+    // add to relavent queue
 }
