@@ -4,8 +4,8 @@
 #include <QTextEdit>
 #include <QTextBrowser>
 
-#include "OrderPanel.hpp"
-#include "ChartPanel.hpp"
+#include "orderPanel.hpp"
+#include "chartPanel.hpp"
 
 QTextEdit& operator<< (QTextEdit& stream, std::string str);
 QTextBrowser& operator<< (QTextBrowser& stream, std::string str);

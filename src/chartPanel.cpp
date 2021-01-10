@@ -1,4 +1,4 @@
-#include "ChartPanel.hpp"
+#include "chartPanel.hpp"
 
 // Constructor
 CandleStick::CandleStick(unsigned long long timestamp,

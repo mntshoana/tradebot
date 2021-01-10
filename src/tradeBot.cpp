@@ -1,4 +1,4 @@
-#include "TradeBot.hpp"
+#include "tradeBot.hpp"
 
 #define CSV_FILE_PATH "/Users/macgod/Dev/tradebot2/tradebot/src/data/"
 
@@ -45,7 +45,10 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
         home = nullptr;
         p2p = new P2PView(this);
         current = p2p;
+        
     });
+    //Job test(home->text, &Luno::LunoClient::getTickers) ;
+    //manager.enqueue(test, true);
 }
 
 TradeBot::~TradeBot() {

@@ -1,22 +1,16 @@
 #ifndef TradeBot_hpp
 #define TradeBot_hpp
 
-#include <chrono>
-#include <thread>
-
 #include <QApplication>
 #include <QPalette>
 
 #include <QtCore/QDateTime>
-#include <QTimer>
 
-#include "lunoclient.hpp"
-#include "localbitcoinClient.hpp"
-#include "requestManager.hpp"
+#include "jobManager.hpp"
 
 #include "objectivec.h"
 
-#include "Window.hpp"
+#include "window.hpp"
 
 class TradeBot : public QWidget
 {
@@ -41,7 +35,8 @@ private:
     
     Luno::LunoClient lunoClient;
     LocalBitcoin::LocalBitcoinClient LocalBclient;
-
+    JobManager manager;
+    
     size_t* timerCount;
     
     std::fstream file;

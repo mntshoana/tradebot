@@ -1,4 +1,4 @@
-#include "Window.hpp"
+#include "window.hpp"
 
 QTextEdit& operator<< (QTextEdit& stream, std::string str)
 {

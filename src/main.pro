@@ -10,14 +10,14 @@ CONFIG += debug
 DESTDIR = ../bin/
 QMAKE_CXXFLAGS += -std=c++17
 
-SOURCES += TradeBot.cpp \
-            Label.cpp OrderPanel.cpp ChartPanel.cpp \
-            Window.cpp
-HEADERS += TradeBot.hpp \
-            Label.hpp OrderPanel.hpp ChartPanel.hpp \
-            Window.hpp
-SOURCES += requestManager.cpp
-HEADERS += requestManager.hpp
+SOURCES += tradeBot.cpp \
+            label.cpp orderPanel.cpp chartPanel.cpp \
+            window.cpp
+HEADERS += tradeBot.hpp \
+            label.hpp orderPanel.hpp chartPanel.hpp \
+            window.hpp
+SOURCES += jobManager.cpp
+HEADERS += jobManager.hpp
 SOURCES += lunoclientOrderFuncs.cpp lunoclientMarketFuncs.cpp
 HEADERS += lunoTypes.hpp lunoclient.hpp
 SOURCES += localbitcoinClient.cpp

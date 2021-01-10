@@ -1,4 +1,4 @@
-#include "OrderPanel.hpp"
+#include "orderPanel.hpp"
 
 OrderPanel::OrderPanel(QWidget* parent) : QWidget(parent) {
     setGeometry(1180, 0, 200, 720);

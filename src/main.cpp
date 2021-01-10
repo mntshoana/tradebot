@@ -1,4 +1,4 @@
-#include "TradeBot.hpp"
+#include "tradeBot.hpp"
 
 int main(int argc, char* argv[]) {
     QApplication* entry = new QApplication(argc, argv);

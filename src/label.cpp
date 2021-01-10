@@ -1,4 +1,4 @@
-#include "Label.hpp"
+#include "label.hpp"
 
 Label::Label(std::string title, QWidget* parent) : QTextBrowser(parent) {
     setReadOnly(true);
