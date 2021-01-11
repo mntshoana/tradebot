@@ -5,16 +5,6 @@ JobBase::JobBase (void* stream, void* (*request)()){
     this->request = request;
 }
 
-template <class stream, class res>
-Job<stream, res>::Job(stream* outputStream, res (*request)()){
-    this->outputStream = outputStream;
-    this->request = request;
-}
-
-template <class stream, class res>
-void Job<stream, res>::performJob(){
-    outputStream << (res) *request();
-}
 
 JobManager::JobManager(QObject *parent) : QObject(parent) {
     timer = new QTimer();
@@ -28,25 +18,26 @@ JobManager::~JobManager(){
 
 void JobManager::onUpdate(){
     // every second
-    JobBase task = marketQueue.front();
-    // deqeue 1 from marketQueue
-    // complete task
-    task.performJob();
-    marketQueue.pop();
+    if (!marketQueue.empty()) {
+        marketQueue.front()->performJob();
+        // deqeue 1 from marketQueue
+        // complete task
+        marketQueue.pop();
+    }
     // dequeue 5 from fastQueue
     // repeat
     size_t count = 5;
     while (count > 0){
         if (fasterQueue.empty())
             break;
-        task = fasterQueue.front();
-        task.performJob();
+        fasterQueue.front()->performJob();
+        delete fasterQueue.front();
         fasterQueue.pop();
         count--;
     }
 }
 
-void JobManager::enqueue(JobBase job, bool isMarket){
+void JobManager::enqueue(JobBase* job, bool isMarket){
     if (isMarket)
         marketQueue.push(job);
     else

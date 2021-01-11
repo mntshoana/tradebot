@@ -6,11 +6,11 @@
 
 #include <QtCore/QDateTime>
 
-#include "jobManager.hpp"
-
 #include "objectivec.h"
 
 #include "window.hpp"
+
+#include "jobManager.hpp"
 
 class TradeBot : public QWidget
 {

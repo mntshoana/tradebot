@@ -4,6 +4,8 @@
 #include "lunoclient.hpp"
 #include "localbitcoinClient.hpp"
 
+#include "window.hpp"
+
 #include <queue>
 
 #include <chrono>
@@ -17,19 +19,32 @@ protected:
 public:
     virtual void performJob() {} // nothing to perform
 public:
-    JobBase (void* stream, void* (*request)());
+    JobBase (void* stream = nullptr, void* (*request)() =  nullptr);
 };
 
 //
 
-template <class stream, class res>
+template <class T, class stream, class res>
 class Job : public JobBase {
+private:
+    T* object;
+    stream* outputStream;
+    res (T::*request)();
 public:
     virtual void performJob() override;
 public:
-    Job (stream* outputStream, res (*request)());
+    inline Job (T* object, stream* outputStream, res (T::*request)()) {
+        this->object = object;
+        this->outputStream = outputStream;
+        this->request = request;
+    }
 };
 
+template <class T, class stream, class res>
+void Job<T, stream, res>::performJob(){
+    res result = (object->*request)();
+    (*outputStream) << result;
+}
 //
 
 class JobManager : public QObject {
@@ -39,11 +54,12 @@ public:
         ~JobManager();
 private:
     QTimer* timer;
-    std::queue<JobBase> marketQueue, fasterQueue;
+    std::queue<JobBase*> marketQueue, fasterQueue;
     
     void onUpdate();
 public:
-    void enqueue(JobBase job, bool isMarket);
+    void enqueue(JobBase* job, bool isMarket);
     
 };
+
 #endif /* JobManager_hpp */

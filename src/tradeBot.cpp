@@ -47,8 +47,8 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
         current = p2p;
         
     });
-    //Job test(home->text, &Luno::LunoClient::getTickers) ;
-    //manager.enqueue(test, true);
+    Job test(&lunoClient, home->text, &Luno::LunoClient::getTickers);
+    manager.enqueue(new Job(test), true);
 }
 
 TradeBot::~TradeBot() {
