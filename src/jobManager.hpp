@@ -47,8 +47,8 @@ void Job<T, stream, res>::performJob(){
 }
 //
 
-template <class T, class stream, class param, class res>
-class Job : public JobBase{
+template <class T, class stream, class res, class param>
+class Job1 : public JobBase{
     T* object;
     stream* outputStream;
     param arg;
@@ -56,10 +56,19 @@ class Job : public JobBase{
 public:
     virtual void performJob() override;
     
-    inline Job(T* object, stream* outputStream, res (T::*request)(param)) {
-        
+    inline Job1(T* object, stream* outputStream, res (T::*request)(param), param arg) {
+        this->object = object;
+        this->outputStream = outputStream;
+        this->arg = arg;
+        this->request = request;
     }
 };
+
+template <class T, class stream, class res, class param>
+void Job1<T, stream, res, param>::performJob(){
+    res result = (object->*request)(arg);
+    (*outputStream) << result;
+}
 
 class JobManager : public QObject {
 Q_OBJECT
