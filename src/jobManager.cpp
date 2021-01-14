@@ -1,8 +1,9 @@
 #include "jobManager.hpp"
 
-JobBase::JobBase (void* stream, void* (*request)()){
+JobBase::JobBase (void* stream, void* (*request)(), void* (*preprocessor)() ){
     outputStream = stream;
     this->request = request;
+    this->preprocessor = preprocessor;
 }
 
 

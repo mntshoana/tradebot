@@ -16,58 +16,69 @@ class JobBase {
 protected:
     void* outputStream;
     void* (*request)();
+    void* (*preprocessor)();
 public:
     virtual void performJob() {} // nothing to perform
 public:
-    JobBase (void* stream = nullptr, void* (*request)() =  nullptr);
+    JobBase (void* stream = nullptr, void* (*request)() =  nullptr, void* (*preprocessor)() = nullptr);
 };
 
 //
 
-template <class T, class stream, class res>
+template <class T, class stream, class res, class proc = std::string>
 class Job : public JobBase {
 private:
     T* object;
     stream* outputStream;
     res (T::*request)();
+    proc (res::*preprocessor)();
 public:
     virtual void performJob() override;
     
-    inline Job (T* object, stream* outputStream, res (T::*request)()) {
+    inline Job (T* object, stream* outputStream, res (T::*request)(), proc (res::*preprocessor)() = nullptr) {
         this->object = object;
         this->outputStream = outputStream;
         this->request = request;
+        this->preprocessor = preprocessor;
     }
 };
 
-template <class T, class stream, class res>
-void Job<T, stream, res>::performJob(){
+template <class T, class stream, class res, class proc>
+void Job<T, stream, res, proc>::performJob(){
     res result = (object->*request)();
-    (*outputStream) << result;
+    if (preprocessor)
+        (*outputStream) << (result.*preprocessor)();
+    else
+        (*outputStream) << result;
 }
 //
 
-template <class T, class stream, class res, class param>
+template <class T, class stream, class res, class param, class proc = std::string>
 class Job1 : public JobBase{
     T* object;
     stream* outputStream;
     param arg;
     res (T::*request)(param);
+    proc (res::*preprocessor)();
 public:
     virtual void performJob() override;
     
-    inline Job1(T* object, stream* outputStream, res (T::*request)(param), param arg) {
+    inline Job1(T* object, stream* outputStream, res (T::*request)(param), param arg, proc (res::*preprocessor)() = nullptr) {
         this->object = object;
         this->outputStream = outputStream;
         this->arg = arg;
         this->request = request;
+        this->preprocessor = preprocessor;
     }
 };
 
-template <class T, class stream, class res, class param>
-void Job1<T, stream, res, param>::performJob(){
+template <class T, class stream, class res, class param, class proc>
+void Job1<T, stream, res, param, proc>::performJob(){
     res result = (object->*request)(arg);
-    (*outputStream) << result;
+    if (preprocessor)
+        (*outputStream) << (result.*preprocessor)();
+    else
+        (*outputStream) << result;
 }
 
 class JobManager : public QObject {

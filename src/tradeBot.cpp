@@ -48,7 +48,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
         
     });
     Job test(&lunoClient, home->text, &Luno::LunoClient::getTickers);
-    Job1 test2(&lunoClient, home->text, &Luno::LunoClient::getOrderBook, std::string("XBTZAR"));
+    Job1 test2(&lunoClient, home->text, &Luno::LunoClient::getOrderBook, std::string("XBTZAR"), &Luno::OrderBook::Format);
     manager.enqueue(new Job(test), true);
     manager.enqueue(new Job1(test2), true);
 }
