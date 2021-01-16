@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "lunoclient.hpp"
+#include "localbitcoinClient.hpp"
 
 class CandleStick {
 public:

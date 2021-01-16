@@ -214,11 +214,11 @@ namespace Luno {
         ss << "</table>\n";
         return ss.str();
     }
-    template <class T> T& operator << (T& stream, OrderBook& ob) {
+    /*template <class T> T& operator << (T& stream, OrderBook& ob) {
         stream.append(ob.toString().c_str());
         return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit&, OrderBook& ob);
+    }*/
+    /*template*/ QTextEdit& operator << /*<QTextEdit>*/(QTextEdit&, OrderBook& ob);
 
     // GET Ticker
     //

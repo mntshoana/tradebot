@@ -1,9 +1,6 @@
 #ifndef JobManager_hpp
 #define JobManager_hpp
 
-#include "lunoclient.hpp"
-#include "localbitcoinClient.hpp"
-
 #include "window.hpp"
 
 #include <queue>
@@ -12,6 +9,8 @@
 #include <thread>
 #include <QTimer>
 
+#include <type_traits>
+
 class JobBase {
 protected:
     void* outputStream;
@@ -19,6 +18,7 @@ protected:
     void* (*preprocessor)();
 public:
     virtual void performJob() {} // nothing to perform
+    bool repeat;
 public:
     JobBase (void* stream = nullptr, void* (*request)() =  nullptr, void* (*preprocessor)() = nullptr);
 };
@@ -45,40 +45,68 @@ public:
 
 template <class T, class stream, class res, class proc>
 void Job<T, stream, res, proc>::performJob(){
-    res result = (object->*request)();
-    if (preprocessor)
-        (*outputStream) << (result.*preprocessor)();
-    else
-        (*outputStream) << result;
+    try{
+        res result = (object->*request)();
+        if (preprocessor)
+            (*outputStream) << (result.*preprocessor)();
+        else
+            (*outputStream) << result;
+    } catch (ResponseEx ex){
+        *outputStream << ex.String(); // To do:: should be an error stream here
+    }
 }
 //
 
-template <class T, class stream, class res, class param, class proc = std::string>
+template <class T, class stream,
+            class res, class param, class error = void, class proc = std::string>
 class Job1 : public JobBase{
     T* object;
     stream* outputStream;
+    error* errorStream;
     param arg;
     res (T::*request)(param);
     proc (res::*preprocessor)();
 public:
     virtual void performJob() override;
     
-    inline Job1(T* object, stream* outputStream, res (T::*request)(param), param arg, proc (res::*preprocessor)() = nullptr) {
+    inline Job1(T* object, stream* outputStream, res (T::*request)(param), param arg, proc (res::*preprocessor )() = nullptr, error* errorStream = nullptr, bool repeat = true) {
         this->object = object;
         this->outputStream = outputStream;
         this->arg = arg;
         this->request = request;
         this->preprocessor = preprocessor;
+        this->repeat = repeat;
+        this->errorStream = errorStream;
     }
 };
 
-template <class T, class stream, class res, class param, class proc>
-void Job1<T, stream, res, param, proc>::performJob(){
-    res result = (object->*request)(arg);
-    if (preprocessor)
-        (*outputStream) << (result.*preprocessor)();
-    else
-        (*outputStream) << result;
+template <class T, class stream, class res, class param, class error, class proc>
+void Job1<T, stream, res, param, error,proc>::performJob(){
+    if constexpr (!std::is_same_v<stream, unsigned long long>)
+        try{
+            res result = (object->*request)(arg);
+            if (preprocessor){
+                proc processedResults = (result.*preprocessor)();
+                (*outputStream) << processedResults;
+            }
+            else {
+                    (*outputStream) << result;
+            }
+        } catch (ResponseEx ex){
+                (*outputStream) << ex.String(); // To do:: should be an error stream here
+        }
+    
+    if constexpr (std::is_same_v<stream, unsigned long long>)
+        try{
+            if (preprocessor){
+                res result = (object->*request)(arg);
+                proc processedResults = (result.*preprocessor)();
+                (*outputStream) = processedResults;
+            }
+        } catch (ResponseEx ex){
+            if (errorStream)
+                (*errorStream) << ex.String(); // To do:: should be an error stream here
+        }
 }
 
 class JobManager : public QObject {

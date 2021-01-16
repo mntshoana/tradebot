@@ -27,12 +27,13 @@ namespace Luno {
     public:
         Ticker() {}
         std::string pair;
-        long long timestamp;
+        unsigned long long timestamp;
         float bid;
         float ask;
         float lastTrade;
         float rollingVolume;
         std::string status;
+        unsigned long long getTimestamp(){return timestamp;}
     };
 
     class Trade {
@@ -45,7 +46,7 @@ namespace Luno {
         bool isBuy;
     };
 
-    template <class T> T& operator << (T& stream, OrderBook& ob);
+    //template <class T> T& operator << (T& stream, OrderBook& ob);
     template <class T> T& operator << (T& stream, Ticker& tick);
     template <class T> T& operator << (T& stream, std::vector<Ticker>& ticks);
     template <class T> T& operator << (T& stream, Trade& trade);

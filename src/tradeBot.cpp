@@ -4,8 +4,8 @@
 
 // Constructor
 TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
-    current = home = new HomeView(this);
-    p2p = nullptr;
+    current = home = new HomeView(this); // home screen window
+    p2p = nullptr; // a peer to peer screen window
     
     connect(home->orderPanel->request,
             &QPushButton::clicked, this,[this](){
@@ -13,12 +13,12 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
         if (home->orderPanel->isBuy)
             *(home->text) << lunoClient.postLimitOrder("XBTZAR", "BID", atof(home->orderPanel->txtAmount->text().toStdString().c_str()),
                 atoi(home->orderPanel->txtPrice->text().toStdString().c_str()));
-       else
+        else
            *(home->text) << lunoClient.postLimitOrder("XBTZAR", "ASK", atof(home->orderPanel->txtAmount->text().toStdString().c_str()),
                atof(home->orderPanel->txtPrice->text().toStdString().c_str()));
-        }
+            ; }
         catch (ResponseEx ex){
-            *(home->text) << ex.String();
+           *(home->text) << ex.String();
         }
     });
     connect(this, &TradeBot::finishedUpdate, this, &TradeBot::OnFinishedUpdate);
@@ -47,10 +47,22 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
         current = p2p;
         
     });
-    Job test(&lunoClient, home->text, &Luno::LunoClient::getTickers);
-    Job1 test2(&lunoClient, home->text, &Luno::LunoClient::getOrderBook, std::string("XBTZAR"), &Luno::OrderBook::Format);
-    manager.enqueue(new Job(test), true);
-    manager.enqueue(new Job1(test2), true);
+    
+    // begin job manager
+    manager.enqueue(new Job1(&lunoClient,
+                             home->orderPanel->orderview,
+                             &Luno::LunoClient::getOrderBook,
+                             std::string("XBTZAR"),
+                             &Luno::OrderBook::Format),
+                    true);
+    
+    manager.enqueue(new Job1(&lunoClient,
+                             latestTimestamp,
+                             &Luno::LunoClient::getTicker,
+                             std::string("XBTZAR"),
+                             &Luno::Ticker::getTimestamp,
+                             home->text, false),
+                    true);
 }
 
 TradeBot::~TradeBot() {
@@ -77,29 +89,10 @@ void TradeBot::OnUpdate() {
     }
     
     if (*timerCount == 0) { // Initiate app
-        try{
-            *(home->orderPanel->orderview) << lunoClient.getOrderBook("XBTZAR").Format();
-            auto step = home->orderPanel->orderview->verticalScrollBar()->singleStep();
-            home->orderPanel->orderview->verticalScrollBar()->setValue(step * 97.8);
-        }
-        catch (ResponseEx ex){
-            *(home->text) << ex.String();
-        }
-        
-        home->orderPanel->tradeview->setHtml(lastTrades().c_str());
-        
-        try {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1100));
-            *latestTimestamp = lunoClient.getTicker("XBTZAR").timestamp;
-        }
-        catch (ResponseEx ex){
-            *(home->text) << ex.String();
-        }
         /*
+        //testing
         try {
-            //*(homeWindow->text) << LocalBclient.getBuyAds("cn", "China");
-            
-            *(homeWindow->text) << lunoClient.getWithdrawal("11495685");
+            // *(homeWindow->text) << LocalBclient.getBuyAds("cn", "China");
         }
         catch (ResponseEx ex){
             *(homeWindow->text) << ex.String();
@@ -113,22 +106,6 @@ void TradeBot::OnUpdate() {
         thread.detach();
     }
     else if (*timerCount % 5 == 0){
-        try{
-            auto y = home->orderPanel->orderview->verticalScrollBar()->value();
-            std::string update = lunoClient.getOrderBook("XBTZAR").Format();
-            home->orderPanel->orderview->setHtml("");
-            *(home->orderPanel->orderview) << update;
-            if (y != 0)
-                home->orderPanel->orderview->verticalScrollBar()->setValue(y);
-            else{
-                auto step = home->orderPanel->orderview->verticalScrollBar()->singleStep();
-                home->orderPanel->orderview->verticalScrollBar()->setValue(step * 90);
-            }
-        }
-        catch (ResponseEx ex){
-            *(home->text) << ex.String();
-        }
-        
         auto y = home->orderPanel->tradeview->verticalScrollBar()->value();
         home->orderPanel->tradeview->setHtml(lastTrades().c_str());
         home->orderPanel->tradeview->verticalScrollBar()->setValue(y);
@@ -143,7 +120,7 @@ void TradeBot::OnUpdate() {
                     *latestTimestamp = lunoClient.getTicker("XBTZAR").timestamp;
                 }
                 catch (ResponseEx ex){
-                    *(home->text) << ex.String();
+                   *(home->text) << ex.String();
                 }
             }
         }
@@ -235,7 +212,7 @@ void TradeBot::downloadTicks(size_t reps){
             downloadTicks();
         }
         catch (ResponseEx ex){
-            *(home->text) << ex.String();
+/////            *(home->text) << ex.String();
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1100));
     }
@@ -243,7 +220,7 @@ void TradeBot::downloadTicks(size_t reps){
         downloadTicks();
     }
     catch (ResponseEx ex){
-        *(home->text) << ex.String();
+/////        *(home->text) << ex.String();
     }
     emit finishedUpdate();
 }

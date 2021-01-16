@@ -1,15 +1,39 @@
 #include "orderPanel.hpp"
 
+template<>
+OrderView& operator<< <std::string>(OrderView& stream, std::string str)
+{
+    if (stream.orderViewIsEmpty)
+    {
+        stream.append(str.c_str()); // update content
+        auto step = stream.verticalScrollBar()->singleStep();
+        stream.verticalScrollBar()->setValue(step * 97.8);
+        stream.orderViewIsEmpty = false;
+    }
+    else {
+        auto y = stream.verticalScrollBar()->value();
+        stream.setHtml(str.c_str()); // update content
+        if (y != 0)
+            stream.verticalScrollBar()->setValue(y);
+        else{
+            auto step = stream.verticalScrollBar()->singleStep();
+            stream.verticalScrollBar()->setValue(step * 90);
+        }
+    }
+    return stream;
+}
+
 OrderPanel::OrderPanel(QWidget* parent) : QWidget(parent) {
     setGeometry(1180, 0, 200, 720);
     
     orderViewLabel = new Label("<th>PRICE</th> <th>VOLUME</th>", this);
     orderViewLabel->setGeometry(0, 0, 200, 30);
-    orderview = new QTextBrowser(this);
+    orderview = new OrderView(this);
     orderview->setGeometry(0, 29, 200, 328);
     orderview->setText("");
     orderview->setReadOnly(true);
     orderview->setOpenLinks(false);
+    
     
     tradeViewLabel = new Label("<th colspan=2>Last Trade</th>", this);
     tradeViewLabel->setGeometry(0, 356, 200, 30);

@@ -1,8 +1,6 @@
 #ifndef Window_hpp
 #define Window_hpp
 
-#include <QTextEdit>
-#include <QTextBrowser>
 
 #include "orderPanel.hpp"
 #include "chartPanel.hpp"

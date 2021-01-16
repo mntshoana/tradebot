@@ -10,14 +10,33 @@
 #include <QLineEdit>
 #include <QPushButton>
 
+#include "lunoclient.hpp"
 
+class OrderView : public QTextBrowser {
+public:
+    bool orderViewIsEmpty;
+    explicit OrderView(QWidget* parent = nullptr) : QTextBrowser(parent) {
+        orderViewIsEmpty = true;
+    }
+    
+};
+
+template <class T> OrderView& operator<< (OrderView& stream, T obj){
+    stream.append(obj.toString().c_str());
+    return stream;
+}
+
+template <>
+OrderView& operator<< <std::string>(OrderView& stream, std::string str);
+
+//
 class OrderPanel : public QWidget {
     Q_OBJECT
     Label* orderViewLabel, *tradeViewLabel, *liveTradeLabel;
 public:
     bool isBuy;
-    
-    QTextBrowser* orderview, *tradeview;
+    OrderView* orderview;
+    QTextBrowser *tradeview;
     QGroupBox *livetradeview;
     QGridLayout *livetradeviewLayout;
     QLabel *lblPrice, *lblAmount;

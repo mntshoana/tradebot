@@ -20,10 +20,13 @@ JobManager::~JobManager(){
 void JobManager::onUpdate(){
     // every second
     if (!marketQueue.empty()) {
-        marketQueue.front()->performJob();
+        JobBase* job = marketQueue.front();
+        job->performJob();
         // deqeue 1 from marketQueue
         // complete task
         marketQueue.pop();
+        if (job->repeat);
+            marketQueue.push(job);
     }
     // dequeue 5 from fastQueue
     // repeat
