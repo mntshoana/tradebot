@@ -5,8 +5,9 @@
 // Constructor
 TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     p2p = nullptr; // peer to peer window, not active
-    current = home = new HomeView(this); // active home screen window
+    current = home = new HomeView(this, &lunoClient); // active home screen window
     
+    /*// home window request button click event
     connect(home->orderPanel->request,
             &QPushButton::clicked, this,[this](){
         
@@ -19,7 +20,13 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
            *(home->text) << ex.String();
         }
     });
-    connect(this, &TradeBot::finishedUpdate, this, &TradeBot::OnFinishedUpdate);
+     */
+    
+    // on update event
+    connect(this, &TradeBot::finishedUpdate,
+            this, &TradeBot::OnFinishedUpdate);
+    
+    // home window timeframe Combo Box text changed event
     connect(home->chartPanel->timeframe, &QComboBox::currentTextChanged,
         this, [this](const QString &str){
         *(home->text) << str.toStdString();
@@ -39,6 +46,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     
     connect(home->chartPanel->P2Pbutton, &QPushButton::clicked, this, [this]() {
         timer->stop();
+        manager.stop();
         delete home;
         home = nullptr;
         p2p = new P2PView(this);

@@ -11,7 +11,7 @@ QTextBrowser& operator<< (QTextBrowser& stream, std::string str)
     return stream;
 }
 
-HomeView::HomeView (QWidget *parent) {
+HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent), lunoClient(client) {
     text = new QTextEdit(parent);
     text->setGeometry(0, 500, 1180, 220);
     text->setText("");
@@ -20,6 +20,19 @@ HomeView::HomeView (QWidget *parent) {
     chartPanel = new ChartPanel(parent);
     
     
+    // home window request button click event
+    connect(orderPanel->request,
+            &QPushButton::clicked, this,[this](){
+        
+        const char *action = (orderPanel->isBuy)
+                ? "BID" : "ASK";
+        try {
+            *(text) << lunoClient->postLimitOrder("XBTZAR", action, atof(orderPanel->txtAmount->text().toStdString().c_str()),
+                atoi(orderPanel->txtPrice->text().toStdString().c_str()));
+        } catch (ResponseEx ex){
+           *(text) << ex.String();
+        }
+    });
     // Theme
     if (isDarkMode())
         darkTheme();
@@ -31,6 +44,10 @@ HomeView::~HomeView(){
     delete text;
     delete chartPanel;
     delete orderPanel;
+    text = nullptr;
+    chartPanel = nullptr;
+    orderPanel = nullptr;
+    lunoClient = nullptr;
 }
 
 void HomeView::darkTheme(){

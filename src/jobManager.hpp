@@ -113,14 +113,16 @@ class JobManager : public QObject {
 Q_OBJECT
 public:
     JobManager(QObject* parent = nullptr);
-        ~JobManager();
+    ~JobManager();
 private:
+    bool abort, busy;
     QTimer* timer;
     std::queue<JobBase*> marketQueue, fasterQueue;
     
     void onUpdate();
 public:
     void enqueue(JobBase* job, bool isMarket);
+    void stop();
     
 };
 

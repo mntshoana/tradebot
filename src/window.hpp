@@ -18,18 +18,19 @@ public:
     bool nightmode;
 };
 
-class HomeView : public Window {
+class HomeView : public Window, public QWidget {
 private:
     virtual void darkTheme();
     virtual void lightTheme();
 public:
-    HomeView (QWidget *parent = 0);
-    ~HomeView();
+    HomeView (QWidget *parent = 0, Luno::LunoClient* client = nullptr);
+    virtual ~HomeView();
     
     QTextEdit* text;
     OrderPanel *orderPanel;
     ChartPanel *chartPanel;
 
+    Luno::LunoClient *lunoClient;
     virtual void updateTheme();
 };
 
