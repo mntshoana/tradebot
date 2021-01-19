@@ -7,21 +7,6 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     p2p = nullptr; // peer to peer window, not active
     current = home = new HomeView(this, &lunoClient); // active home screen window
     
-    /*// home window request button click event
-    connect(home->orderPanel->request,
-            &QPushButton::clicked, this,[this](){
-        
-        const char *action = (home->orderPanel->isBuy)
-                ? "BID" : "ASK";
-        try {
-            *(home->text) << lunoClient.postLimitOrder("XBTZAR", action, atof(home->orderPanel->txtAmount->text().toStdString().c_str()),
-                atoi(home->orderPanel->txtPrice->text().toStdString().c_str()));
-        } catch (ResponseEx ex){
-           *(home->text) << ex.String();
-        }
-    });
-     */
-    
     // on update event
     connect(this, &TradeBot::finishedUpdate,
             this, &TradeBot::OnFinishedUpdate);
