@@ -103,17 +103,14 @@ void TradeBot::OnUpdate() {
         
         if (*timerCount % 30 == 0){
             //Theme
-            home->updateTheme();
-            //Check errors
-            if (*latestTimestamp == 0){
-                try {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1100));
-                    *latestTimestamp = lunoClient.getTicker("XBTZAR").timestamp;
-                }
-                catch (ResponseEx ex){
-                   *(home->text) << ex.String();
-                }
-            }
+            current->updateTheme();
+            manager.enqueue(new Job1(&lunoClient,
+                                     latestTimestamp,
+                                     &Luno::LunoClient::getTicker,
+                                     std::string("XBTZAR"),
+                                     &Luno::Ticker::getTimestamp,
+                                     home->text, false),
+                            true);
         }
         emit finishedUpdate();
     }
