@@ -22,6 +22,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     
     timestamp = new unsigned long long(0);
     latestTimestamp = new unsigned long long(0);
+    loadingTicks = false;
     
     timer = new QTimer(this);
     timer->setSingleShot(true);
@@ -53,6 +54,11 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
                              std::string("XBTZAR"),
                              &Luno::Ticker::getTimestamp,
                              home->text, false),
+                    true);
+    manager.enqueue(new func1(this,
+                             &TradeBot::downloadTicks,
+                             std::string("XBTZAR"),
+                             home->text),
                     true);
 }
 
@@ -120,18 +126,22 @@ void TradeBot::OnUpdate() {
         home->orderPanel->tradeview->setHtml(lastTrades().c_str());
         home->orderPanel->tradeview->verticalScrollBar()->setValue(y);
         
-        if (*latestTimestamp == 0 || *latestTimestamp < *timestamp) {
+        if (latestTimestamp && *latestTimestamp < *timestamp)
+            // data is outdated, maybe show different color
+            ;
+        
+        /*if (*latestTimestamp == 0) {
             // latestTimestamp could be 0 (by internet error)
             // or
             // offline data is indeed up to date
-            thread = std::thread([this]{downloadTicks(1);} );
+            thread = std::thread([this]{downloadTicks("XBTZAR", 1);} );
             thread.detach();
         }
         else {
             // offline data is not up to date
-            thread = std::thread([this]{downloadTicks(20);} );
+            thread = std::thread([this]{downloadTicks("XBTZAR", 20);} );
             thread.detach();
-        }
+        }*/
     }
     else {
         emit finishedUpdate();
@@ -139,6 +149,7 @@ void TradeBot::OnUpdate() {
 }
 
 void TradeBot::loadLocalTicks(){
+    loadingTicks = true;
     file.open(std::string(CSV_FILE_PATH) + "XBTZAR.csv" , std::ios::in);
     if (file.good()){
         file >> ticks;
@@ -167,10 +178,14 @@ void TradeBot::loadLocalTicks(){
         file.clear();
     }
     file.close();
+    loadingTicks = false;
 }
 
-void TradeBot::downloadTicks(){
-    moreticks = lunoClient.getTrades("XBTZAR", *timestamp-1); // order = newest to oldest
+void TradeBot::downloadTicks(std::string pair){
+    if (loadingTicks)
+        return;
+    
+    moreticks = lunoClient.getTrades(pair, *timestamp-1); // order = newest to oldest
     while (ticks.size() > 0
             && moreticks.size() > 0
             && moreticks.back().sequence <= ticks.back().sequence)
@@ -187,17 +202,17 @@ void TradeBot::downloadTicks(){
     if (moreticks.size() > 0){
         ticks.insert(ticks.end(), moreticks.begin(), moreticks.end());
         *timestamp = moreticks.back().timestamp;
-        file.open( std::string(CSV_FILE_PATH) + "XBTZAR.csv", std::ios::out | std::ios::app);
+        file.open( std::string(CSV_FILE_PATH) + pair + ".csv", std::ios::out | std::ios::app);
         file << moreticks;
         file.close();
     }
     moreticks.clear();
 }
 
-void TradeBot::downloadTicks(size_t reps){
+void TradeBot::downloadTicks(std::string pair, size_t reps){
     for (size_t i = 1; i < reps; i++){
         try{
-            downloadTicks();
+            downloadTicks(pair);
         }
         catch (ResponseEx ex){
 /////            *(home->text) << ex.String();
@@ -205,7 +220,7 @@ void TradeBot::downloadTicks(size_t reps){
         std::this_thread::sleep_for(std::chrono::milliseconds(1100));
     }
     try{
-        downloadTicks();
+        downloadTicks(pair);
     }
     catch (ResponseEx ex){
 /////        *(home->text) << ex.String();

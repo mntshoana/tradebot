@@ -21,12 +21,13 @@ public:
 private:
     void updateInterval(const std::string& period);
     void loadLocalTicks();
-    void downloadTicks();
-    void downloadTicks(size_t reps);
+    void downloadTicks(std::string pair);
+    void downloadTicks(std::string pair, size_t reps);
     
     std::string lastTrades();
 private:
     std::thread thread;
+    bool loadingTicks;
     QTimer* timer;
     
     HomeView* home;
