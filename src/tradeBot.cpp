@@ -85,9 +85,8 @@ void TradeBot::OnUpdate() {
         *timerCount = 1;
     }
     
-    if (*timerCount == 0) { // Initiate app
+    if (*timerCount == 0) { // Initiate when count == 0
         /*
-        //testing
         try {
             // *(homeWindow->text) << LocalBclient.getBuyAds("cn", "China");
         }
@@ -129,19 +128,6 @@ void TradeBot::OnUpdate() {
         if (latestTimestamp && *latestTimestamp < *timestamp)
             // data is outdated, maybe show different color
             ;
-        
-        /*if (*latestTimestamp == 0) {
-            // latestTimestamp could be 0 (by internet error)
-            // or
-            // offline data is indeed up to date
-            thread = std::thread([this]{downloadTicks("XBTZAR", 1);} );
-            thread.detach();
-        }
-        else {
-            // offline data is not up to date
-            thread = std::thread([this]{downloadTicks("XBTZAR", 20);} );
-            thread.detach();
-        }*/
     }
     else {
         emit finishedUpdate();
@@ -217,7 +203,7 @@ void TradeBot::downloadTicks(std::string pair, size_t reps){
         catch (ResponseEx ex){
 /////            *(home->text) << ex.String();
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
     try{
         downloadTicks(pair);
