@@ -11,14 +11,6 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     connect(this, &TradeBot::finishedUpdate,
             this, &TradeBot::OnFinishedUpdate);
     
-    // home window timeframe Combo Box text changed event
-    connect(home->chartPanel->timeframe, &QComboBox::currentTextChanged,
-        this, [this](const QString &str){
-        *(home->text) << str.toStdString();
-        home->chartPanel->loadChart(ticks.begin(), ticks.end());
-        home->chartPanel->chart->update();
-        home->chartPanel->update();
-    });
     
     timestamp = new unsigned long long(0);
     latestTimestamp = new unsigned long long(0);
@@ -72,7 +64,7 @@ TradeBot::~TradeBot() {
 
 void TradeBot::OnFinishedUpdate(){
     if (*timerCount == 0){
-        home->chartPanel->loadChart(ticks.begin(), ticks.end());
+        home->chartPanel->loadChart(home->ticks.begin(), home->ticks.end());
         home->chartPanel->chart->update();
         home->chartPanel->update();
     }
@@ -138,23 +130,23 @@ void TradeBot::loadLocalTicks(){
     loadingTicks = true;
     file.open(std::string(CSV_FILE_PATH) + "XBTZAR.csv" , std::ios::in);
     if (file.good()){
-        file >> ticks;
-        if (ticks.size() > 0){
-            if (ticks.back().sequence != ticks.size())
+        file >> home->ticks;
+        if (home->ticks.size() > 0){
+            if (home->ticks.back().sequence != home->ticks.size())
             {
-                while (ticks.size() > 0 && ticks.back().sequence != ticks.size())
-                    ticks.pop_back();
+                while (home->ticks.size() > 0 && home->ticks.back().sequence != home->ticks.size())
+                    home->ticks.pop_back();
                 file.close();
                 file.open(CSV_FILE_PATH, std::ios::out | std::ios::app);
-                file << ticks;
+                file << home->ticks;
                 file.close();
                 remove( (std::string(CSV_FILE_PATH) + "XBTZAR.csv").c_str() );
                 rename( (std::string(CSV_FILE_PATH) + "XBTZAR2.csv").c_str(),
                         (std::string(CSV_FILE_PATH) + "XBTZAR.csv" ).c_str());
             }
         }
-        if (ticks.size() > 0){
-            *timestamp = ticks.back().timestamp;
+        if (home->ticks.size() > 0){
+            *timestamp = home->ticks.back().timestamp;
         }
         else
             *timestamp = QDate(2013, 1, 1).startOfDay().toMSecsSinceEpoch();
@@ -171,28 +163,28 @@ void TradeBot::downloadTicks(std::string pair){
     if (loadingTicks)
         return;
     
-    moreticks = lunoClient.getTrades(pair, *timestamp-1); // order = newest to oldest
-    while (ticks.size() > 0
-            && moreticks.size() > 0
-            && moreticks.back().sequence <= ticks.back().sequence)
-        moreticks.pop_back();
-    std::reverse(moreticks.begin(), moreticks.end()); // order = oldest to newest
-    while (moreticks.size() > 0
-            && moreticks.back().sequence != ticks.size()+moreticks.size())
-            moreticks.pop_back();
+    home->moreticks = lunoClient.getTrades(pair, *timestamp-1); // order = newest to oldest
+    while (home->ticks.size() > 0
+            && home->moreticks.size() > 0
+            && home->moreticks.back().sequence <= home->ticks.back().sequence)
+        home->moreticks.pop_back();
+    std::reverse(home->moreticks.begin(), home->moreticks.end()); // order = oldest to newest
+    while (home->moreticks.size() > 0
+            && home->moreticks.back().sequence != home->ticks.size()+home->moreticks.size())
+            home->moreticks.pop_back();
     // Ensure sequenctial timestamp
-    for (unsigned short index = 0; index < moreticks.size(); index++){
-        if (moreticks[index].timestamp < *timestamp)
-                moreticks.erase( moreticks.begin() + index, moreticks.end());
+    for (unsigned short index = 0; index < home->moreticks.size(); index++){
+        if (home->moreticks[index].timestamp < *timestamp)
+                home->moreticks.erase( home->moreticks.begin() + index, home->moreticks.end());
     }
-    if (moreticks.size() > 0){
-        ticks.insert(ticks.end(), moreticks.begin(), moreticks.end());
-        *timestamp = moreticks.back().timestamp;
+    if (home->moreticks.size() > 0){
+        home->ticks.insert(home->ticks.end(), home->moreticks.begin(), home->moreticks.end());
+        *timestamp = home->moreticks.back().timestamp;
         file.open( std::string(CSV_FILE_PATH) + pair + ".csv", std::ios::out | std::ios::app);
-        file << moreticks;
+        file << home->moreticks;
         file.close();
     }
-    moreticks.clear();
+    home->moreticks.clear();
 }
 
 void TradeBot::downloadTicks(std::string pair, size_t reps){
@@ -234,17 +226,17 @@ std::string TradeBot::lastTrades() {
             </style>
             <table width=100%>)";
     
-    if (ticks.size() > 0){
+    if (home->ticks.size() > 0){
         
-        for (size_t i = ticks.size() - 1; i >= ticks.size()- 21; i--){
-            ss << "\n<tr> <a href=\"" << ticks[i].price << "\">";
-            ss << "\n<td>" << QDateTime::fromMSecsSinceEpoch(ticks[i].timestamp).toString("hh:mm").toStdString() << "</td>";
-            ss << (ticks[i].isBuy ? "\n<td class=Ask>" : "\n<td class=Bid>" ) ;
+        for (size_t i = home->ticks.size() - 1; i >= home->ticks.size()- 21; i--){
+            ss << "\n<tr> <a href=\"" << home->ticks[i].price << "\">";
+            ss << "\n<td>" << QDateTime::fromMSecsSinceEpoch(home->ticks[i].timestamp).toString("hh:mm").toStdString() << "</td>";
+            ss << (home->ticks[i].isBuy ? "\n<td class=Ask>" : "\n<td class=Bid>" ) ;
             ss << std::setprecision(0);
-            ss << "<a href=\"" << ticks[i].price << "\">";
-            ss  << ticks[i].price;
+            ss << "<a href=\"" << home->ticks[i].price << "\">";
+            ss  << home->ticks[i].price;
             ss << "</a></td>";
-            ss << "\n<td>" << std::setprecision(6)<< ticks[i].volume << "</td>";
+            ss << "\n<td>" << std::setprecision(6)<< home->ticks[i].volume << "</td>";
             ss << "\n</a></tr>";
         }
         ss << "</table>\n";

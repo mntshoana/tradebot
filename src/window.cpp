@@ -33,6 +33,16 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
            *(text) << ex.String();
         }
     });
+    
+    // home window timeframe Combo Box text changed event
+    connect(chartPanel->timeframe, &QComboBox::currentTextChanged,
+        this, [this](const QString &str){
+        *(text) << str.toStdString();
+        chartPanel->loadChart(ticks.begin(), ticks.end());
+        chartPanel->chart->update();
+        chartPanel->update();
+    });
+    
     // Theme
     if (isDarkMode())
         darkTheme();

@@ -43,7 +43,6 @@ private:
     std::fstream file;
     unsigned long long *timestamp, *latestTimestamp;
     
-    std::vector<Luno::Trade> ticks, moreticks;
     
     private slots:
     void OnFinishedUpdate();
