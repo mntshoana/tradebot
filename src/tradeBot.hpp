@@ -22,7 +22,6 @@ private:
     void updateInterval(const std::string& period);
     void loadLocalTicks();
     void downloadTicks(std::string pair);
-    void downloadTicks(std::string pair, size_t reps);
     
     std::string lastTrades();
 private:

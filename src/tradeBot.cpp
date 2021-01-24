@@ -120,6 +120,8 @@ void TradeBot::OnUpdate() {
         if (latestTimestamp && *latestTimestamp < *timestamp)
             // data is outdated, maybe show different color
             ;
+        
+        emit finishedUpdate();
     }
     else {
         emit finishedUpdate();
@@ -185,25 +187,6 @@ void TradeBot::downloadTicks(std::string pair){
         file.close();
     }
     home->moreticks.clear();
-}
-
-void TradeBot::downloadTicks(std::string pair, size_t reps){
-    for (size_t i = 1; i < reps; i++){
-        try{
-            downloadTicks(pair);
-        }
-        catch (ResponseEx ex){
-/////            *(home->text) << ex.String();
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
-    try{
-        downloadTicks(pair);
-    }
-    catch (ResponseEx ex){
-/////        *(home->text) << ex.String();
-    }
-    emit finishedUpdate();
 }
 
 std::string TradeBot::lastTrades() {
