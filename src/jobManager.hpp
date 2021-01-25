@@ -19,8 +19,6 @@ protected:
 public:
     virtual void performJob() {} // nothing to perform
     bool repeat;
-public:
-    JobBase (void* stream = nullptr, void* (*request)() =  nullptr, void* (*preprocessor)() = nullptr);
 };
 
 //
