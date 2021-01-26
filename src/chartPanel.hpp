@@ -58,6 +58,8 @@ class ChartPanel : public QWidget {
 public:
     Chart* chart;
     QPushButton* resetView, *P2Pbutton;
+    QPushButton* simulate;
+    QPushButton* automate;
     QComboBox* timeframe;
     
     ChartPanel(QWidget* parent = nullptr);

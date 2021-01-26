@@ -113,6 +113,16 @@ ChartPanel::ChartPanel(QWidget* parent) : QWidget(parent) {
                     chart->scaledXIncrements = 1.8 * chart->wIncrement;
     });
     
+    simulate = new QPushButton(this);
+    simulate->setGeometry(0, 110, 90, 30);
+    simulate->setText("Simulate");
+    // connect simulate button here //
+    
+    automate = new QPushButton(this);
+    automate->setGeometry(0, 160, 90, 30);
+    automate->setText("Automate");
+    // connect automate button here //
+    
     QStringList timeframeList;
     timeframeList << "1 MONTH"
                 << "2 WEEKS" << "1 WEEK" << "1 DAY"

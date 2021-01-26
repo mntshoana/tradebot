@@ -27,7 +27,7 @@ void JobManager::onUpdate(){
         // deqeue 1 from marketQueue
         // complete task
         marketQueue.pop();
-        if (job->repeat);
+        if (job->repeat)
             marketQueue.push(job);
     }
     // dequeue 5 from fastQueue
