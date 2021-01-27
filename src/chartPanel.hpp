@@ -16,6 +16,8 @@
 #include "lunoclient.hpp"
 #include "localbitcoinClient.hpp"
 
+#include "neuralNetwork.hpp"
+
 class CandleStick {
 public:
     float open, close;

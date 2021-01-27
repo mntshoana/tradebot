@@ -116,7 +116,11 @@ ChartPanel::ChartPanel(QWidget* parent) : QWidget(parent) {
     simulate = new QPushButton(this);
     simulate->setGeometry(0, 110, 90, 30);
     simulate->setText("Simulate");
-    // connect simulate button here //
+    connect(simulate, &QPushButton::clicked,
+            this, [this](){
+        NeuralNetwork network(); // temp, will be destroyed here
+        simulate->setText("Stop simulation");
+    });
     
     automate = new QPushButton(this);
     automate->setGeometry(0, 160, 90, 30);

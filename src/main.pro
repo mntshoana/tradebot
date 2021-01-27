@@ -31,6 +31,10 @@ HEADERS += exceptions.hpp
 SOURCES += objectivec.mm
 HEADERS += objectivec.h 
 SOURCES += main.cpp
+
+###Automation
+HEADERS += neuralNetwork.hpp
+SOURCES += neuralNetwork.cpp
             
 
 
