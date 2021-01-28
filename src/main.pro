@@ -1,5 +1,8 @@
 ###QT project file
 INCLUDEPATH += /usr/local/include/
+INCLUDEPATH += ../ext/hash-library/
+INCLUDEPATH += ../ext/eigen/
+
 LIBS += -L"/usr/local/lib/" -lcurl.4
 LIBS += -framework SystemConfiguration
 
@@ -22,8 +25,6 @@ SOURCES += lunoclientOrderFuncs.cpp lunoclientMarketFuncs.cpp
 HEADERS += lunoTypes.hpp lunoclient.hpp
 SOURCES += localbitcoinClient.cpp
 HEADERS += localbitcoinClient.hpp
-SOURCES += ../ext/hash-library/sha256.cpp
-HEADERS += ../ext/hash-library/hmac.h ../ext/hash-library/sha256.h
 SOURCES += client.cpp
 HEADERS += client.hpp
 SOURCES += exceptions.cpp
@@ -35,6 +36,10 @@ SOURCES += main.cpp
 ###Automation
 HEADERS += neuralNetwork.hpp
 SOURCES += neuralNetwork.cpp
+
+## External
+SOURCES += ../ext/hash-library/sha256.cpp
+HEADERS += ../ext/hash-library/hmac.h ../ext/hash-library/sha256.h
             
 
 

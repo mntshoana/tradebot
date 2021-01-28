@@ -118,7 +118,7 @@ ChartPanel::ChartPanel(QWidget* parent) : QWidget(parent) {
     simulate->setText("Simulate");
     connect(simulate, &QPushButton::clicked,
             this, [this](){
-        NeuralNetwork network(); // temp, will be destroyed here
+        NeuralNetwork network; // temp, will be destroyed here
         simulate->setText("Stop simulation");
     });
     
