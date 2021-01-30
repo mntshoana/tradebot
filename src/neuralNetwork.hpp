@@ -6,6 +6,7 @@
 #include "lunoTypes.hpp"
 #define TICK_CANDLE 100
 
+// not really a neural network, no hidden layer yet
 class NeuralNetwork {
     size_t feature_size;
     size_t training_set_size;
@@ -22,6 +23,7 @@ public:
     
     void setNumberOfTrainingExamples(size_t totalTicks);
     void loadData(std::vector<Luno::Trade>* ticks);
+    Eigen::MatrixXd* hypothesis ();
 };
 
 #endif /* neuralNetwork_hpp */

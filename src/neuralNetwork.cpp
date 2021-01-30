@@ -69,18 +69,30 @@ void NeuralNetwork::loadData(std::vector<Luno::Trade>* ticks){
         double close = (*ticks)[pos + TICK_CANDLE - 1].price;
         if ( close > (*a1)(8, i) * 1.002 ){
             (*Y)(i, 0) = 1; // Buy
-            (*Y)(i, 0) = 0;
-            (*Y)(i, 0) = 0;
+            (*Y)(i, 1) = 0;
+            (*Y)(i, 2) = 0;
         }
         else if ( close >= (*a1)(8, i) ){
             (*Y)(i, 0) = 0;
-            (*Y)(i, 0) = 1; // Hold
-            (*Y)(i, 0) = 0;
+            (*Y)(i, 1) = 1; // Hold
+            (*Y)(i, 2) = 0;
         }
         else {
             (*Y)(i, 0) = 0;
-            (*Y)(i, 0) = 0;
-            (*Y)(i, 0) = 1; // Sell
+            (*Y)(i, 1) = 0;
+            (*Y)(i, 2) = 1; // Sell
         }
     }
+}
+
+// only one step to forward propagation for architecture with no hidden layer, as it is only multi class logistic regression
+Eigen::MatrixXd* NeuralNetwork::hypothesis (){
+    if (!theta1){
+        // no trained data
+        return nullptr;
+    }
+    // h(z2) = 1 / [1 + e ^ -(theta1 * a1) ]
+    (*a2) = -( theta1->transpose() * (*a1) ).transpose();
+    (*a2) = 1 / (1 + a2->array().exp() );
+    return a2;
 }
