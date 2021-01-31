@@ -24,6 +24,7 @@ public:
     void setNumberOfTrainingExamples(size_t totalTicks);
     void loadData(std::vector<Luno::Trade>* ticks);
     Eigen::MatrixXd* hypothesis ();
+    void cost();
 };
 
 #endif /* neuralNetwork_hpp */

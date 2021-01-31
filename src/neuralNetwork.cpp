@@ -96,3 +96,18 @@ Eigen::MatrixXd* NeuralNetwork::hypothesis (){
     (*a2) = 1 / (1 + a2->array().exp() );
     return a2;
 }
+
+void NeuralNetwork::cost() {
+    // More or less similar to:
+    // cost = 1/m [∑i=1..n ( -log( h(xi) )     , if yi = 1
+    //                  -log( 1 - h(xi) ) , if yi = 0  ]
+    //      =-1/m [∑i=1..n (yi*log( h(xi) ) + (1-yi)*log( 1 - h(xi)) ]
+    // but for multiclass, will do
+    #define ones Eigen::MatrixXd::Ones(training_set_size, 3)
+    Eigen::MatrixXd cost(3,1);
+    cost = (  Y->transpose() * (Eigen::MatrixXd) a2->array().log()  );
+    cost += (  (ones - (*Y) ).transpose()
+                * (Eigen::MatrixXd) (ones - (*a2)).array().log()  );
+    cost /= training_set_size;
+    cost = -cost;
+}
