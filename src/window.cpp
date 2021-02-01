@@ -43,6 +43,17 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
         chartPanel->update();
     });
     
+    // home window simulate auto trade button to event
+    connect(chartPanel->simulate, &QPushButton::clicked,
+            this, [this](){
+        chartPanel->simulate->setText("Stop simulation");
+        NeuralNetwork model; // temp, will be destroyed here
+        model.loadData(&ticks);
+        model.train();
+        //model.loadLatestData("../src/data/new_records.csv");
+        //model.predict();
+    });
+    
     // Theme
     if (isDarkMode())
         darkTheme();

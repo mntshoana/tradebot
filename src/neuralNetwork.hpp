@@ -25,6 +25,9 @@ public:
     void loadData(std::vector<Luno::Trade>* ticks);
     Eigen::MatrixXd* hypothesis ();
     void cost();
+    void minimize();
+    void train();
+    void predict();
 };
 
 #endif /* neuralNetwork_hpp */

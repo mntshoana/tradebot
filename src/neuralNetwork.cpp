@@ -110,4 +110,44 @@ void NeuralNetwork::cost() {
                 * (Eigen::MatrixXd) (ones - (*a2)).array().log()  );
     cost /= training_set_size;
     cost = -cost;
+    //
+    // OUTPUT COST FUNCTION
+    // to do
+    //
+}
+
+void NeuralNetwork::minimize(){
+    // gradient desc:
+    // thetaj = thetaj - alpha 1/n ∑i=1..n  ( h(xi) - yi) * Xj
+    double alpha = 0.01;
+    for (int i = 0; i < 100000; i++){
+        hypothesis();
+        // ∑ h - y * x[i] / total n
+        Eigen::MatrixXd avg(training_set_size, 3);
+        avg = (*a2 - *Y).transpose() * (*a1).transpose();
+        avg /= training_set_size;
+        *theta1 = *theta1 - alpha * avg.transpose();
+        // print cost function to see if converged
+        if (containsY && i % 100 == 0)
+            cost(); // this should print the cost
+    }
+    // output theta here
+    // to do
+}
+
+void NeuralNetwork::train(){
+    if (!theta1)
+        theta1 = new Eigen::MatrixXd(feature_size+1, 3);
+    
+    if (a2)
+        delete a2;
+    a2 = new Eigen::MatrixXd(training_set_size, 3);
+    minimize();
+}
+
+void NeuralNetwork::predict(){
+    if (a2) // new prediction, possible new size to predict
+        delete a2;
+    a2 = new Eigen::MatrixXd(training_set_size, 3);
+    hypothesis();
 }
