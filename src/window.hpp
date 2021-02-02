@@ -1,7 +1,7 @@
 #ifndef Window_hpp
 #define Window_hpp
 
-
+#include <thread>
 #include "orderPanel.hpp"
 #include "chartPanel.hpp"
 

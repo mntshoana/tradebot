@@ -47,9 +47,14 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
     connect(chartPanel->simulate, &QPushButton::clicked,
             this, [this](){
         chartPanel->simulate->setText("Stop simulation");
-        NeuralNetwork model; // temp, will be destroyed here
-        model.loadData(&ticks);
-        model.train();
+        std::thread th([this]{
+            NeuralNetwork model; // temp, will be destroyed here
+            model.setNumberOfTrainingExamples(ticks.size());
+            model.setOutputStream(text);
+            model.loadData(&ticks);
+            model.train();
+        });
+        th.detach();
         //model.loadLatestData("../src/data/new_records.csv");
         //model.predict();
     });

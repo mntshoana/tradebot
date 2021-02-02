@@ -1,6 +1,8 @@
 #ifndef neuralNetwork_hpp
 #define neuralNetwork_hpp
 
+#include <QTextEdit>
+
 #include "Eigen/Eigen"
 
 #include "lunoTypes.hpp"
@@ -11,6 +13,8 @@ class NeuralNetwork {
     size_t feature_size;
     size_t training_set_size;
     bool containsY;
+    
+    QTextEdit* outputStream;
 public:
     Eigen::MatrixXd* theta1;
     Eigen::MatrixXd* a1; // activation level 1 (or X)
@@ -18,10 +22,12 @@ public:
     
     Eigen::MatrixXd* Y;
 public:
-    NeuralNetwork() : feature_size(0), training_set_size(0), theta1(nullptr), a1(nullptr), a2(nullptr), Y(nullptr) { }
+    NeuralNetwork() : feature_size(8 + 1), training_set_size(0),
+                        outputStream(nullptr), theta1(nullptr), a1(nullptr), a2(nullptr), Y(nullptr) { }
     ~NeuralNetwork();
     
-    void setNumberOfTrainingExamples(size_t totalTicks);
+    void setNumberOfTrainingExamples(unsigned long long totalTicks);
+    void setOutputStream(QTextEdit* stream);
     void loadData(std::vector<Luno::Trade>* ticks);
     Eigen::MatrixXd* hypothesis ();
     void cost();
