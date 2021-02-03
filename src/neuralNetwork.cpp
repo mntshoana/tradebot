@@ -13,7 +13,7 @@ NeuralNetwork::~NeuralNetwork(){
 }
 
 void NeuralNetwork::setNumberOfTrainingExamples(unsigned long long totalTicks){
-    training_set_size = totalTicks / (TICK_CANDLE * 3);
+    training_set_size = (totalTicks - TICK_CANDLE) / (TICK_CANDLE * 3);
 }
 
 void NeuralNetwork::setOutputStream(QTextEdit* stream){
@@ -67,22 +67,41 @@ void NeuralNetwork::loadData(std::vector<Luno::Trade>* ticks){
         (*a1)(i, 8) = (*ticks)[pos + TICK_CANDLE - 1].price; // unit 4, closeing price
         if (max < high)
             max = high;
-        // Label
-        // FROM CANDLE 3 - heighst value
-        // row-wise loading of labels
+        
+        // FORM CANDLE 3
         pos += TICK_CANDLE;
-        high = INT_MIN;
+        high = INT_MIN, low = INT_MAX;
         for (int index = 0; index < TICK_CANDLE; index++){
             if ( high < (*ticks)[pos + index].price )
                 high =  (*ticks)[pos + index].price;
+            if ( low > (*ticks)[pos + index].price )
+                low = (*ticks)[pos + index].price;
+        }
+        (*a1)(i, 9) = (*ticks)[pos].price; // unit 1, opening price
+        (*a1)(i, 10) = high; // unit 2, high price
+        (*a1)(i, 11) = low; // unit 3, low price
+        (*a1)(i, 12) = (*ticks)[pos + TICK_CANDLE - 1].price; // unit 4, closeing price
+        if (max < high)
+            max = high;
+        // Label
+        // FROM CANDLE 4
+        // row-wise loading of labels
+        pos += TICK_CANDLE; // Collecting Y values, temp increase
+        high = INT_MIN, low = INT_MAX;
+        for (int index = 0; index < TICK_CANDLE; index++){
+            if ( high < (*ticks)[pos + index].price )
+                high =  (*ticks)[pos + index].price;
+            if ( low > (*ticks)[pos + index].price )
+                low = (*ticks)[pos + index].price;
         }
         
-        if ( high > (*a1)(i, 8) * 1.002 ){
+        // And closing price of last tick is higher than previous tick
+        if ( (high + low) / 2  > (*a1)(i, 12) * 1.002 ){
             (*Y)(0, i) = 1; // Buy
             (*Y)(1, i) = 0;
             (*Y)(2, i) = 0;
         }
-        else if ( high >= (*a1)(i, 8) ){
+        else if ( (high + low) / 2 >= (*a1)(i, 12) * 0.999){
             (*Y)(0, i) = 0;
             (*Y)(1, i) = 1; // Hold
             (*Y)(2, i) = 0;
@@ -92,30 +111,12 @@ void NeuralNetwork::loadData(std::vector<Luno::Trade>* ticks){
             (*Y)(1, i) = 0;
             (*Y)(2, i) = 1; // Sell
         }
+        pos -= TICK_CANDLE; // done collecting y. Must include these for x in next iteration
         
-        // Regularize
-        (*a1)(i, 1) = (*a1)(i, 1) / max;
-        (*a1)(i, 2) = (*a1)(i, 2) / max;
-        (*a1)(i, 3) = (*a1)(i, 3) / max;
-        (*a1)(i, 4) = (*a1)(i, 4) / max;
-        (*a1)(i, 5) = (*a1)(i, 1) / max;
-        (*a1)(i, 6) = (*a1)(i, 2) / max;
-        (*a1)(i, 7) = (*a1)(i, 3) / max;
-        (*a1)(i, 8) = (*a1)(i, 4) / max;
+        // Feature Scale
+        for (size_t featuNumb = 1; featuNumb < feature_size; featuNumb++)
+            (*a1)(i, featuNumb) = (*a1)(i, featuNumb) / max;
     }
-    /*
-    if (outputStream) {
-        std::stringstream out;
-        out << "Training set:\n" << std::endl;
-        for (unsigned long long i = 0; i < training_set_size; i++){
-            for (size_t j = 0; j < feature_size; j++){
-                out << (*a1)(i,j) << " ";
-            }
-            out << std::endl;
-        }
-        outputStream->append(out.str().c_str());
-    }
-    */
 }
 
 // only one step to forward propagation for architecture with no hidden layer, as it is only multi class logistic regression
@@ -162,33 +163,13 @@ void NeuralNetwork::minimize(){
     // gradient desc:
     // thetaj = thetaj - alpha 1/n ∑i=1..n  ( h(xi) - yi) * Xj
     double alpha = 0.3;
-    for (int i = 0; i < 2000; i++){
+    for (int i = 0; i < 800; i++){
         hypothesis();
         // ∑ h - y * x[i] / total n
         Eigen::MatrixXd derivative(3, feature_size);
         derivative = (*a2 - *Y) * (*a1);
         derivative /= training_set_size;
         
-        /*
-        // OUTPUT derivative
-        if (outputStream && i % 10 == 0) {
-            std::stringstream out;
-            out << "derivative vs theta\n";
-            out << "theta1\n";
-            for (int ind = 0; ind < 3; ind++){
-                for (int j = 0; j < feature_size; j++)
-                    out << (*theta1)(ind, j) << " ";
-                out << std::endl;
-            }
-            out << "derivative\n";
-            for (int ind = 0; ind < 3; ind++){
-                for (int j = 0; j < feature_size; j++)
-                    out << derivative(ind, j) << " ";
-                out << std::endl;
-            }
-            outputStream->append(out.str().c_str());
-        }
-         */
         *theta1 = *theta1 - (alpha * derivative);
         // print cost function to see if converged
         if (containsY && i % 100 == 0)

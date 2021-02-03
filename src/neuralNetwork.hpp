@@ -22,7 +22,7 @@ public:
     
     Eigen::MatrixXd* Y;
 public:
-    NeuralNetwork() : feature_size(8 + 1), training_set_size(0),
+    NeuralNetwork(size_t feature_size) : feature_size(feature_size), training_set_size(0),
                         outputStream(nullptr), theta1(nullptr), a1(nullptr), a2(nullptr), Y(nullptr) { }
     ~NeuralNetwork();
     
