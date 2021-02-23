@@ -1,5 +1,5 @@
 #include "lunoclient.hpp"
-
+bool Client::abort = false;
 
 std::stringstream Client::buffer = std::stringstream();
 

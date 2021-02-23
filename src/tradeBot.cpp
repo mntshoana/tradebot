@@ -1,6 +1,6 @@
 #include "tradeBot.hpp"
 
-#define CSV_FILE_PATH "/Users/macgod/Dev/tradebot2/tradebot/src/data/"
+#define CSV_FILE_PATH "/Users/macgod/Dev/tradebot/tradebot/src/data/"
 
 // Constructor
 TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
@@ -29,9 +29,15 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
         home = nullptr;
         p2p = new P2PView(this);
         current = p2p;
-        
+        // todo
+        // change back to home
+        // ...
     });
     
+    connect(qApp, &QApplication::aboutToQuit, this, [this] (){
+        closing=true;
+        Cleanup();
+    });
     // begin job manager
     manager.enqueue(new Job1(&lunoClient,
                              home->orderPanel->orderview,
@@ -54,12 +60,23 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
                     true);
 }
 
-TradeBot::~TradeBot() {
-    delete timerCount;
-    timerCount = nullptr;
+void TradeBot::Cleanup(){
+    Client::abort = true;
+    manager.stop();
     
+    delete timer;
+    delete timerCount;
     delete timestamp;
-    timestamp = nullptr;
+    if (home)
+        delete home;
+    if (p2p)
+        delete p2p;
+    std::ofstream fileTest;
+    std::string path = absolutePath() + "destructor.complete"; // test if destructor is running
+    fileTest.open(path, std::ios::out);
+    fileTest << "Closed properly";
+    fileTest.close();
+    emit close();
 }
 
 void TradeBot::OnFinishedUpdate(){
@@ -69,7 +86,8 @@ void TradeBot::OnFinishedUpdate(){
         home->chartPanel->update();
     }
     *timerCount = *timerCount +1;
-    timer->start(1000);
+    if (!closing)
+        timer->start(1000);
 }
 void TradeBot::OnUpdate() {
     timer->stop();
@@ -132,8 +150,9 @@ void TradeBot::loadLocalTicks(){
     loadingTicks = true;
     file.open(std::string(CSV_FILE_PATH) + "XBTZAR.csv" , std::ios::in);
     if (file.good()){
-        file >> home->ticks;
-        if (home->ticks.size() > 0){
+        file >> home->ticks; // <- may take extremely long
+            
+        if (!closing && home->ticks.size() > 0){
             if (home->ticks.back().sequence != home->ticks.size())
             {
                 while (home->ticks.size() > 0 && home->ticks.back().sequence != home->ticks.size())
@@ -147,7 +166,7 @@ void TradeBot::loadLocalTicks(){
                         (std::string(CSV_FILE_PATH) + "XBTZAR.csv" ).c_str());
             }
         }
-        if (home->ticks.size() > 0){
+        if (!closing && home->ticks.size() > 0){
             *timestamp = home->ticks.back().timestamp;
         }
         else

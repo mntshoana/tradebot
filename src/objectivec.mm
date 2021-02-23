@@ -1,6 +1,7 @@
 #include "objectivec.h"
 #include <AppKit/AppKit.h>
 #include <SystemConfiguration/SystemConfiguration.h>
+#include <mach-o/dyld.h> 
 
 /*Function Checking if MacOS 10.14 or higher apps are currently in dark mode*/
 bool isDarkMode ()
@@ -11,6 +12,20 @@ bool isDarkMode ()
     return [appearance isEqualToString:NSAppearanceNameDarkAqua];
 #else
     return false;
+#endif
+}
+std::string absolutePath (){
+    char path[1024];
+#ifdef TARGET_OS_MAC
+    uint32_t size = sizeof(path);
+    if (_NSGetExecutablePath(path, &size) == 0)
+        return std::string (path, strlen(path) - 8); // tradebot = 8
+    else
+        //Buffer was too small;
+        return "";
+    
+#else
+    return "";
 #endif
 }
 

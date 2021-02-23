@@ -24,6 +24,8 @@ protected:
     virtual std::string  request (const char* method, const char* uri, bool auth = false);
     static size_t redirect (char *ptr, size_t size, size_t nmemb, void *stream);
 public:
+    static bool abort; // exit a tediously long task
+    
     static std::stringstream buffer;
     Client();
     ~Client();

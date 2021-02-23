@@ -481,6 +481,8 @@ namespace Luno {
         std::string line, token;
         size_t index = 0;
         while (getline(stream, line)) {
+            if (Client::abort)
+                return stream;
             index = 0;
             std::stringstream s(line);
             while (getline(s, token, ',')) {

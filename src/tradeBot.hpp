@@ -17,7 +17,6 @@ class TradeBot : public QWidget
     Q_OBJECT
 public:
     TradeBot (QWidget *parent = 0);
-    virtual ~TradeBot();
 private:
     void updateInterval(const std::string& period);
     void loadLocalTicks();
@@ -27,6 +26,7 @@ private:
 private:
     std::thread thread;
     bool loadingTicks;
+    bool closing;
     QTimer* timer;
     
     HomeView* home;
@@ -46,6 +46,7 @@ private:
     private slots:
     void OnFinishedUpdate();
     void OnUpdate();
+    void Cleanup();
     
     signals:
     void finishedUpdate();
