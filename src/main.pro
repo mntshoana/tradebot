@@ -1,17 +1,12 @@
 ###QT project file
-INCLUDEPATH += /usr/local/include/
-INCLUDEPATH += ../ext/hash-library/
-INCLUDEPATH += ../ext/eigen/
 
-LIBS += -L"/usr/local/lib/" -lcurl.4
+QT += widgets network
+QMAKE_CXXFLAGS += -std=c++17
+
 LIBS += -framework SystemConfiguration
-
-QT += widgets network ##charts
-
 TARGET = tradebot
 CONFIG += debug
 DESTDIR = ../bin/
-QMAKE_CXXFLAGS += -std=c++17
 
 SOURCES += tradeBot.cpp \
             label.cpp orderPanel.cpp chartPanel.cpp \
@@ -30,16 +25,21 @@ HEADERS += client.hpp
 SOURCES += exceptions.cpp
 HEADERS += exceptions.hpp
 SOURCES += objectivec.mm
-HEADERS += objectivec.h 
+HEADERS += objectivec.h
+HEADERS += autoPlayground.hpp
+SOURCES += autoPlayground.cpp
 SOURCES += main.cpp
 
-###Automation
-HEADERS += neuralNetwork.hpp
-SOURCES += neuralNetwork.cpp
-
-## External
+### External #####
+#hash-library#
+INCLUDEPATH += ../ext/hash-library/
 SOURCES += ../ext/hash-library/sha256.cpp
 HEADERS += ../ext/hash-library/hmac.h ../ext/hash-library/sha256.h
-            
 
+#libcurl#
+INCLUDEPATH += /usr/local/include/
+LIBS += -L"/usr/local/lib/" -lcurl.4
 
+#python#
+QMAKE_CXXFLAGS += $$system(python3-config --cflags)
+LIBS += $$system(python3-config --ldflags --embed)

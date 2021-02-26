@@ -48,16 +48,13 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
             this, [this](){
         chartPanel->simulate->setText("training");
         std::thread th([this]{
-            NeuralNetwork model(12 + 1); // temp, will be destroyed here
-            model.setNumberOfTrainingExamples(ticks.size());
-            model.setOutputStream(text);
-            model.loadData(&ticks);
-            model.train();
+            AutoPlayground model(); // temp, will be destroyed here
+            //To Do
+            //
+            //run scripts
             chartPanel->simulate->setText("Simulate");
         });
         th.detach();
-        //model.loadLatestData("../src/data/new_records.csv");
-        //model.predict();
     });
     
     // Theme
@@ -135,7 +132,6 @@ P2PView::P2PView (QWidget *parent) {
         darkTheme();
     else
         lightTheme();
-    
 }
 
 P2PView::~P2PView(){
@@ -143,11 +139,11 @@ P2PView::~P2PView(){
 }
 
 void P2PView::darkTheme() {
-    
+    // Todo
 }
 
 void P2PView::lightTheme() {
-    
+    // Todo
 }
 
 void P2PView::updateTheme(){

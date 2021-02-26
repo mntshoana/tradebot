@@ -71,11 +71,13 @@ void TradeBot::Cleanup(){
         delete home;
     if (p2p)
         delete p2p;
+    /* // messes up app signature
     std::ofstream fileTest;
     std::string path = absolutePath() + "destructor.complete"; // test if destructor is running
     fileTest.open(path, std::ios::out);
     fileTest << "Closed properly";
     fileTest.close();
+     */
     emit close();
 }
 

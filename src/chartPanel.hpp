@@ -16,7 +16,7 @@
 #include "lunoclient.hpp"
 #include "localbitcoinClient.hpp"
 
-#include "neuralNetwork.hpp"
+#include "autoPlayground.hpp"
 
 class CandleStick {
 public:
