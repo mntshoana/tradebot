@@ -1,21 +1,20 @@
 # Tradebot
-This project is aimed at having a tradie application understanding, using c++. Hopefully, this can grow into an automated trading bot.
+This project is aimed at having an understanding of trading through code. The project was created using c++ mainly for more experience in building an application from scratch. Ideas can be inspiring but they are useless if are not willed into existance. This will soon grow into an automated trading bot.
 
-This project was created using c++ for the sole purpose of :
-    - using REST api 
-    - using the Qt library (mainly for cross platform gui).
-    - more experience in building an application from scratch, or  specifically, from an idea. 
-Feel free to use this source code for learning c++.
+Feel free to use this source code however you please. #Learn c++.
+
 ## Requirements
-REST APIs in this source are invoked using http requests, thus, this code depends on libcurl. You should have this installed on your computer before attempting to compile this code.
+The project mostly uses c++. To be able to use this code, you will need to have a Qt compiler as well as libcurl installed in your system. The make.pro file is configured to use c++17, this is not a requirement. This code was only tested on MacOS (Catalina and Big Sur). I will continue using Qt version 6. 
 
-Compilation depends on Qt and was tested on MacOS using Qt 5.15.2, however, I will continue using Qt6 in future. This project requires qmake to compile. 
+Another requirement you must have already installed on your computer is libcurl. http requests are invoked using this library and it must be present. 
+
+Note: Python will also be used for financial machine learning in future, it is now also a required in order to compile.
 
 ## Usage
 Compile using
 
 ````
-git clone ...
+git git@github.com:mntshoana/tradebot.git 
 cd tradebot
 mkdir build && cd build
 ````
@@ -28,4 +27,8 @@ or
 ````
 qmake ../src -spec macx-xcode
 ````
-Note: I have not included the header file with the login credentials, you will need to add your own. I have also not included the .csv data file used to store any downloaded ticks by this code, as this way of storing data is not optimimal. Changes will be made, but should you choose to run this code, know that it will not save any ticks without having a .csv file in the data folder. Remember to provide this path in the "TradeBot.cpp" file, line 2. You will also need to upadte the main.pro file with the location for your libcurl, (i.e, include paths, libs).
+
+Note: A few files have been excluded from the repository.
+ - A header file containing the login credentials has been excluded.
+ - The .csv file which stores any offline tick data is also not included. The source code will refer to the location using an absolute path defined using #define CSV_FILE_PATH. Note that changing this path will still not save any ticks, not without having a .csv file that exists in that location.
+ - You will also need to upadte the main.pro file with the location for your libcurl, (i.e, include paths, libs).
