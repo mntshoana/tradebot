@@ -18,7 +18,7 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
 
     orderPanel = new OrderPanel(parent);
     chartPanel = new ChartPanel(parent);
-    
+    chartPanel->playground = new AutoPlayground(text);
     
     // home window request button click event
     connect(orderPanel->request,
@@ -48,10 +48,7 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
             this, [this](){
         chartPanel->simulate->setText("training");
         std::thread th([this]{
-            AutoPlayground model(); // temp, will be destroyed here
-            //To Do
-            //
-            //run scripts
+            chartPanel->playground->runScript();
             chartPanel->simulate->setText("Simulate");
         });
         th.detach();
@@ -65,9 +62,10 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
 }
 
 HomeView::~HomeView(){
-    delete text;
+    delete chartPanel->playground;
     delete chartPanel;
     delete orderPanel;
+    delete text;
     text = nullptr;
     chartPanel = nullptr;
     orderPanel = nullptr;

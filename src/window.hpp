@@ -29,7 +29,7 @@ public:
     QTextEdit* text;
     OrderPanel *orderPanel;
     ChartPanel *chartPanel;
-
+    
     Luno::LunoClient *lunoClient;
     std::vector<Luno::Trade> ticks, moreticks;
     

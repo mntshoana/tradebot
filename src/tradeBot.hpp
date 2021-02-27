@@ -23,6 +23,7 @@ private:
     void downloadTicks(std::string pair);
     
     std::string lastTrades();
+    std::string path;
 private:
     std::thread thread;
     bool loadingTicks;

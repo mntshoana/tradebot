@@ -64,6 +64,8 @@ public:
     QPushButton* automate;
     QComboBox* timeframe;
     
+    AutoPlayground* playground;
+    
     ChartPanel(QWidget* parent = nullptr);
     
     void loadChart(std::vector<Luno::Trade>::iterator itr,

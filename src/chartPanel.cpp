@@ -95,6 +95,7 @@ int Chart::scaleY(int y){
 
 //Constructor
 ChartPanel::ChartPanel(QWidget* parent) : QWidget(parent) {
+    playground = nullptr;
     setGeometry(0, 0, 1180, 500);
     grabGesture(Qt::PanGesture);
     grabGesture(Qt::PinchGesture);

@@ -1,7 +1,5 @@
 #include "tradeBot.hpp"
 
-#define CSV_FILE_PATH "/Users/macgod/Dev/tradebot/tradebot/src/data/"
-
 // Constructor
 TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     p2p = nullptr; // peer to peer window, not active
@@ -21,6 +19,12 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     connect(timer, &QTimer::timeout, this, &TradeBot::OnUpdate);
     timerCount = new size_t(0); // counts the timeouts triggered by timer
     timer->start(100);
+    
+    path = absolutePath();//"../../src/data/";
+    size_t pos = path.find_last_of("/", path.length()-1);
+    pos = path.find_last_of("/", pos-1);
+    pos = path.find_last_of("/", pos-1);
+    path = path.substr(0, pos) + "/src/data/";
     
     connect(home->chartPanel->P2Pbutton, &QPushButton::clicked, this, [this]() {
         timer->stop();
@@ -71,13 +75,7 @@ void TradeBot::Cleanup(){
         delete home;
     if (p2p)
         delete p2p;
-    /* // messes up app signature
-    std::ofstream fileTest;
-    std::string path = absolutePath() + "destructor.complete"; // test if destructor is running
-    fileTest.open(path, std::ios::out);
-    fileTest << "Closed properly";
-    fileTest.close();
-     */
+    
     emit close();
 }
 
@@ -150,7 +148,8 @@ void TradeBot::OnUpdate() {
 
 void TradeBot::loadLocalTicks(){
     loadingTicks = true;
-    file.open(std::string(CSV_FILE_PATH) + "XBTZAR.csv" , std::ios::in);
+    
+    file.open(path + "XBTZAR.csv" , std::ios::in);
     if (file.good()){
         file >> home->ticks; // <- may take extremely long
             
@@ -160,12 +159,12 @@ void TradeBot::loadLocalTicks(){
                 while (home->ticks.size() > 0 && home->ticks.back().sequence != home->ticks.size())
                     home->ticks.pop_back();
                 file.close();
-                file.open(CSV_FILE_PATH, std::ios::out | std::ios::app);
+                file.open(path, std::ios::out | std::ios::app);
                 file << home->ticks;
                 file.close();
-                remove( (std::string(CSV_FILE_PATH) + "XBTZAR.csv").c_str() );
-                rename( (std::string(CSV_FILE_PATH) + "XBTZAR2.csv").c_str(),
-                        (std::string(CSV_FILE_PATH) + "XBTZAR.csv" ).c_str());
+                remove( (path + "XBTZAR.csv").c_str() );
+                rename( (path + "XBTZAR2.csv").c_str(),
+                        (path + "XBTZAR.csv" ).c_str());
             }
         }
         if (!closing && home->ticks.size() > 0){
@@ -203,7 +202,7 @@ void TradeBot::downloadTicks(std::string pair){
     if (home->moreticks.size() > 0){
         home->ticks.insert(home->ticks.end(), home->moreticks.begin(), home->moreticks.end());
         *timestamp = home->moreticks.back().timestamp;
-        file.open( std::string(CSV_FILE_PATH) + pair + ".csv", std::ios::out | std::ios::app);
+        file.open( path + pair + ".csv", std::ios::out | std::ios::app);
         file << home->moreticks;
         file.close();
     }

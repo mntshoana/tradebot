@@ -4,9 +4,17 @@ QT += widgets network
 QMAKE_CXXFLAGS += -std=c++17
 
 LIBS += -framework SystemConfiguration
+
 TARGET = tradebot
-CONFIG += debug
-DESTDIR = ../bin/
+CONFIG += debug_and_release_target
+CONFIG(debug, debug|release) {
+    DESTDIR = ../bin/debug/
+    OBJECTS_DIR = ../bin/debug/.obj/
+} else {
+    DESTDIR = ../bin/release/
+    OBJECTS_DIR = ../bin/release/.obj/
+}
+
 
 SOURCES += tradeBot.cpp \
             label.cpp orderPanel.cpp chartPanel.cpp \

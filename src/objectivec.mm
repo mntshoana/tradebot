@@ -18,8 +18,10 @@ std::string absolutePath (){
     char path[1024];
 #ifdef TARGET_OS_MAC
     uint32_t size = sizeof(path);
-    if (_NSGetExecutablePath(path, &size) == 0)
-        return std::string (path, strlen(path) - 8); // tradebot = 8
+    if (_NSGetExecutablePath(path, &size) == 0){
+        char* ptr = strstr(path, "tradebot.app");
+        return std::string (path, strlen(path) - strlen(ptr)); // tradebot = 8
+    }
     else
         //Buffer was too small;
         return "";
