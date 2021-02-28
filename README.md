@@ -30,5 +30,5 @@ qmake ../src -spec macx-xcode
 
 Note: A few files have been excluded from the repository.
  - A header file containing the login credentials has been excluded.
- - The .csv file which stores any offline tick data is also not included. The source code will refer to the location using an absolute path defined using #define CSV_FILE_PATH. Note that changing this path will still not save any ticks, not without having a .csv file that exists in that location.
- - You will also need to upadte the main.pro file with the location for your libcurl, (i.e, include paths, libs).
+ - A .csv file meant to store any offline tick data is excluded. The code will refer to 'src/data/' using an absolute path function. Place your .csv file in this folder. Then rename it to match the code or change the code to match the name of the file.
+ - You will also need to update the Qt main.pro project file with the paths for libcurl, (i.e, include paths, libs).
