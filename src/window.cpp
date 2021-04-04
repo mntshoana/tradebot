@@ -12,23 +12,35 @@ QTextBrowser& operator<< (QTextBrowser& stream, std::string str)
 }
 
 HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent), lunoClient(client) {
-    text = new QTextEdit(parent);
+    text = new QTextEdit();
     text->setGeometry(0, 500, 1180, 220);
     text->setText("");
 
+    openOrderPanel = new OpenOrderPanel();
+
+    tabWidget = new QTabWidget(parent);
+    tabWidget->setGeometry(0, 500, 1180, 220);
+    tabWidget->addTab(text, tr("Output"));
+    tabWidget->addTab(openOrderPanel, tr("Open Orders"));
+    tabWidget->show();
+    //tabWidget->setCurrentWidget(text);
+    
     orderPanel = new OrderPanel(parent);
     chartPanel = new ChartPanel(parent);
     chartPanel->playground = new AutoPlayground(text);
     
-    // home window request button click event
+    
+    // request button
+    // click event
     connect(orderPanel->request,
             &QPushButton::clicked, this,[this](){
         
         const char *action = (orderPanel->isBuy)
                 ? "BID" : "ASK";
         try {
-            *(text) << lunoClient->postLimitOrder("XBTZAR", action, atof(orderPanel->txtAmount->text().toStdString().c_str()),
-                atoi(orderPanel->txtPrice->text().toStdString().c_str()));
+            *(text) << lunoClient->postLimitOrder("XBTZAR", action,
+                                                  atof(orderPanel->txtAmount->text().toStdString().c_str()),
+                                                  atoi(orderPanel->txtPrice->text().toStdString().c_str()));
         } catch (ResponseEx ex){
            *(text) << ex.String();
         }

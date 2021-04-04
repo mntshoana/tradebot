@@ -4,6 +4,7 @@
 #include <thread>
 #include "orderPanel.hpp"
 #include "chartPanel.hpp"
+#include "openOrderPanel.hpp"
 
 QTextEdit& operator<< (QTextEdit& stream, std::string str);
 QTextBrowser& operator<< (QTextBrowser& stream, std::string str);
@@ -26,9 +27,13 @@ public:
     HomeView (QWidget *parent = 0, Luno::LunoClient* client = nullptr);
     virtual ~HomeView();
     
+    QTabWidget *tabWidget;
     QTextEdit* text;
+    OpenOrderPanel *openOrderPanel;
+    
     OrderPanel *orderPanel;
     ChartPanel *chartPanel;
+    
     
     Luno::LunoClient *lunoClient;
     std::vector<Luno::Trade> ticks, moreticks;
