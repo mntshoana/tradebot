@@ -119,7 +119,9 @@ void TradeBot::OnUpdate() {
         
         if (*timerCount % 10 == 0){
             auto openOrders = home->lunoClient->getUserOrders("XBTZAR", "PENDING");
-            home->openOrderPanel->AddItem(openOrders, &lunoClient);
+            if (*timerCount % 20 == 0)
+                home->openOrderPanel->clearItems();
+            home->openOrderPanel->addItem(openOrders, &lunoClient);
         }
         
         if (*timerCount % 30 == 0){

@@ -16,12 +16,15 @@ class OpenOrderPanel : public QWidget {
     Q_OBJECT
 private:
     std::vector<std::string> orderIds;
+    bool hasTitle;
 public:
     QVBoxLayout *format;
     QHBoxLayout *line;
     
-    void CreateItem (Luno::UserOrder&, Luno::LunoClient* client);
-    void AddItem (std::vector<Luno::UserOrder>& openOrders, Luno::LunoClient* client);
+    void clearItems();
+    void createItem (Luno::UserOrder&, Luno::LunoClient* client);
+    void createTitle ();
+    void addItem (std::vector<Luno::UserOrder>& openOrders, Luno::LunoClient* client);
     OpenOrderPanel(QWidget* parent = nullptr);
     void paintEvent(QPaintEvent *);
 };

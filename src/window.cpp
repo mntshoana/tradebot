@@ -55,7 +55,7 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
             }
             else if (!orderPanel->isBuy && amount == 0.0f){
                 auto balances = lunoClient->getBalances("XBT");
-                amount = balances[0].balance / float(price);
+                amount = balances[0].balance - balances[0].reserved;
                 
                 *(text) << "Price: " << std::to_string(price);
                 *(text) << "Amount: " << std::to_string(amount);
