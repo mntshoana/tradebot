@@ -1,38 +1,71 @@
 #include "openOrderPanel.hpp"
 
 OpenOrderPanel::OpenOrderPanel(QWidget* parent) : QWidget(parent){
-    list = new QListWidget(this);
-    list->setGeometry(0, 500, 1180, 220);
-    QFile file ( "/Users/macgod/Dev/tradebot/tradebot/src/mylist.txt" );
-    if ( !file.open ( QIODevice::ReadOnly ) ) {
-        QMessageBox::information ( 0, "error", file.errorString() );
-    }
-
-    QTextStream in ( &file );
-    while ( !in.atEnd() ) {
-        QString line = in.readLine();
-        CreateItem ( line );
-    }
-
-    file.close();
+    setGeometry(0, 500, 1180, 220);
+    
+    format = new QVBoxLayout();
+    format->setSpacing(0);
+    setLayout(format);
+    
+    
 }
-void OpenOrderPanel::CreateItem (QString& TheText  )
+void OpenOrderPanel::CreateItem (Luno::UserOrder& order, Luno::LunoClient* client )
 {
-
-    QListWidgetItem* item = new QListWidgetItem ( "" );
-    list->addItem ( item );
-    // add a place hodler for label and button
-
-    setLayout ( new QHBoxLayout() );
-    QPushButton *but = new QPushButton ( "Do it" );
-    QLabel *lab = new QLabel ( TheText );
-    // make row a bit bigger
-    item->setSizeHint ( QSize ( item->sizeHint().width(), 30 ) );
+    std::stringstream ss;
+    ss << "Created: ";
+    ss << QDateTime::fromMSecsSinceEpoch(order.createdTime).toString("ddd MMMM d yyyy hh:mm").toStdString();
+    ss << " Price:" << order.price;
+    
+    QLabel *lab = new QLabel ( QString::fromStdString(ss.str() ) );
+    QPushButton *but = new QPushButton ( "Cancel" );
+    
     // add the label and button to the layout
-    layout()->addWidget ( lab );
-    layout()->addWidget ( but );
-    // reduce the space around it abit
-    layout()->setContentsMargins ( 1, 1, 1, 1 );
-    // set this combined widget for the row
-    //list->setItemWidget ( item, this );
+    line = new QHBoxLayout;
+    line->addWidget( lab,19);
+    line->addWidget( but,1 );
+    line->setContentsMargins(1,0,0,0);
+    
+    format->addLayout(line);
+
+    connect(but, &QPushButton::clicked, this, [this, order, client] () {
+        auto it = std::find(orderIds.begin(), orderIds.end(), order.orderID);
+        int index = it - orderIds.begin();
+        client->stopOrder(order.orderID);
+        
+        QLayout *level = format->takeAt(index)->layout();
+        while(!level->isEmpty()) {
+            QWidget *w = level->takeAt(0)->widget();
+            delete w;
+        }
+        delete level;
+        
+        orderIds.erase(it);
+    });
+    
 }
+
+void OpenOrderPanel::AddItem (std::vector<Luno::UserOrder>& openOrders, Luno::LunoClient* client){
+    for (Luno::UserOrder& order : openOrders){
+        bool exists = false;
+        for (std::string& id : orderIds){
+            if (order.orderID == id){
+                exists = true;
+                break;
+            }
+        }
+        
+        if (!exists){
+            orderIds.push_back(order.orderID);
+            CreateItem( order, client );
+        }
+    }
+}
+
+void OpenOrderPanel::paintEvent(QPaintEvent *)
+ {
+     // The following allows Qt style sheets to work on a derived class (#derivedClassName)
+     QStyleOption options;
+     options.initFrom(this);
+     QPainter painter(this);
+     style()->drawPrimitive(QStyle::PE_Widget, &options, &painter, this);
+ }

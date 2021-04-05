@@ -5,6 +5,20 @@
 #include <vector>
 
 namespace Luno {
+    /* Account Functions Types*/
+    class Balance {
+    public:
+        Balance(){}
+        std::string accountID;
+        std::string asset;
+        float balance;
+        float reserved;
+        float uncomfirmed;
+    };
+
+    template <class T> T& operator << (T& stream, Balance& balance);
+    template <class T> T& operator << (T& stream, std::vector<Balance>& balances);
+
     /* Market Functions Types */
     class Order {
     public:

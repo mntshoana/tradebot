@@ -26,6 +26,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     pos = path.find_last_of("/", pos-1);
     path = path.substr(0, pos) + "/src/data/";
     
+    closing = false;
     connect(home->chartPanel->P2Pbutton, &QPushButton::clicked, this, [this]() {
         timer->stop();
         manager.stop();
@@ -57,11 +58,6 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
                              &Luno::Ticker::getTimestamp,
                              home->text, false),
                     true);
-    manager.enqueue(new func1(this,
-                             &TradeBot::downloadTicks,
-                             std::string("XBTZAR"),
-                             home->text),
-                    true);
 }
 
 void TradeBot::Cleanup(){
@@ -84,6 +80,11 @@ void TradeBot::OnFinishedUpdate(){
         home->chartPanel->loadChart(home->ticks.begin(), home->ticks.end());
         home->chartPanel->chart->update();
         home->chartPanel->update();
+        manager.enqueue(new func1(this,
+                                 &TradeBot::downloadTicks,
+                                 std::string("XBTZAR"),
+                                 home->text),
+                        true);
     }
     *timerCount = *timerCount +1;
     if (!closing)
@@ -116,6 +117,11 @@ void TradeBot::OnUpdate() {
         home->orderPanel->tradeview->setHtml(lastTrades().c_str());
         home->orderPanel->tradeview->verticalScrollBar()->setValue(y);
         
+        if (*timerCount % 10 == 0){
+            auto openOrders = home->lunoClient->getUserOrders("XBTZAR", "PENDING");
+            home->openOrderPanel->AddItem(openOrders, &lunoClient);
+        }
+        
         if (*timerCount % 30 == 0){
             //Theme
             current->updateTheme();
@@ -127,6 +133,11 @@ void TradeBot::OnUpdate() {
                                      home->text, false),
                             true);
         }
+        
+        // refresh chart
+        home->chartPanel->loadChart(home->ticks.begin(), home->ticks.end());
+        home->chartPanel->chart->update();
+        home->chartPanel->update();
         emit finishedUpdate();
     }
     else if (*timerCount % 2 == 1 ){

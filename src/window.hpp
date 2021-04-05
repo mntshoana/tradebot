@@ -5,6 +5,7 @@
 #include "orderPanel.hpp"
 #include "chartPanel.hpp"
 #include "openOrderPanel.hpp"
+#include "localbitcoinClient.hpp"
 
 QTextEdit& operator<< (QTextEdit& stream, std::string str);
 QTextBrowser& operator<< (QTextBrowser& stream, std::string str);

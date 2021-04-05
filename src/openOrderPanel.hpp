@@ -1,24 +1,29 @@
 #ifndef OPEN_ORDER_PANEL_HPP
 #define OPEN_ORDER_PANEL_HPP
-#include <QApplication>
-#include <QCheckBox>
-#include <QRadioButton>
 #include <QPushButton>
-#include <QVBoxLayout>
+#include <QFormLayout>
 #include <QLabel>
-#include <QFile>
-#include <QMessageBox>
 #include <QTextStream>
-#include <QListWidget>
+#include <QPainter>
+#include <QPaintEvent>
+#include <QStyleOption>
 
+#include <QDateTime>
+#include "lunoclient.hpp"
+
+#include <sstream>
 class OpenOrderPanel : public QWidget {
     Q_OBJECT
+private:
+    std::vector<std::string> orderIds;
 public:
-    QListWidget * list;
+    QVBoxLayout *format;
+    QHBoxLayout *line;
     
-    void CreateItem (QString& TheText);
+    void CreateItem (Luno::UserOrder&, Luno::LunoClient* client);
+    void AddItem (std::vector<Luno::UserOrder>& openOrders, Luno::LunoClient* client);
     OpenOrderPanel(QWidget* parent = nullptr);
-    
+    void paintEvent(QPaintEvent *);
 };
 
 #endif

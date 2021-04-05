@@ -12,35 +12,60 @@ QTextBrowser& operator<< (QTextBrowser& stream, std::string str)
 }
 
 HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent), lunoClient(client) {
+    orderPanel = new OrderPanel(parent);
+    
+    chartPanel = new ChartPanel(parent);
+    
     text = new QTextEdit();
     text->setGeometry(0, 500, 1180, 220);
+    text->setStyleSheet("QTextEdit { padding-left:5; padding-top:10;}");
     text->setText("");
 
     openOrderPanel = new OpenOrderPanel();
-
+    openOrderPanel->setObjectName("OpenOrderPanel");
+    
     tabWidget = new QTabWidget(parent);
-    tabWidget->setGeometry(0, 500, 1180, 220);
+    tabWidget->setGeometry(0, 480, 1180, 240);
     tabWidget->addTab(text, tr("Output"));
     tabWidget->addTab(openOrderPanel, tr("Open Orders"));
-    tabWidget->show();
-    //tabWidget->setCurrentWidget(text);
     
-    orderPanel = new OrderPanel(parent);
-    chartPanel = new ChartPanel(parent);
     chartPanel->playground = new AutoPlayground(text);
-    
-    
     // request button
     // click event
     connect(orderPanel->request,
             &QPushButton::clicked, this,[this](){
         
+        int price = atoi(orderPanel->txtPrice->text().toStdString().c_str());
+        float amount = atof(orderPanel->txtAmount->text().toStdString().c_str());
+        
+        if (price == 0){
+            *(text) << "Error - Price cannot be empty.";
+            return;
+        }
+        
         const char *action = (orderPanel->isBuy)
                 ? "BID" : "ASK";
         try {
-            *(text) << lunoClient->postLimitOrder("XBTZAR", action,
-                                                  atof(orderPanel->txtAmount->text().toStdString().c_str()),
-                                                  atoi(orderPanel->txtPrice->text().toStdString().c_str()));
+            if (orderPanel->isBuy && amount == 0.0f){
+                auto balances = lunoClient->getBalances("ZAR");
+                amount = (balances[0].balance - balances[0].reserved) / float(price);
+        
+                *(text) << "Price: " << std::to_string(price);
+                *(text) << "Amount: " << std::to_string(amount);
+            }
+            else if (!orderPanel->isBuy && amount == 0.0f){
+                auto balances = lunoClient->getBalances("XBT");
+                amount = balances[0].balance / float(price);
+                
+                *(text) << "Price: " << std::to_string(price);
+                *(text) << "Amount: " << std::to_string(amount);
+            }
+            
+            if (amount < 0.0005f){
+                *(text) << "Error - cannot trade for less than 0.000500 BTC";
+                return;
+            }
+            *(text) << lunoClient->postLimitOrder("XBTZAR", action, amount, price);
         } catch (ResponseEx ex){
            *(text) << ex.String();
         }
@@ -99,6 +124,19 @@ void HomeView::darkTheme(){
     chartPanel->setPalette(p);
     p.setColor(QPalette::Window, darker);
     chartPanel->chart->setPalette(p);
+    
+    tabWidget->setStyleSheet(R"(QTabWidget::tab-bar  {
+                                left: 5px;
+                                top: 26px;
+                             } QTabWidget::pane {
+                             border-top: 25px solid #1a1a1a;
+                             } QTextEdit, #OpenOrderPanel {
+                             background-color: rgb(28, 28, 28);
+                             border-style: outset;
+                             border-width: 0.5px;
+                             border-top-color: rgb(25, 25, 25);
+                             } )");
+    
 }
 void HomeView::lightTheme() {
     // Theme
@@ -118,6 +156,22 @@ void HomeView::lightTheme() {
     chartPanel->setPalette(p);
     p.setColor(QPalette::Window, light);
     chartPanel->chart->setPalette(p);
+    
+    tabWidget->setStyleSheet(R"(QTabWidget::tab-bar  {
+                                left: 5px;
+                                top: 26px;
+                             } QTabWidget::pane {
+                             border-top: 25px solid #fdfdfd;
+                             } QTextEdit, #OpenOrderPanel {
+                             background-color: rgb(253, 253, 253);
+                             border-style: outset;
+                             border-width: 0.5px;
+                             border-top-color: rgb(165, 165, 165);
+                             border-bottom-color: rgb(245, 245, 245);
+                             border-left-color: rgb(185, 185, 185);
+                             border-right-color: rgb(225, 225, 225);
+                             } )");
+    
     nightmode = false;
 }
 
@@ -134,6 +188,7 @@ void HomeView::updateTheme(){
 P2PView::P2PView (QWidget *parent) {
     text = new QTextEdit(parent);
     text->setGeometry(0, 500, 1180, 220);
+    text->document()->setDocumentMargin(5);
     text->setText("Peer 2 Peer View");
     text->show();
     

@@ -14,6 +14,13 @@ namespace Luno {
         std::vector<Ticker> getTickers();
         std::vector<Trade> getTrades(std::string pair, unsigned long long since = 0);
 
+        /* Account Functions */
+        // create account
+        // update account
+        // list pending transaction
+        // list transaction
+        std::vector<Balance> getBalances(std::string asset = "");
+        
         /* Order Functions */
         Fee getFeeInfo(std::string pair);
         std::vector<UserOrder> getUserOrders(std::string pair = "",
@@ -48,7 +55,7 @@ namespace Luno {
         /**/ std::string sendToAddress(std::string asset, std::string address, float amount);
         /* Danger: could lose asset*/
 
-        /* Withdrawals Functions */
+        /* Transfers Functions */
         std::string getWithdrawalList();
         std::string withdraw(float amount);
         std::string getWithdrawal(std::string id);
