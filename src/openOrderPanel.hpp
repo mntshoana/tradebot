@@ -8,6 +8,7 @@
 #include <QPaintEvent>
 #include <QStyleOption>
 
+#include <QScrollArea>
 #include <QDateTime>
 #include "lunoclient.hpp"
 
@@ -15,17 +16,19 @@
 class OpenOrderPanel : public QWidget {
     Q_OBJECT
 private:
+    Luno::LunoClient* client;
     std::vector<std::string> orderIds;
     bool hasTitle;
+    
 public:
     QVBoxLayout *format;
     QHBoxLayout *line;
     
     void clearItems();
-    void createItem (Luno::UserOrder&, Luno::LunoClient* client);
+    void createItem (Luno::UserOrder&);
     void createTitle ();
-    void addItem (std::vector<Luno::UserOrder>& openOrders, Luno::LunoClient* client);
-    OpenOrderPanel(QWidget* parent = nullptr);
+    void addOrders ();
+    OpenOrderPanel(QWidget* parent = nullptr, Luno::LunoClient* client = nullptr);
     void paintEvent(QPaintEvent *);
 };
 

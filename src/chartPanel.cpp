@@ -185,7 +185,7 @@ void ChartPanel::paintEvent(QPaintEvent *event){
     for (size_t yAxis = 50; yAxis < 450; yAxis += 40) {
         
         painter.drawLine(1090, yAxis, 1092, yAxis);
-        painter.setFont(QFont("Arial", 12));
+        painter.setFont(QFont("Arial", 14));
         painter.drawText(QRect(1095,yAxis-7, 40, 30), Qt::AlignLeft, std::to_string(y).c_str());
         y -= dif / 10;
     }
@@ -200,12 +200,15 @@ void ChartPanel::loadChart(std::vector<Luno::Trade>::iterator itr,
     unsigned long long timestamp;
     std::string period = timeframe->currentText().toStdString();
     unsigned long long timeInterval;
+    
     if (itr != end){
-        open = close = high = low = itr->price;
         timestamp = itr->timestamp;
         timeInterval = updateInterval(period, timestamp);
+
+        open = close = high = low = itr->price;        
         itr++;
     }
+    
     while (itr != end) {
         if (high < itr->price)
             high = itr->price;
@@ -350,4 +353,15 @@ void ChartPanel::zoomEvent (qreal zoomFactor){
     chart->scale(zoomFactor);
     chart->update();
     update();
+}
+
+void ChartPanel::dragEnterEvent(QDragEnterEvent* ev){
+    ev->accept();
+}
+
+void ChartPanel::dragMoveEvent(QDragMoveEvent* event){
+    auto item = (QWidget*) event->source();
+    if (item->isAncestorOf(this)){
+        event->ignore(); // to prevent moving of ChartPanel winodw by mouse dragging it draging
+    }
 }

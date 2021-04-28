@@ -7,7 +7,7 @@ OrderView& operator<< <std::string>(OrderView& stream, std::string str)
     {
         stream.append(str.c_str()); // update content
         auto step = stream.verticalScrollBar()->singleStep();
-        stream.verticalScrollBar()->setValue(step * 97.8);
+        stream.verticalScrollBar()->setValue(step * 107.8);
         stream.orderViewIsEmpty = false;
     }
     else {

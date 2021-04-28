@@ -181,9 +181,11 @@ namespace Luno {
                 td {
                     padding: 2px 4px 1px 2px;
                     text-align: center;
+                    font-size: 15px;
+                    font-weight: 700;
                 }
-                .Ask a {color: rgb(222, 81, 65);}
-                .Bid a {color: rgb(94, 186, 137);}
+                .Ask a {color: rgb(192, 51, 35);}
+                .Bid a {color: rgb(54, 136, 87);}
                 .Mid {padding: 5px 2px;}
                 </style>
                 <table width=100%>)";

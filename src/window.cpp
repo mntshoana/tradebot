@@ -21,7 +21,7 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
     text->setStyleSheet("QTextEdit { padding-left:5; padding-top:10;}");
     text->setText("");
 
-    openOrderPanel = new OpenOrderPanel();
+    openOrderPanel = new OpenOrderPanel(nullptr, lunoClient);
     openOrderPanel->setObjectName("OpenOrderPanel");
     
     tabWidget = new QTabWidget(parent);
@@ -76,6 +76,7 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
         this, [this](const QString &str){
         *(text) << str.toStdString();
         chartPanel->loadChart(ticks.begin(), ticks.end());
+        chartPanel->chart->left = (chartPanel->chart->count()+1) * chartPanel->chart->scaledXIncrements - 980;
         chartPanel->chart->update();
         chartPanel->update();
     });

@@ -80,6 +80,8 @@ public:
     
     public slots:
     virtual void zoomEvent (qreal zoomFactor);
+    virtual void dragEnterEvent(QDragEnterEvent *event) override;
+    virtual void dragMoveEvent(QDragMoveEvent* event) override;
 };
 
 #endif /* TradeBot_ChartPanel_hpp */

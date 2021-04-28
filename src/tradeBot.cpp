@@ -78,6 +78,7 @@ void TradeBot::Cleanup(){
 void TradeBot::OnFinishedUpdate(){
     if (*timerCount == 0){
         home->chartPanel->loadChart(home->ticks.begin(), home->ticks.end());
+        home->chartPanel->chart->left = (home->chartPanel->chart->count()+1) * home->chartPanel->chart->scaledXIncrements - 980;
         home->chartPanel->chart->update();
         home->chartPanel->update();
         manager.enqueue(new func1(this,
@@ -117,12 +118,10 @@ void TradeBot::OnUpdate() {
         home->orderPanel->tradeview->setHtml(lastTrades().c_str());
         home->orderPanel->tradeview->verticalScrollBar()->setValue(y);
         
-        if (*timerCount % 10 == 0){
-            auto openOrders = home->lunoClient->getUserOrders("XBTZAR", "PENDING");
-            if (*timerCount % 20 == 0)
-                home->openOrderPanel->clearItems();
-            home->openOrderPanel->addItem(openOrders, &lunoClient);
-        }
+        if (*timerCount % 10 == 0)
+            home->openOrderPanel->clearItems();
+        home->openOrderPanel->addOrders();
+        
         
         if (*timerCount % 30 == 0){
             //Theme
@@ -236,9 +235,11 @@ std::string TradeBot::lastTrades() {
             td {
                 padding: 2px 1px 1px 1px;
                 text-align: center;
+                font-size: 14px;
+                font-weight: 700;
             }
-            .Ask a {color: rgb(222, 81, 65);}
-            .Bid a {color: rgb(94, 186, 137);}
+            .Ask a {color: rgb(192, 51, 35);}
+            .Bid a {color: rgb(54, 136, 87);}
             </style>
             <table width=100%>)";
     
