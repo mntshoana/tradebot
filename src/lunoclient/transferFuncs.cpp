@@ -22,8 +22,8 @@ namespace Luno {
             
             // id
             last = res.find("id", last);
-            last = res.find(":", last) + 1;
-            next = res.find(",", last);
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
             std::string token = res.substr(last, next-last);
             withdrawals.back().id = atoll(token.c_str());
             last = next + 1;

@@ -89,10 +89,7 @@ void PendingOrdersPanel::createItem (Luno::UserOrder& order)
     line->addWidget( but,1 );
     line->setContentsMargins(1,0,0,0);
     line->setAlignment(Qt::AlignTop);
-    //line->sizeHint()
     
-    // minimumSize
-    //maximumSize properties.
     line->setGeometry(QRect(0, 500, 930, 30));
     line->addStrut(10);
     
@@ -137,7 +134,7 @@ void PendingOrdersPanel::addOrders (){
             }
         }
     } catch (ResponseEx ex){
-            text << ex.String().c_str(); // To do:: should be an error stream here
+            text << ex.String().c_str();
     }
 }
 

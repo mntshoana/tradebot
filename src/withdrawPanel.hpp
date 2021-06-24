@@ -1,6 +1,7 @@
 #ifndef WITHDRAW_PANEL_HPP
 #define WITHDRAW_PANEL_HPP
 
+#include <QDateTime>
 #include <QPushButton>
 #include <QLabel>
 #include <QComboBox>
@@ -20,23 +21,40 @@ class WithdrawPanel : public QWidget {
     Q_OBJECT
 private:
     std::vector<Luno::Balance> userBalances;
-    std::vector<Luno::Withdrawal> userWithdrawals;
+
     TextPanel text;
     
     QComboBox* assetBox;
     QLabel *lblAsset, *lblAmount,
-            *lblBalance, *lblInstantWithdrawal;
+            *lblBalance, *lblInstantWithdrawal,
+            *lblPending;
     
     LineBlock *txtAmount;
     QCheckBox *cbxFastWithdraw;
     QGridLayout* panelLayout;
     QPushButton* withdraw;
-    std::string floatToString(float val, const int decimals = 6);
+    
+    class Pending : public QWidget {
+        std::vector<Luno::Withdrawal> userWithdrawals;
+        TextPanel text;
+    public:
+        QVBoxLayout *format;
+        QHBoxLayout *line;
+        
+        Pending(QWidget* parent = nullptr);
+        void loadItems();
+        void reloadItems();
+        void createItem (Luno::Withdrawal&);
+        void createTitle ();
+        void paintEvent(QPaintEvent *);
+    }*pending;
+    
+    static std::string floatToString(float val, const int decimals = 6);
 public:
     QGroupBox *boundingBox;
     
     void loadItems ();
-    void loadItems(std::vector<Luno::Balance>& toCopy);
+    void reloadItemsUsing(std::vector<Luno::Balance>& toCopy);
     WithdrawPanel(QWidget* parent = nullptr);
     void paintEvent(QPaintEvent *);
 };

@@ -4,7 +4,7 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
     setGeometry(0, 500, 930, 220);
     
     loadItems();
-    text.getQText() << userWithdrawals; // quick test of function only
+    
     lblAsset = new QLabel("Asset", this);
     
     QStringList assetList;
@@ -26,6 +26,10 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
     lblInstantWithdrawal = new QLabel("Instant Withdrawal", this);
     cbxFastWithdraw = new QCheckBox(this);
     
+    lblPending = new QLabel("Pending withdrawals", this);
+    pending = new Pending(this);
+    
+    
     panelLayout = new QGridLayout;
     boundingBox = new QGroupBox(this);
     panelLayout->addWidget(lblAsset, 1, 1);
@@ -36,11 +40,12 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
     panelLayout->addWidget(lblInstantWithdrawal, 3, 1);
     panelLayout->addWidget(cbxFastWithdraw, 3, 2);
     panelLayout->addWidget(withdraw, 4, 2);
-    
-    panelLayout->setContentsMargins(60, 30, 0, 0);
+    panelLayout->addWidget(lblPending, 1, 5, 1, 4, Qt::AlignRight);
+    panelLayout->addWidget(pending, 2, 5, 3, 4);
+    panelLayout->setContentsMargins(30, 30, 30, 60);
 
     boundingBox->setLayout(panelLayout);
-    
+    boundingBox->setGeometry(0, 0, 930, 220);
     connect(assetBox, &QComboBox::currentTextChanged, this,
             [this](const QString &selection){
                 for (Luno::Balance bal : userBalances){
@@ -92,15 +97,14 @@ std::string WithdrawPanel::floatToString(float val, const int decimals )
 void WithdrawPanel::loadItems (){
     try{
         userBalances = Luno::LunoClient::getBalances();
-        userWithdrawals = Luno::LunoClient::getWithdrawalList();
-        
     } catch (ResponseEx ex){
-            text << ex.String().c_str(); // To do:: should be an error stream here
+            text << ex.String().c_str();
     }
 }
 
-void WithdrawPanel::loadItems(std::vector<Luno::Balance>& toCopy){
+void WithdrawPanel::reloadItemsUsing(std::vector<Luno::Balance>& toCopy){
     userBalances = toCopy;
+    pending->reloadItems();
 }
 void WithdrawPanel::paintEvent(QPaintEvent *) {
      // The following allows Qt style sheets to work on a derived class (#derivedClassName)
@@ -109,4 +113,132 @@ void WithdrawPanel::paintEvent(QPaintEvent *) {
      QPainter painter(this);
      style()->drawPrimitive(QStyle::PE_Widget, &options, &painter, this);
     
+}
+    
+void WithdrawPanel::Pending::reloadItems(){
+    for  (int i = userWithdrawals.size(); i >= 0; i--){
+        QLayout *level = format->takeAt(i)->layout();
+        while(!level->isEmpty()) {
+            QWidget *w = level->takeAt(0)->widget();
+            delete w;
+        }
+        delete level;
+    }
+    userWithdrawals.clear();
+    createTitle();
+    loadItems();
+}
+
+WithdrawPanel::Pending::Pending(QWidget* parent) : QWidget(parent){
+    setAutoFillBackground(true);
+    
+    format = new QVBoxLayout;
+    format->setSpacing(0);
+    format->setAlignment(Qt::AlignTop);
+    setLayout(format);
+    
+    createTitle();
+    loadItems();
+}
+
+void WithdrawPanel::Pending::createItem (Luno::Withdrawal& withdrawal){
+    QLabel *lblDate = new QLabel ( QDateTime::fromMSecsSinceEpoch(withdrawal.createdTime).toString("ddd d, hh:mm") );
+    QLabel *lblType = new QLabel ( QString::fromStdString(withdrawal.currency ) );
+    
+    std::string amount = floatToString(withdrawal.amount, (withdrawal.currency == "ZAR" ? 2 : 6));
+    QLabel *lblAmount = new QLabel ( QString::fromStdString(amount ) );
+    std::string fee = floatToString(withdrawal.fee, (withdrawal.currency == "ZAR" ? 2 : 6));
+    QLabel *lblFee = new QLabel ( QString::fromStdString(fee ) );
+    
+    QPushButton *but = new QPushButton ( "Cancel" );
+    
+    lblDate->setMinimumHeight(15);lblDate->setFixedHeight(15);lblDate->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblType->setMinimumHeight(15);lblType->setFixedHeight(15);lblType->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblAmount->setFixedHeight(15);lblAmount->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblFee->setFixedHeight(15);lblFee->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+
+    // add the label and button to the layout
+    line = new QHBoxLayout;
+    line->addWidget( lblDate,9);
+    line->addWidget( lblType,5);
+    line->addWidget( lblAmount,7);
+    line->addWidget( lblFee,5);
+    line->addWidget( but,1 );
+    line->setContentsMargins(1,0,0,0);
+    line->setAlignment(Qt::AlignTop);
+    
+    line->addStrut(10);
+    
+    format->addLayout(line);
+
+    connect(but, &QPushButton::clicked, this, [this, withdrawal] () {
+        int index = 0;
+        while (withdrawal.id != userWithdrawals[index].id){
+            index ++;
+        }
+        
+        try{
+            std::string result = Luno::LunoClient::cancelWithdrawal(std::to_string(withdrawal.id));
+            
+            QLayout *level = format->takeAt(index+1 /*jump title*/)->layout();
+            while(!level->isEmpty()) {
+                QWidget *w = level->takeAt(0)->widget();
+                delete w;
+            }
+            delete level;
+            
+            userWithdrawals.erase(userWithdrawals.begin() + index);
+            // output
+            text << "Cancelled order!";
+            text << ("COMPLETE: " + result).c_str();
+        }
+        catch (ResponseEx& ex){
+            text << " [Error] Unable to cancel withdrawal! at " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
+            text << ex.String();
+        }
+    });
+}
+
+void WithdrawPanel::Pending::createTitle (){
+    QLabel *lblDate = new QLabel ( QString::fromStdString("Created on" ) );
+    QLabel *lblType = new QLabel ( QString::fromStdString("Type" ) );
+
+    QLabel *lblAmount = new QLabel ( QString::fromStdString("Amount") );
+    QLabel *lblFee = new QLabel ( QString::fromStdString("Fee" ) );
+    
+    lblDate->setFixedHeight(15);lblDate->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblType->setFixedHeight(15);lblType->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblAmount->setFixedHeight(15);lblAmount->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblFee->setFixedHeight(15);lblFee->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    
+    line = new QHBoxLayout;
+    line->addWidget( lblDate,8);
+    line->addWidget( lblType,4);
+    line->addWidget( lblAmount,6);
+    line->addWidget( lblFee,9, Qt::AlignLeft);
+    line->setContentsMargins(1,0,0,12);
+    line->setAlignment(Qt::AlignTop);
+    format->addLayout(line);
+}
+
+void WithdrawPanel::Pending::loadItems (){
+    try {
+        std::vector<Luno::Withdrawal> retrieved = Luno::LunoClient::getWithdrawalList();
+        for (Luno::Withdrawal& w : retrieved){
+            if (w.status == "PENDING"){
+                createItem( w );
+                userWithdrawals.push_back(w);
+            }
+        }
+    } catch (ResponseEx ex){
+            text << ex.String().c_str(); // To do:: should be an error stream here
+    }
+}
+void WithdrawPanel::Pending::paintEvent(QPaintEvent *){
+    // The following allows Qt style sheets to work on a derived class (#derivedClassName)
+    QStyleOption options;
+    options.initFrom(this);
+    QPainter painter(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &options, &painter, this);
+   
 }
