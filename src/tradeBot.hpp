@@ -19,8 +19,8 @@ public:
     TradeBot (QWidget *parent = 0);
 private:
     void updateInterval(const std::string& period);
-    void loadLocalTicks();
-    void downloadTicks(std::string pair);
+   // void loadLocalTicks();
+    //void downloadTicks(std::string pair);
     
     std::string lastTrades();
     std::string path;

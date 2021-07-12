@@ -2,6 +2,7 @@
 #define Window_hpp
 
 #include <thread>
+#include <QWebEngineView>
 #include "orderPanel.hpp"
 #include "chartPanel.hpp"
 #include "openOrderPanel.hpp"
@@ -16,7 +17,7 @@ private:
     virtual void lightTheme() = 0;
 public:
     virtual void updateTheme() = 0;
-    
+    virtual void forceDarkTheme() = 0;
     bool nightmode;
 };
 
@@ -33,13 +34,15 @@ public:
     OpenOrderPanel *openOrderPanel;
     
     OrderPanel *orderPanel;
-    ChartPanel *chartPanel;
+    //ChartPanel *chartPanel;
+    QWebEngineView *view;
     
     
     Luno::LunoClient *lunoClient;
     std::vector<Luno::Trade> ticks, moreticks;
     
     virtual void updateTheme();
+    virtual void forceDarkTheme();
 };
 
 class P2PView : public Window {
@@ -54,6 +57,7 @@ public:
     QTextEdit* text;
     
     virtual void updateTheme();
+    virtual void forceDarkTheme();
 };
 
 #endif /* Window_hpp */

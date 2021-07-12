@@ -1,7 +1,8 @@
 ###QT project file
 
-QT += widgets network
+QT += widgets network webenginewidgets
 QMAKE_CXXFLAGS += -std=c++17
+CONFIG += c++17
 
 LIBS += -framework SystemConfiguration
 

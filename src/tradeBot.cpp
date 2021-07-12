@@ -10,9 +10,9 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
             this, &TradeBot::OnFinishedUpdate);
     
     
-    timestamp = new unsigned long long(0);
-    latestTimestamp = new unsigned long long(0);
-    loadingTicks = false;
+    //timestamp = new unsigned long long(0);
+    //latestTimestamp = new unsigned long long(0);
+    //loadingTicks = false;
     
     timer = new QTimer(this);
     timer->setSingleShot(true);
@@ -27,7 +27,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     path = path.substr(0, pos) + "/src/data/";
     
     closing = false;
-    connect(home->chartPanel->P2Pbutton, &QPushButton::clicked, this, [this]() {
+    /*connect(home->chartPanel->P2Pbutton, &QPushButton::clicked, this, [this]() {
         timer->stop();
         manager.stop();
         delete home;
@@ -37,7 +37,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
         // todo
         // change back to home
         // ...
-    });
+    });*/
     
     connect(qApp, &QApplication::aboutToQuit, this, [this] (){
         closing=true;
@@ -51,13 +51,14 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
                              &Luno::OrderBook::Format),
                     true);
     
-    manager.enqueue(new Job1(&lunoClient,
+    /*manager.enqueue(new Job1(&lunoClient,
                              latestTimestamp,
                              &Luno::LunoClient::getTicker,
                              std::string("XBTZAR"),
                              &Luno::Ticker::getTimestamp,
                              home->text, false),
-                    true);
+                    true);*/
+    //current->forceDarkTheme();
 }
 
 void TradeBot::Cleanup(){
@@ -66,7 +67,7 @@ void TradeBot::Cleanup(){
     
     delete timer;
     delete timerCount;
-    delete timestamp;
+    //delete timestamp;
     if (home)
         delete home;
     if (p2p)
@@ -77,15 +78,15 @@ void TradeBot::Cleanup(){
 
 void TradeBot::OnFinishedUpdate(){
     if (*timerCount == 0){
-        home->chartPanel->loadChart(home->ticks.begin(), home->ticks.end());
-        home->chartPanel->chart->left = (home->chartPanel->chart->count()+1) * home->chartPanel->chart->scaledXIncrements - 980;
-        home->chartPanel->chart->update();
-        home->chartPanel->update();
-        manager.enqueue(new func1(this,
+        //home->chartPanel->loadChart(home->ticks.begin(), home->ticks.end());
+        //home->chartPanel->chart->left = (home->chartPanel->chart->count()+1) * home->chartPanel->chart->scaledXIncrements - 980;
+        //home->chartPanel->chart->update();
+        //home->chartPanel->update();
+       /* manager.enqueue(new func1(this,
                                  &TradeBot::downloadTicks,
                                  std::string("XBTZAR"),
                                  home->text),
-                        true);
+                        true);*/
     }
     *timerCount = *timerCount +1;
     if (!closing)
@@ -108,11 +109,12 @@ void TradeBot::OnUpdate() {
          
         home->orderPanel->tradeview->setHtml(lastTrades().c_str());
         thread = std::thread([this]{
-            loadLocalTicks();
+            //loadLocalTicks();
             emit finishedUpdate();
         });
         thread.detach();
     }
+    
     else if (*timerCount % 5 == 0){
         auto y = home->orderPanel->tradeview->verticalScrollBar()->value();
         home->orderPanel->tradeview->setHtml(lastTrades().c_str());
@@ -123,22 +125,23 @@ void TradeBot::OnUpdate() {
         home->openOrderPanel->addOrders();
         
         
+        
         if (*timerCount % 30 == 0){
             //Theme
             current->updateTheme();
-            manager.enqueue(new Job1(&lunoClient,
+            /*manager.enqueue(new Job1(&lunoClient,
                                      latestTimestamp,
                                      &Luno::LunoClient::getTicker,
                                      std::string("XBTZAR"),
                                      &Luno::Ticker::getTimestamp,
                                      home->text, false),
-                            true);
+                            true);*/
         }
         
         // refresh chart
-        home->chartPanel->loadChart(home->ticks.begin(), home->ticks.end());
-        home->chartPanel->chart->update();
-        home->chartPanel->update();
+        //home->chartPanel->loadChart(home->ticks.begin(), home->ticks.end());
+        //home->chartPanel->chart->update();
+        //home->chartPanel->update();
         emit finishedUpdate();
     }
     else if (*timerCount % 2 == 1 ){
@@ -158,7 +161,7 @@ void TradeBot::OnUpdate() {
     }
 }
 
-void TradeBot::loadLocalTicks(){
+/*void TradeBot::loadLocalTicks(){
     loadingTicks = true;
     
     file.open(path + "XBTZAR.csv" , std::ios::in);
@@ -191,9 +194,9 @@ void TradeBot::loadLocalTicks(){
     }
     file.close();
     loadingTicks = false;
-}
+}*/
 
-void TradeBot::downloadTicks(std::string pair){
+/*void TradeBot::downloadTicks(std::string pair){
     if (loadingTicks)
         return;
     
@@ -219,7 +222,7 @@ void TradeBot::downloadTicks(std::string pair){
         file.close();
     }
     home->moreticks.clear();
-}
+}*/
 
 std::string TradeBot::lastTrades() {
     std::stringstream ss;

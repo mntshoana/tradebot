@@ -1,4 +1,5 @@
 #include "window.hpp"
+#include <QTimer>
 
 QTextEdit& operator<< (QTextEdit& stream, std::string str)
 {
@@ -14,13 +15,30 @@ QTextBrowser& operator<< (QTextBrowser& stream, std::string str)
 HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent), lunoClient(client) {
     orderPanel = new OrderPanel(parent);
     
-    chartPanel = new ChartPanel(parent);
+    //chartPanel = new ChartPanel(parent);
     
     text = new QTextEdit();
     text->setGeometry(0, 500, 1180, 220);
     text->setStyleSheet("QTextEdit { padding-left:5; padding-top:10;}");
     text->setText("");
 
+    
+    view = new QWebEngineView(parent);
+    view->load(QUrl("https://d32exi8v9av3ux.cloudfront.net/static/scripts/tradingview.prod.html?symbol=XBTZAR&res=60&lang=en&theme=Light"));
+    view->setGeometry(0, 0, 1180, 510);
+    QTimer::singleShot(3000, this, [this](){
+                        if (!isDarkMode())
+                            view->page()->runJavaScript(
+                               R"java(
+                                      let frame = document.getElementsByTagName("iframe")[0];
+                                      let element = frame.contentDocument.getElementsByTagName("html")[0];
+                                      element.classList.remove("theme-dark");
+                                      element.classList.add("theme-light");
+                                 )java");
+    });
+
+    view->show();
+    
     openOrderPanel = new OpenOrderPanel(nullptr, lunoClient);
     openOrderPanel->setObjectName("OpenOrderPanel");
     
@@ -29,7 +47,7 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
     tabWidget->addTab(text, tr("Output"));
     tabWidget->addTab(openOrderPanel, tr("Open Orders"));
     
-    chartPanel->playground = new AutoPlayground(text);
+    //chartPanel->playground = new AutoPlayground(text);
     // request button
     // click event
     connect(orderPanel->request,
@@ -72,17 +90,17 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
     });
     
     // home window timeframe Combo Box text changed event
-    connect(chartPanel->timeframe, &QComboBox::currentTextChanged,
+    /*connect(chartPanel->timeframe, &QComboBox::currentTextChanged,
         this, [this](const QString &str){
         *(text) << str.toStdString();
         chartPanel->loadChart(ticks.begin(), ticks.end());
         chartPanel->chart->left = (chartPanel->chart->count()+1) * chartPanel->chart->scaledXIncrements - 980;
         chartPanel->chart->update();
         chartPanel->update();
-    });
+    });*/
     
     // home window simulate auto trade button to event
-    connect(chartPanel->simulate, &QPushButton::clicked,
+    /*connect(chartPanel->simulate, &QPushButton::clicked,
             this, [this](){
         chartPanel->simulate->setText("training");
         std::thread th([this]{
@@ -90,7 +108,7 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
             chartPanel->simulate->setText("Simulate");
         });
         th.detach();
-    });
+    });*/
     
     // Theme
     if (isDarkMode())
@@ -100,18 +118,25 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
 }
 
 HomeView::~HomeView(){
-    delete chartPanel->playground;
-    delete chartPanel;
+    //delete chartPanel->playground;
+    //delete chartPanel;
     delete orderPanel;
     delete text;
     text = nullptr;
-    chartPanel = nullptr;
+    //chartPanel = nullptr;
     orderPanel = nullptr;
     lunoClient = nullptr;
 }
 
 void HomeView::darkTheme(){
     // Theme
+    view->page()->runJavaScript(
+                               R"java(
+                                      let frame = document.getElementsByTagName("iframe")[0];
+                                      let element = frame.contentDocument.getElementsByTagName("html")[0];
+                                      element.classList.remove("theme-light");
+                                      element.classList.add("theme-dark");
+                                 )java");
     QColor darker(25,25,25);
     orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
                                         background-color: #1e1e1e;
@@ -120,11 +145,11 @@ void HomeView::darkTheme(){
                                  } QGroupBox::title {
                                         background-color:transparent;
                                  })");
-    QPalette p = chartPanel->palette();
-    p.setColor(QPalette::Window, darker);
-    chartPanel->setPalette(p);
-    p.setColor(QPalette::Window, darker);
-    chartPanel->chart->setPalette(p);
+    //QPalette p = chartPanel->palette();
+    //p.setColor(QPalette::Window, darker);
+    //chartPanel->setPalette(p);
+    //p.setColor(QPalette::Window, darker);
+    //chartPanel->chart->setPalette(p);
     
     tabWidget->setStyleSheet(R"(QTabWidget::tab-bar  {
                                 left: 5px;
@@ -141,6 +166,14 @@ void HomeView::darkTheme(){
 }
 void HomeView::lightTheme() {
     // Theme
+    view->page()->runJavaScript(
+                               R"java(
+                                      let frame = document.getElementsByTagName("iframe")[0];
+                                      let element = frame.contentDocument.getElementsByTagName("html")[0];
+                                      element.classList.remove("theme-dark");
+                                      element.classList.add("theme-light");
+                                 )java");
+    
     QColor light(253,253,253);
     QBrush dark(QColor(20,20,20));
     
@@ -152,11 +185,11 @@ void HomeView::lightTheme() {
                                         background-color:transparent;
                                  })");
     
-    QPalette p = chartPanel->palette();
-    p.setColor(QPalette::Window, Qt::white);
-    chartPanel->setPalette(p);
-    p.setColor(QPalette::Window, light);
-    chartPanel->chart->setPalette(p);
+    //QPalette p = chartPanel->palette();
+    //p.setColor(QPalette::Window, Qt::white);
+    //chartPanel->setPalette(p);
+    //p.setColor(QPalette::Window, light);
+    //chartPanel->chart->setPalette(p);
     
     tabWidget->setStyleSheet(R"(QTabWidget::tab-bar  {
                                 left: 5px;
@@ -182,6 +215,10 @@ void HomeView::updateTheme(){
         lightTheme();
     if (!nightmode && isDarkMode())
         darkTheme();
+}
+
+void HomeView::forceDarkTheme(){
+    darkTheme();
 }
 
 //-------------------------------------------------------
@@ -218,4 +255,7 @@ void P2PView::updateTheme(){
         lightTheme();
     if (!nightmode && isDarkMode())
         darkTheme();
+}
+void P2PView::forceDarkTheme(){
+    darkTheme();
 }
