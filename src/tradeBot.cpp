@@ -9,10 +9,8 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     connect(this, &TradeBot::finishedUpdate,
             this, &TradeBot::OnFinishedUpdate);
     
+    timestamp = new unsigned long long();
     
-    //timestamp = new unsigned long long(0);
-    //latestTimestamp = new unsigned long long(0);
-    //loadingTicks = false;
     
     timer = new QTimer(this);
     timer->setSingleShot(true);
@@ -50,15 +48,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
                              std::string("XBTZAR"),
                              &Luno::OrderBook::Format),
                     true);
-    
-    /*manager.enqueue(new Job1(&lunoClient,
-                             latestTimestamp,
-                             &Luno::LunoClient::getTicker,
-                             std::string("XBTZAR"),
-                             &Luno::Ticker::getTimestamp,
-                             home->text, false),
-                    true);*/
-    //current->forceDarkTheme();
+
 }
 
 void TradeBot::Cleanup(){
@@ -67,7 +57,7 @@ void TradeBot::Cleanup(){
     
     delete timer;
     delete timerCount;
-    //delete timestamp;
+    delete timestamp;
     if (home)
         delete home;
     if (p2p)
@@ -77,17 +67,12 @@ void TradeBot::Cleanup(){
 }
 
 void TradeBot::OnFinishedUpdate(){
-    if (*timerCount == 0){
-        //home->chartPanel->loadChart(home->ticks.begin(), home->ticks.end());
-        //home->chartPanel->chart->left = (home->chartPanel->chart->count()+1) * home->chartPanel->chart->scaledXIncrements - 980;
-        //home->chartPanel->chart->update();
-        //home->chartPanel->update();
-       /* manager.enqueue(new func1(this,
+    if (*timerCount == 0)
+        manager.enqueue(new func1(this,
                                  &TradeBot::downloadTicks,
                                  std::string("XBTZAR"),
-                                 home->text),
-                        true);*/
-    }
+                                 home->text), true);
+    
     *timerCount = *timerCount +1;
     if (!closing)
         timer->start(1000);
@@ -109,7 +94,7 @@ void TradeBot::OnUpdate() {
          
         home->orderPanel->tradeview->setHtml(lastTrades().c_str());
         thread = std::thread([this]{
-            //loadLocalTicks();
+            loadLocalTicks();
             emit finishedUpdate();
         });
         thread.detach();
@@ -129,30 +114,14 @@ void TradeBot::OnUpdate() {
         if (*timerCount % 30 == 0){
             //Theme
             current->updateTheme();
-            /*manager.enqueue(new Job1(&lunoClient,
-                                     latestTimestamp,
-                                     &Luno::LunoClient::getTicker,
-                                     std::string("XBTZAR"),
-                                     &Luno::Ticker::getTimestamp,
-                                     home->text, false),
-                            true);*/
         }
         
-        // refresh chart
-        //home->chartPanel->loadChart(home->ticks.begin(), home->ticks.end());
-        //home->chartPanel->chart->update();
-        //home->chartPanel->update();
         emit finishedUpdate();
     }
     else if (*timerCount % 2 == 1 ){
-
         auto y = home->orderPanel->tradeview->verticalScrollBar()->value();
         home->orderPanel->tradeview->setHtml(lastTrades().c_str());
         home->orderPanel->tradeview->verticalScrollBar()->setValue(y);
-        
-        if (latestTimestamp && *latestTimestamp < *timestamp)
-            // data is outdated, maybe show different color
-            ;
         
         emit finishedUpdate();
     }
@@ -161,68 +130,74 @@ void TradeBot::OnUpdate() {
     }
 }
 
-/*void TradeBot::loadLocalTicks(){
-    loadingTicks = true;
+void TradeBot::loadLocalTicks(){
     
     file.open(path + "XBTZAR.csv" , std::ios::in);
+    
     if (file.good()){
-        file >> home->ticks; // <- may take extremely long
-            
-        if (!closing && home->ticks.size() > 0){
-            if (home->ticks.back().sequence != home->ticks.size())
-            {
-                while (home->ticks.size() > 0 && home->ticks.back().sequence != home->ticks.size())
-                    home->ticks.pop_back();
-                file.close();
-                file.open(path, std::ios::out | std::ios::app);
-                file << home->ticks;
-                file.close();
-                remove( (path + "XBTZAR.csv").c_str() );
-                rename( (path + "XBTZAR2.csv").c_str(),
-                        (path + "XBTZAR.csv" ).c_str());
+        file >> home->moreticks; // <- may take extremely long
+        file.close();
+        
+        if (!closing && home->moreticks.size() > 0) {
+            unsigned long long now = QDateTime::currentMSecsSinceEpoch();
+            for (size_t i  = 0; i < home->moreticks.size(); i++){
+                if (home->moreticks[i].timestamp  < (now - 24 * 60 * 60 * 1000))
+                    continue;
+                else{
+                    home->ticks.insert(home->ticks.end(), home->moreticks.begin() + i, home->moreticks.end());
+                    break;
+                }
             }
+            home->moreticks.clear();
+            
+            
+            for (int i = 0; i < home->ticks.size()-1; i++){
+                // ensure ordered oldest to newest
+                if (home->ticks[i].sequence +1 != home->ticks[i+1].sequence){
+                    do {
+                        home->ticks.pop_back();
+                    } while (home->ticks.size() > i);
+                }
+            }
+            
+            
+            
+            
+            // empty file and replace content
+            file.open(path + "XBTZAR.csv", std::ofstream::out | std::ofstream::trunc);
+            file << home->ticks;
+            file.close();
+            
         }
         if (!closing && home->ticks.size() > 0){
             *timestamp = home->ticks.back().timestamp;
         }
         else
-            *timestamp = QDate(2013, 1, 1).startOfDay().toMSecsSinceEpoch();
+            *timestamp = QDateTime::currentMSecsSinceEpoch();;
     }
     else {
-        *timestamp = QDate(2013, 1, 1).startOfDay().toMSecsSinceEpoch();
+        *timestamp = QDateTime::currentMSecsSinceEpoch();;
         file.clear();
     }
-    file.close();
-    loadingTicks = false;
-}*/
+}
 
-/*void TradeBot::downloadTicks(std::string pair){
-    if (loadingTicks)
-        return;
-    
-    home->moreticks = lunoClient.getTrades(pair, *timestamp-1); // order = newest to oldest
+void TradeBot::downloadTicks(std::string pair){
+    home->moreticks = lunoClient.getTrades(pair, *timestamp); // order = newest to oldest
     while (home->ticks.size() > 0
             && home->moreticks.size() > 0
             && home->moreticks.back().sequence <= home->ticks.back().sequence)
         home->moreticks.pop_back();
     std::reverse(home->moreticks.begin(), home->moreticks.end()); // order = oldest to newest
-    while (home->moreticks.size() > 0
-            && home->moreticks.back().sequence != home->ticks.size()+home->moreticks.size())
-            home->moreticks.pop_back();
-    // Ensure sequenctial timestamp
-    for (unsigned short index = 0; index < home->moreticks.size(); index++){
-        if (home->moreticks[index].timestamp < *timestamp)
-                home->moreticks.erase( home->moreticks.begin() + index, home->moreticks.end());
-    }
+    
     if (home->moreticks.size() > 0){
         home->ticks.insert(home->ticks.end(), home->moreticks.begin(), home->moreticks.end());
-        *timestamp = home->moreticks.back().timestamp;
+        home->moreticks.clear();
+        *timestamp = home->ticks.back().timestamp;
         file.open( path + pair + ".csv", std::ios::out | std::ios::app);
         file << home->moreticks;
         file.close();
     }
-    home->moreticks.clear();
-}*/
+}
 
 std::string TradeBot::lastTrades() {
     std::stringstream ss;
@@ -246,20 +221,20 @@ std::string TradeBot::lastTrades() {
             </style>
             <table width=100%>)";
     
-    if (home->ticks.size() > 0){
+    
+    for (int i = home->ticks.size() -1, limit = 1000; i >= 0 && limit >= 0; i--, limit--){
+        ss << "\n<tr> <a href=\"" << home->ticks[i].price << "\">";
+        ss << "\n<td>" << QDateTime::fromMSecsSinceEpoch(home->ticks[i].timestamp).toString("hh:mm").toStdString() << "</td>";
+        ss << (home->ticks[i].isBuy ? "\n<td class=Ask>" : "\n<td class=Bid>" ) ;
+        ss << std::setprecision(0);
+        ss << "<a href=\"" << home->ticks[i].price << "\">";
+        ss  << home->ticks[i].price;
+        ss << "</a></td>";
+        ss << "\n<td>" << std::setprecision(6)<< home->ticks[i].volume << "</td>";
+        ss << "\n</a></tr>";
         
-        for (size_t i = home->ticks.size() - 1; i >= home->ticks.size()- 21; i--){
-            ss << "\n<tr> <a href=\"" << home->ticks[i].price << "\">";
-            ss << "\n<td>" << QDateTime::fromMSecsSinceEpoch(home->ticks[i].timestamp).toString("hh:mm").toStdString() << "</td>";
-            ss << (home->ticks[i].isBuy ? "\n<td class=Ask>" : "\n<td class=Bid>" ) ;
-            ss << std::setprecision(0);
-            ss << "<a href=\"" << home->ticks[i].price << "\">";
-            ss  << home->ticks[i].price;
-            ss << "</a></td>";
-            ss << "\n<td>" << std::setprecision(6)<< home->ticks[i].volume << "</td>";
-            ss << "\n</a></tr>";
-        }
-        ss << "</table>\n";
     }
+    ss << "</table>\n";
+    
     return ss.str();
 }

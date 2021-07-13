@@ -391,7 +391,7 @@ namespace Luno {
     // GET TRADES
     //
     // Returns 100 trades only (cannot be changed), from a default of since the last 24 hours
-    std::vector<Trade> LunoClient::getTrades(std::string pair, unsigned long long since){
+    std::vector<Trade> LunoClient::getTrades(std::string pair, unsigned long long since ){
         std::string uri = "https://api.mybitx.com/api/1/trades?pair=" + pair;
         if (since != 0)
             uri += "&since=" + std::to_string(since);

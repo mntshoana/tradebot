@@ -19,14 +19,13 @@ public:
     TradeBot (QWidget *parent = 0);
 private:
     void updateInterval(const std::string& period);
-   // void loadLocalTicks();
-    //void downloadTicks(std::string pair);
+    void downloadTicks(std::string pair);
+    void loadLocalTicks();
     
     std::string lastTrades();
     std::string path;
 private:
     std::thread thread;
-    bool loadingTicks;
     bool closing;
     QTimer* timer;
     
@@ -41,7 +40,7 @@ private:
     size_t* timerCount;
     
     std::fstream file;
-    unsigned long long *timestamp, *latestTimestamp;
+    unsigned long long *timestamp;
     
     
     private slots:
