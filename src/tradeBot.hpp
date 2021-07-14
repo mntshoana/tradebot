@@ -42,6 +42,7 @@ private:
     std::fstream file;
     unsigned long long *timestamp;
     
+    bool eventFilter(QObject *obj, QEvent *event)override;
     
     private slots:
     void OnFinishedUpdate();

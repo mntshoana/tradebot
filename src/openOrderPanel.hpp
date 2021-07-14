@@ -30,6 +30,8 @@ public:
     void addOrders ();
     OpenOrderPanel(QWidget* parent = nullptr, Luno::LunoClient* client = nullptr);
     void paintEvent(QPaintEvent *);
+    
+    void popFrontOrder(QTextEdit* text);
 };
 
 #endif

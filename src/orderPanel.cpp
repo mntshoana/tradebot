@@ -1,4 +1,5 @@
 #include "orderPanel.hpp"
+#include <QKeyEvent>
 
 template<>
 OrderView& operator<< <std::string>(OrderView& stream, std::string str)
@@ -21,6 +22,17 @@ OrderView& operator<< <std::string>(OrderView& stream, std::string str)
         }
     }
     return stream;
+}
+
+void LineBlock::keyPressEvent(QKeyEvent *event){
+    if (event->key() == Qt::Key_Return && button != nullptr)
+    {
+        emit button->clicked();
+    }
+    else
+    {
+        QLineEdit::keyPressEvent(event);
+    }
 }
 
 OrderPanel::OrderPanel(QWidget* parent) : QWidget(parent) {
@@ -51,17 +63,20 @@ OrderPanel::OrderPanel(QWidget* parent) : QWidget(parent) {
     livetradeview->setGeometry(0, 610, 200, 109);
     lblPrice = new QLabel("Price", this);
     lblAmount = new QLabel("Amount", this);
-    txtPrice = new QLineEdit(this);
-    txtAmount = new QLineEdit(this);
+    
+    request = new QPushButton(this);
+    request->setGeometry(40, 670, 90, 30);
+    request->setText("Bid");
+    
+    txtPrice = new LineBlock(this, request);
+    txtAmount = new LineBlock(this, request);
     livetradeviewLayout = new QGridLayout;
     livetradeviewLayout->addWidget(lblPrice, 1, 1);
     livetradeviewLayout->addWidget(txtPrice, 1, 2);
     livetradeviewLayout->addWidget(lblAmount, 2, 1);
     livetradeviewLayout->addWidget(txtAmount, 2, 2);
     
-    request = new QPushButton(this);
-    request->setGeometry(40, 670, 90, 30);
-    request->setText("Bid");
+    
     
     livetradeviewLayout->addWidget(request, 3, 1, 1, 2, Qt::AlignmentFlag::AlignCenter);
     livetradeview->setLayout(livetradeviewLayout);

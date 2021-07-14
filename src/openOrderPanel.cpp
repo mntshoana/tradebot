@@ -147,3 +147,27 @@ void OpenOrderPanel::paintEvent(QPaintEvent *)
      QPainter painter(this);
      style()->drawPrimitive(QStyle::PE_Widget, &options, &painter, this);
  }
+
+void OpenOrderPanel::popFrontOrder(QTextEdit* text){
+    QList<QHBoxLayout *> list = format->findChildren<QHBoxLayout *> ();
+    int displayedOrderListCount = list.size();
+    displayedOrderListCount--; // Must exclude the title row
+    if (orderIds.size() > 0 && orderIds.size() == displayedOrderListCount){
+        std::string result = client->stopOrder(orderIds[0]);
+        
+        QLayout *level = format->takeAt(1)->layout();
+        while(!level->isEmpty()) {
+            QWidget *w = level->takeAt(0)->widget();
+            delete w;
+        }
+            
+        delete level;
+
+        orderIds.erase(orderIds.begin());
+        
+        // output
+        text->append("Cancelled order!");
+        text->append(("COMPLETE: " + result).c_str());
+    }
+}
+

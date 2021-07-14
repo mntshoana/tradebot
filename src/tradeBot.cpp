@@ -49,6 +49,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
                              &Luno::OrderBook::Format),
                     true);
 
+    installEventFilter(this);
 }
 
 void TradeBot::Cleanup(){
@@ -83,15 +84,7 @@ void TradeBot::OnUpdate() {
         *timerCount = 1;
     }
     
-    if (*timerCount == 0) { // Initiate when count == 0
-        /*
-        try {
-            // *(homeWindow->text) << LocalBclient.getBuyAds("cn", "China");
-        }
-        catch (ResponseEx ex){
-            *(homeWindow->text) << ex.String();
-        }*/
-         
+    if (*timerCount == 0) { // Initiate ticks
         home->orderPanel->tradeview->setHtml(lastTrades().c_str());
         thread = std::thread([this]{
             loadLocalTicks();
@@ -110,12 +103,9 @@ void TradeBot::OnUpdate() {
         home->openOrderPanel->addOrders();
         
         
-        
-        if (*timerCount % 30 == 0){
-            //Theme
-            current->updateTheme();
-        }
-        
+        //Theme
+        current->updateTheme();
+           
         emit finishedUpdate();
     }
     else if (*timerCount % 2 == 1 ){
@@ -151,18 +141,15 @@ void TradeBot::loadLocalTicks(){
             home->moreticks.clear();
             
             
-            for (int i = 0; i < home->ticks.size()-1; i++){
+            for (int i = 0; home->ticks.size() > 0 && i < (int)home->ticks.size()-2; i++){
                 // ensure ordered oldest to newest
                 if (home->ticks[i].sequence +1 != home->ticks[i+1].sequence){
                     do {
                         home->ticks.pop_back();
-                    } while (home->ticks.size() > i);
+                    } while (i < (int)home->ticks.size() - 2);
                 }
             }
-            
-            
-            
-            
+              
             // empty file and replace content
             file.open(path + "XBTZAR.csv", std::ofstream::out | std::ofstream::trunc);
             file << home->ticks;
@@ -187,15 +174,33 @@ void TradeBot::downloadTicks(std::string pair){
             && home->moreticks.size() > 0
             && home->moreticks.back().sequence <= home->ticks.back().sequence)
         home->moreticks.pop_back();
+    
     std::reverse(home->moreticks.begin(), home->moreticks.end()); // order = oldest to newest
+    
+    for (int i = 0; home->moreticks.size() > 0 && i < ((int) home->moreticks.size()) -2; i++){
+        // ensure ordered oldest to newest sequence is in tact
+        if (home->moreticks[i].sequence +1 != home->moreticks[i+1].sequence){
+            do {
+                home->moreticks.pop_back();
+            } while (i < ((int) home->moreticks.size()) -2);
+        }
+    }
     
     if (home->moreticks.size() > 0){
         home->ticks.insert(home->ticks.end(), home->moreticks.begin(), home->moreticks.end());
-        home->moreticks.clear();
         *timestamp = home->ticks.back().timestamp;
         file.open( path + pair + ".csv", std::ios::out | std::ios::app);
-        file << home->moreticks;
-        file.close();
+        if (file.good()){
+            file << home->moreticks;
+            file.close();
+        }
+        else {
+            file.clear();
+            *(home->text) << std::string("[Error] : At ")
+                            + __FILE__ + ": line " + std::to_string(__LINE__)
+                        + ". Couldn't write ticks to file.";
+        }
+        home->moreticks.clear();
     }
 }
 
@@ -237,4 +242,39 @@ std::string TradeBot::lastTrades() {
     ss << "</table>\n";
     
     return ss.str();
+}
+
+bool TradeBot::eventFilter(QObject *obj, QEvent *event){
+    if (event->type() == QEvent::KeyPress){
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if (keyEvent->key() == Qt::Key_Escape){
+            home->openOrderPanel->popFrontOrder(home->text);
+        }
+        else if (keyEvent->key() == Qt::Key_BracketRight){
+            std::string price = home->orderPanel->txtPrice->text().toStdString();
+            if (price != ""){
+                int priceInt = atoi(price.c_str());
+                price = std::to_string(priceInt+1);
+                
+                home->orderPanel->txtPrice->setText(QString::fromStdString(price));
+            }
+        }
+        else if (keyEvent->key() == Qt::Key_BracketLeft){
+            std::string price = home->orderPanel->txtPrice->text().toStdString();
+            if (price != ""){
+                int priceInt = atoi(price.c_str());
+                price = std::to_string(priceInt-1);
+                
+                home->orderPanel->txtPrice->setText(QString::fromStdString(price));
+            }
+        }
+        else if (keyEvent->key() == Qt::Key_Return){
+            emit home->orderPanel->request->clicked();
+        }
+        else
+        {
+            TradeBot::keyPressEvent(keyEvent);
+        }
+    }
+    return QObject::eventFilter(obj, event);
 }

@@ -17,6 +17,7 @@ public:
     bool orderViewIsEmpty;
     explicit OrderView(QWidget* parent = nullptr) : QTextBrowser(parent) {
         orderViewIsEmpty = true;
+        installEventFilter(this);
     }
     
 };
@@ -29,6 +30,17 @@ template <class T> OrderView& operator<< (OrderView& stream, T obj){
 template <>
 OrderView& operator<< <std::string>(OrderView& stream, std::string str);
 
+
+//
+class LineBlock : public QLineEdit
+{
+    QPushButton* button;
+    Q_OBJECT
+public:
+    LineBlock(QWidget* parent = nullptr, QPushButton* button = nullptr): QLineEdit(parent), button(button) { }
+    void keyPressEvent(QKeyEvent *event) override;
+};
+
 //
 class OrderPanel : public QWidget {
     Q_OBJECT
@@ -40,7 +52,7 @@ public:
     QGroupBox *livetradeview;
     QGridLayout *livetradeviewLayout;
     QLabel *lblPrice, *lblAmount;
-    QLineEdit* txtPrice, *txtAmount;
+    LineBlock* txtPrice, *txtAmount;
     QPushButton* request;
     
     OrderPanel(QWidget* parent = nullptr);    
