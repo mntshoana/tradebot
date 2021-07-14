@@ -4,7 +4,6 @@
 #include <thread>
 #include <QWebEngineView>
 #include "orderPanel.hpp"
-#include "chartPanel.hpp"
 #include "openOrderPanel.hpp"
 #include "localbitcoinClient.hpp"
 

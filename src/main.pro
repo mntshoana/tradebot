@@ -18,10 +18,10 @@ CONFIG(debug, debug|release) {
 
 
 SOURCES += tradeBot.cpp \
-            label.cpp orderPanel.cpp openOrderPanel.cpp chartPanel.cpp \
+            label.cpp orderPanel.cpp openOrderPanel.cpp \
             window.cpp
 HEADERS += tradeBot.hpp \
-            label.hpp orderPanel.hpp openOrderPanel.hpp chartPanel.hpp \
+            label.hpp orderPanel.hpp openOrderPanel.hpp \
             window.hpp
 SOURCES += jobManager.cpp
 HEADERS += jobManager.hpp

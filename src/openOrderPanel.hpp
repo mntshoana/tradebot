@@ -19,16 +19,18 @@ private:
     Luno::LunoClient* client;
     std::vector<std::string> orderIds;
     bool hasTitle;
+    QTextEdit* text;
     
 public:
     QVBoxLayout *format;
     QHBoxLayout *line;
+    std::vector<Luno::UserOrder> openUserOrders;
     
     void clearItems();
     void createItem (Luno::UserOrder&);
     void createTitle ();
     void addOrders ();
-    OpenOrderPanel(QWidget* parent = nullptr, Luno::LunoClient* client = nullptr);
+    OpenOrderPanel(QWidget* parent = nullptr, Luno::LunoClient* client = nullptr, QTextEdit* edit = nullptr);
     void paintEvent(QPaintEvent *);
     
     void popFrontOrder(QTextEdit* text);

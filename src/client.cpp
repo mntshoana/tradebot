@@ -25,7 +25,7 @@ std::string Client::request (const char* method, const char* uri, bool auth) {
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method);
         curl_easy_setopt(curl, CURLOPT_URL, uri);
         curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L); // Don't use signals as this always locks easy_curl_perform
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3L);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 2L);
 
         std::string proxyStr = proxyInfo();
         if (!proxyStr.empty())

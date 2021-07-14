@@ -1,7 +1,7 @@
 #include "openOrderPanel.hpp"
 
-OpenOrderPanel::OpenOrderPanel(QWidget* parent, Luno::LunoClient* client) : QWidget(parent), client(client){
-    setGeometry(0, 500, 1180, 220);
+OpenOrderPanel::OpenOrderPanel(QWidget* parent, Luno::LunoClient* client, QTextEdit* edit) : QWidget(parent), client(client), text(edit) {
+    setGeometry(0, 500, 930, 220);
     
     //QScrollArea* scrollArea = new QScrollArea(this);
     //scrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -99,7 +99,7 @@ void OpenOrderPanel::createItem (Luno::UserOrder& order)
     
     // minimumSize
     //maximumSize properties.
-    line->setGeometry(QRect(0, 500, 1180, 30));
+    line->setGeometry(QRect(0, 500, 930, 30));
     line->addStrut(10);
     
     format->addLayout(line);
@@ -107,7 +107,7 @@ void OpenOrderPanel::createItem (Luno::UserOrder& order)
     connect(but, &QPushButton::clicked, this, [this, order] () {
         auto it = std::find(orderIds.begin(), orderIds.end(), order.orderID);
         int index = it - orderIds.begin() + 1; // plus title row
-        client->stopOrder(order.orderID);
+        std::string result = client->stopOrder(order.orderID);
         
         QLayout *level = format->takeAt(index)->layout();
         while(!level->isEmpty()) {
@@ -117,25 +117,34 @@ void OpenOrderPanel::createItem (Luno::UserOrder& order)
         delete level;
         
         orderIds.erase(it);
+        
+        // output
+        text->append("Cancelled order!");
+        text->append(("COMPLETE: " + result).c_str());
     });
     
 }
 
 void OpenOrderPanel::addOrders (){
-    auto openOrders = client->getUserOrders("XBTZAR", "PENDING");
-    for (Luno::UserOrder& order : openOrders){
-        bool exists = false;
-        for (std::string& id : orderIds){
-            if (order.orderID == id){
-                exists = true;
-                break;
+    try{
+        openUserOrders = client->getUserOrders("XBTZAR", "PENDING");
+        for (Luno::UserOrder& order : openUserOrders){
+            bool exists = false;
+            for (std::string& id : orderIds){
+                if (order.orderID == id){
+                    exists = true;
+                    break;
+                }
+            }
+            
+            if (!exists){
+                orderIds.push_back(order.orderID);
+                createItem( order);
             }
         }
-        
-        if (!exists){
-            orderIds.push_back(order.orderID);
-            createItem( order);
-        }
+    } catch (ResponseEx ex){
+        if (text != nullptr)
+            text->append( ex.String().c_str() ); // To do:: should be an error stream here
     }
 }
 
@@ -170,4 +179,3 @@ void OpenOrderPanel::popFrontOrder(QTextEdit* text){
         text->append(("COMPLETE: " + result).c_str());
     }
 }
-

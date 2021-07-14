@@ -36,7 +36,7 @@ void LineBlock::keyPressEvent(QKeyEvent *event){
 }
 
 OrderPanel::OrderPanel(QWidget* parent) : QWidget(parent) {
-    setGeometry(1180, 0, 200, 720);
+    setGeometry(930, 0, 200, 720);
     
     orderViewLabel = new Label("<th>PRICE</th> <th>VOLUME</th>", this);
     orderViewLabel->setGeometry(0, 0, 200, 30);

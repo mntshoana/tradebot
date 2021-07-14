@@ -42,11 +42,12 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
         Cleanup();
     });
     // begin job manager
-    manager.enqueue(new Job1(&lunoClient,
+    manager.enqueue(new Job1WPArg(&lunoClient,
                              home->orderPanel->orderview,
                              &Luno::LunoClient::getOrderBook,
                              std::string("XBTZAR"),
-                             &Luno::OrderBook::Format),
+                             &Luno::OrderBook::FormatToShowUserOrders,
+                             &(home->openOrderPanel->openUserOrders)),
                     true);
 
     installEventFilter(this);
@@ -94,18 +95,14 @@ void TradeBot::OnUpdate() {
     }
     
     else if (*timerCount % 5 == 0){
-        auto y = home->orderPanel->tradeview->verticalScrollBar()->value();
-        home->orderPanel->tradeview->setHtml(lastTrades().c_str());
-        home->orderPanel->tradeview->verticalScrollBar()->setValue(y);
-        
-        if (*timerCount % 10 == 0)
-            home->openOrderPanel->clearItems();
-        home->openOrderPanel->addOrders();
-        
-        
         //Theme
         current->updateTheme();
-           
+    
+        if (*timerCount % 10 == 0){
+            home->openOrderPanel->clearItems();
+            home->openOrderPanel->addOrders();
+        }
+            
         emit finishedUpdate();
     }
     else if (*timerCount % 2 == 1 ){
@@ -130,14 +127,14 @@ void TradeBot::loadLocalTicks(){
         
         if (!closing && home->moreticks.size() > 0) {
             unsigned long long now = QDateTime::currentMSecsSinceEpoch();
-            for (size_t i  = 0; i < home->moreticks.size(); i++){
-                if (home->moreticks[i].timestamp  < (now - 24 * 60 * 60 * 1000))
-                    continue;
-                else{
-                    home->ticks.insert(home->ticks.end(), home->moreticks.begin() + i, home->moreticks.end());
-                    break;
-                }
+            size_t i  = 0;
+            while (i < home->moreticks.size()
+            && (home->moreticks[i].timestamp  <= (now - 60 * 60 * 1000))){
+                i++;
             }
+                
+            home->ticks.insert(home->ticks.end(), home->moreticks.begin() + i, home->moreticks.end());
+            
             home->moreticks.clear();
             
             

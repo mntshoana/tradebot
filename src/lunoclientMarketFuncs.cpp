@@ -167,6 +167,7 @@ namespace Luno {
         }
         return ss.str();
     }
+    
     std::string OrderBook::Format(){
         std::stringstream ss;
         ss << std::fixed;
@@ -195,7 +196,7 @@ namespace Luno {
             ss << "\n<td class=Ask>";
             ss << std::setprecision(0);
             ss << "<a href=\"" << order->price << "\">";
-            ss  << order->price;
+            ss  << /*...add asterisk if is my price*/ order->price;
             ss << "</a></td>";
             ss << "\n<td>" << std::setprecision(6)<< order->volume << "</td>";
             ss << "\n</a></tr>";
@@ -215,6 +216,66 @@ namespace Luno {
         }
         ss << "</table>\n";
         return ss.str();
+    }
+
+    std::string OrderBook::FormatToShowUserOrders(std::vector<UserOrder>* userOrders){
+            std::stringstream ss;
+            ss << std::fixed;
+            ss << R"(
+                    <style>
+                    table {width: 100%;}
+                    tr { padding: 15px;}
+                    a {
+                        color: inherit;
+                        text-decoration: none;
+                    }
+                    td {
+                        padding: 2px 4px 1px 2px;
+                        text-align: center;
+                        font-size: 15px;
+                        font-weight: 700;
+                    }
+                    .Ask a {color: rgb(192, 51, 35);}
+                    .Bid a {color: rgb(54, 136, 87);}
+                    .Mid {padding: 5px 2px;}
+                    </style>
+                    <table width=100%>)";
+            
+            std::map<int, bool> tradeOpenByUser;
+                
+            size_t count = userOrders->size();
+            //for (int i = 0; i < count ; i++)
+              //      tradeOpenByUser[(*userOrders)[i].price] = true;
+        std::string countString = std::to_string(count);
+        std::for_each(userOrders->begin(), userOrders->end(),
+                      [&tradeOpenByUser](Luno::UserOrder& order) {
+                        tradeOpenByUser[order.price] = true;
+                        });
+            for (auto order = this->asks.rbegin(); order != this->asks.rend(); order++){
+                ss << "\n<tr><a href=\"" << order->price << "\">";
+                ss << "\n<td class=Ask>";
+                ss << std::setprecision(0);
+                ss << "<a href=\"" << order->price << "\">";
+                ss  << ((tradeOpenByUser[order->price]) ? "*" : " ") << order->price;
+                ss << "</a></td>";
+                ss << "\n<td>" << std::setprecision(6)<< order->volume << "</td>";
+                ss << "\n</a></tr>";
+            }
+            ss << "\n<tr><td class=Mid colspan=2>"
+                    << std::setprecision(0) << (this->asks[0].price - this->bids[0].price)
+                    << " Spread </td></tr>";
+            for (Order order : this->bids){
+                ss << "\n<tr>";
+                ss << "\n<td class=Bid>";
+                ss << std::setprecision(0);
+                ss << "<a href=\"" << order.price << "\">";
+                ss  << ((tradeOpenByUser[order.price]) ? "*" : " ") << order.price;
+                ss << "</a></td>";
+                ss << "\n<td>" << std::setprecision(6) << order.volume<< "</td>";
+                ss << "\n</tr>";
+            }
+            ss << "</table>\n";
+            return ss.str();
     }
     /*template <class T> T& operator << (T& stream, OrderBook& ob) {
         stream.append(ob.toString().c_str());

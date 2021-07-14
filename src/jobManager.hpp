@@ -134,6 +134,55 @@ void Job1<T, stream, res, param, error,proc>::performJob(){
         }
 }
 
+template <class T, class stream,
+            class res, class param, class prc_param, class error = void, class proc = std::string>
+class Job1WPArg : public JobBase{ // with preprocessor arguemtn
+    T* object;
+    stream* outputStream;
+    error* errorStream;
+    param arg;
+    prc_param* pArg;
+    res (T::*request)(param);
+    proc (res::*preprocessor)(prc_param*);
+public:
+    virtual void performJob() override;
+    
+    inline Job1WPArg(T* object, stream* outputStream, res (T::*request)(param), param arg, proc (res::*preprocessor)(prc_param*), prc_param* pArg , error* errorStream = nullptr, bool repeat = true) : pArg(pArg){
+        this->object = object;
+        this->outputStream = outputStream;
+        this->arg = arg;
+        this->request = request;
+        this->preprocessor = preprocessor;
+        this->pArg = pArg;
+        this->repeat = repeat;
+        this->errorStream = errorStream;
+    }
+    
+};
+
+template <class T, class stream, class res, class param, class prc_param, class error, class proc>
+void Job1WPArg<T, stream, res, param, prc_param, error,proc>::performJob(){
+    if constexpr (!std::is_same_v<stream, unsigned long long>)
+        try{
+            res result = (object->*request)(arg);
+            proc processedResults = (result.*preprocessor)( pArg);
+            (*outputStream) << processedResults;
+        } catch (ResponseEx ex){
+                (*outputStream) << ex.String(); // To do:: should be an error stream here
+        }
+    
+    if constexpr (std::is_same_v<stream, unsigned long long>)
+        try{
+                res result = (object->*request)(arg);
+                proc processedResults = (result.*preprocessor)(pArg);
+                (*outputStream) = processedResults;
+            
+        } catch (ResponseEx ex){
+            if (errorStream)
+                (*errorStream) << ex.String(); // To do:: should be an error stream here
+        }
+}
+
 class JobManager : public QObject {
 Q_OBJECT
 public:

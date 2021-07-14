@@ -26,6 +26,8 @@ namespace Luno {
         float price;
         float volume;
     };
+
+    class UserOrder;
     class OrderBook {
     private:
     public:
@@ -35,6 +37,7 @@ namespace Luno {
         long long timestamp;
         std::string toString();
         std::string Format();
+        std::string FormatToShowUserOrders(std::vector<UserOrder>*);
     };
 
     class Ticker {

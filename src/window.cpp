@@ -20,17 +20,17 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
     //chartPanel = new ChartPanel(parent);
     
     text = new QTextEdit();
-    text->setGeometry(0, 500, 1180, 220);
+    text->setGeometry(0, 500, 930, 220);
     text->setStyleSheet("QTextEdit { padding-left:5; padding-top:10;}");
     text->setText("");
 
     
     // will be moved to a chart widget
     view = new QWebEngineView(parent);
-    view->load(QUrl("https://d32exi8v9av3ux.cloudfront.net/static/scripts/tradingview.prod.html?symbol=XBTZAR&res=60&lang=en&theme=Light"));
-    view->setGeometry(0, 0, 1180, 500);
+    view->load(QUrl("https://d32exi8v9av3ux.cloudfront.net/static/scripts/tradingview.prod.html?symbol=XBTZAR&res=60&lang=en"));
+    view->setGeometry(0, 0, 930, 500);
     if (!isDarkMode())
-        QTimer::singleShot(3000, this, [this](){
+        QTimer::singleShot(4000, this, [this](){
                 view->page()->runJavaScript( R"java(
                 tvWidget.changeTheme("Light");
                 bgcolor(white);
@@ -40,11 +40,11 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
     view->show();
     // end of new chart widget
     
-    openOrderPanel = new OpenOrderPanel(nullptr, lunoClient);
+    openOrderPanel = new OpenOrderPanel(nullptr, lunoClient, text);
     openOrderPanel->setObjectName("OpenOrderPanel");
     
     tabWidget = new QTabWidget(parent);
-    tabWidget->setGeometry(0, 480, 1180, 240);
+    tabWidget->setGeometry(0, 480, 930, 240);
     tabWidget->addTab(text, tr("Output"));
     tabWidget->addTab(openOrderPanel, tr("Open Orders"));
     
@@ -138,7 +138,7 @@ void HomeView::darkTheme(){
     view->page()->runJavaScript( R"java(
         tvWidget.changeTheme("Dark");
     )java");
-    QColor darker(25,25,25);
+    //QColor darker(25,25,25);
     orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
                                         background-color: #1e1e1e;
                                         color: white;
@@ -171,8 +171,8 @@ void HomeView::lightTheme() {
         tvWidget.changeTheme("Light");
     )java");
     
-    QColor light(253,253,253);
-    QBrush dark(QColor(20,20,20));
+    //QColor light(253,253,253);
+    //QBrush dark(QColor(20,20,20));
     
     orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
                                         background-color: white;
@@ -222,7 +222,7 @@ void HomeView::forceDarkTheme(){
 
 P2PView::P2PView (QWidget *parent) {
     text = new QTextEdit(parent);
-    text->setGeometry(0, 500, 1180, 220);
+    text->setGeometry(0, 500, 930, 220);
     text->document()->setDocumentMargin(5);
     text->setText("Peer 2 Peer View");
     text->show();
