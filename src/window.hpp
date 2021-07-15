@@ -5,7 +5,7 @@
 #include <QWebEngineView>
 #include "orderPanel.hpp"
 #include "openOrderPanel.hpp"
-#include "localbitcoinClient.hpp"
+
 
 QTextEdit& operator<< (QTextEdit& stream, std::string str);
 QTextBrowser& operator<< (QTextBrowser& stream, std::string str);
@@ -43,20 +43,4 @@ public:
     virtual void updateTheme();
     virtual void forceDarkTheme();
 };
-
-class P2PView : public Window {
-private:
-    virtual void darkTheme();
-    virtual void lightTheme();
-    
-public:
-    P2PView (QWidget *parent = 0);
-    ~P2PView();
-    
-    QTextEdit* text;
-    
-    virtual void updateTheme();
-    virtual void forceDarkTheme();
-};
-
 #endif /* Window_hpp */

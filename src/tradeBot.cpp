@@ -2,7 +2,6 @@
 
 // Constructor
 TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
-    p2p = nullptr; // peer to peer window, not active
     current = home = new HomeView(this, &lunoClient); // active home screen window
     
     // on update event
@@ -62,8 +61,6 @@ void TradeBot::Cleanup(){
     delete timestamp;
     if (home)
         delete home;
-    if (p2p)
-        delete p2p;
     
     emit close();
 }

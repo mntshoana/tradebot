@@ -30,11 +30,9 @@ private:
     QTimer* timer;
     
     HomeView* home;
-    P2PView* p2p;
     Window* current;
     
     Luno::LunoClient lunoClient;
-    LocalBitcoin::LocalBitcoinClient LocalBclient;
     JobManager manager;
     
     size_t* timerCount;

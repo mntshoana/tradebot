@@ -27,8 +27,6 @@ SOURCES += jobManager.cpp
 HEADERS += jobManager.hpp
 SOURCES += lunoclientOrderFuncs.cpp lunoclientMarketFuncs.cpp
 HEADERS += lunoTypes.hpp lunoclient.hpp
-SOURCES += localbitcoinClient.cpp
-HEADERS += localbitcoinClient.hpp
 SOURCES += client.cpp
 HEADERS += client.hpp
 SOURCES += exceptions.cpp
@@ -40,11 +38,6 @@ SOURCES += autoPlayground.cpp
 SOURCES += main.cpp
 
 ### External #####
-#hash-library#
-INCLUDEPATH += ../ext/hash-library/
-SOURCES += ../ext/hash-library/sha256.cpp
-HEADERS += ../ext/hash-library/hmac.h ../ext/hash-library/sha256.h
-
 #libcurl#
 INCLUDEPATH += /usr/local/include/
 LIBS += -L"/usr/local/lib/" -lcurl.4
