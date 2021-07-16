@@ -2,14 +2,11 @@
 #include <QTimer>
 
 
-
-QTextEdit& operator<< (QTextEdit& stream, std::string str)
-{
+QTextEdit& operator<< (QTextEdit& stream, std::string str) {
     stream.append(str.c_str());
     return stream;
 }
-QTextBrowser& operator<< (QTextBrowser& stream, std::string str)
-{
+QTextBrowser& operator<< (QTextBrowser& stream, std::string str){
     stream.append(str.c_str());
     return stream;
 }
@@ -17,18 +14,18 @@ QTextBrowser& operator<< (QTextBrowser& stream, std::string str)
 HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent), lunoClient(client) {
     orderPanel = new OrderPanel(parent);
     
-    //chartPanel = new ChartPanel(parent);
-    
+    // Output stream for logs
     text = new QTextEdit();
     text->setGeometry(0, 500, 930, 220);
     text->setStyleSheet("QTextEdit { padding-left:5; padding-top:10;}");
     text->setText("");
 
-    
-    // will be moved to a chart widget
-    view = new QWebEngineView(parent);
-    view->load(QUrl("https://d32exi8v9av3ux.cloudfront.net/static/scripts/tradingview.prod.html?symbol=XBTZAR&res=60&lang=en"));
+    // Chart Displayed using QWebEngine browser
+    view = new QWebEngineView(parent); // to do: move VIEW to a chart widget
     view->setGeometry(0, 0, 930, 500);
+    view->load(QUrl("https://d32exi8v9av3ux.cloudfront.net/static/scripts/tradingview.prod.html?symbol=XBTZAR&res=60&lang=en"));
+    
+    // Note: the next line only works if the browser has already loaded, hence delay
     if (!isDarkMode())
         QTimer::singleShot(4000, this, [this](){
                 view->page()->runJavaScript( R"java(
@@ -38,15 +35,14 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
         });
     
     view->show();
-    // end of new chart widget
     
-    openOrderPanel = new OpenOrderPanel(nullptr, lunoClient, text);
-    openOrderPanel->setObjectName("OpenOrderPanel");
+    pendingOrders = new PendingOrders(nullptr, lunoClient, text);
+    pendingOrders->setObjectName("PendingOrders");
     
     tabWidget = new QTabWidget(parent);
     tabWidget->setGeometry(0, 480, 930, 240);
     tabWidget->addTab(text, tr("Output"));
-    tabWidget->addTab(openOrderPanel, tr("Open Orders"));
+    tabWidget->addTab(pendingOrders, tr("Open Orders"));
     
     //chartPanel->playground = new AutoPlayground(text);
     // request button
@@ -94,27 +90,6 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
         }
     });
     
-    // home window timeframe Combo Box text changed event
-    /*connect(chartPanel->timeframe, &QComboBox::currentTextChanged,
-        this, [this](const QString &str){
-        *(text) << str.toStdString();
-        chartPanel->loadChart(ticks.begin(), ticks.end());
-        chartPanel->chart->left = (chartPanel->chart->count()+1) * chartPanel->chart->scaledXIncrements - 980;
-        chartPanel->chart->update();
-        chartPanel->update();
-    });*/
-    
-    // home window simulate auto trade button to event
-    /*connect(chartPanel->simulate, &QPushButton::clicked,
-            this, [this](){
-        chartPanel->simulate->setText("training");
-        std::thread th([this]{
-            chartPanel->playground->runScript();
-            chartPanel->simulate->setText("Simulate");
-        });
-        th.detach();
-    });*/
-    
     // Theme
     if (isDarkMode())
         darkTheme();
@@ -123,12 +98,9 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
 }
 
 HomeView::~HomeView(){
-    //delete chartPanel->playground;
-    //delete chartPanel;
     delete orderPanel;
     delete text;
     text = nullptr;
-    //chartPanel = nullptr;
     orderPanel = nullptr;
     lunoClient = nullptr;
 }
@@ -138,7 +110,7 @@ void HomeView::darkTheme(){
     view->page()->runJavaScript( R"java(
         tvWidget.changeTheme("Dark");
     )java");
-    //QColor darker(25,25,25);
+    
     orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
                                         background-color: #1e1e1e;
                                         color: white;
@@ -146,18 +118,13 @@ void HomeView::darkTheme(){
                                  } QGroupBox::title {
                                         background-color:transparent;
                                  })");
-    //QPalette p = chartPanel->palette();
-    //p.setColor(QPalette::Window, darker);
-    //chartPanel->setPalette(p);
-    //p.setColor(QPalette::Window, darker);
-    //chartPanel->chart->setPalette(p);
     
     tabWidget->setStyleSheet(R"(QTabWidget::tab-bar  {
                                 left: 5px;
                                 top: 26px;
                              } QTabWidget::pane {
                              border-top: 25px solid #1a1a1a;
-                             } QTextEdit, #OpenOrderPanel {
+                             } QTextEdit, #PendingOrders {
                              background-color: rgb(28, 28, 28);
                              border-style: outset;
                              border-width: 0.5px;
@@ -171,9 +138,6 @@ void HomeView::lightTheme() {
         tvWidget.changeTheme("Light");
     )java");
     
-    //QColor light(253,253,253);
-    //QBrush dark(QColor(20,20,20));
-    
     orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
                                         background-color: white;
                                         color: black;
@@ -182,18 +146,12 @@ void HomeView::lightTheme() {
                                         background-color:transparent;
                                  })");
     
-    //QPalette p = chartPanel->palette();
-    //p.setColor(QPalette::Window, Qt::white);
-    //chartPanel->setPalette(p);
-    //p.setColor(QPalette::Window, light);
-    //chartPanel->chart->setPalette(p);
-    
     tabWidget->setStyleSheet(R"(QTabWidget::tab-bar  {
                                 left: 5px;
                                 top: 26px;
                              } QTabWidget::pane {
                              border-top: 25px solid #fdfdfd;
-                             } QTextEdit, #OpenOrderPanel {
+                             } QTextEdit, #PendingOrders {
                              background-color: rgb(253, 253, 253);
                              border-style: outset;
                              border-width: 0.5px;

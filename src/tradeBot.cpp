@@ -24,17 +24,6 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     path = path.substr(0, pos) + "/src/data/";
     
     closing = false;
-    /*connect(home->chartPanel->P2Pbutton, &QPushButton::clicked, this, [this]() {
-        timer->stop();
-        manager.stop();
-        delete home;
-        home = nullptr;
-        p2p = new P2PView(this);
-        current = p2p;
-        // todo
-        // change back to home
-        // ...
-    });*/
     
     connect(qApp, &QApplication::aboutToQuit, this, [this] (){
         closing=true;
@@ -46,7 +35,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
                              &Luno::LunoClient::getOrderBook,
                              std::string("XBTZAR"),
                              &Luno::OrderBook::FormatToShowUserOrders,
-                             &(home->openOrderPanel->openUserOrders)),
+                             &(home->pendingOrders->openUserOrders)),
                     true);
 
     installEventFilter(this);
@@ -96,8 +85,8 @@ void TradeBot::OnUpdate() {
         current->updateTheme();
     
         if (*timerCount % 10 == 0){
-            home->openOrderPanel->clearItems();
-            home->openOrderPanel->addOrders();
+            home->pendingOrders->clearItems();
+            home->pendingOrders->addOrders();
         }
             
         emit finishedUpdate();
@@ -242,7 +231,7 @@ bool TradeBot::eventFilter(QObject *obj, QEvent *event){
     if (event->type() == QEvent::KeyPress){
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         if (keyEvent->key() == Qt::Key_Escape){
-            home->openOrderPanel->popFrontOrder(home->text);
+            home->pendingOrders->popFrontOrder(home->text);
         }
         else if (keyEvent->key() == Qt::Key_BracketRight){
             std::string price = home->orderPanel->txtPrice->text().toStdString();
