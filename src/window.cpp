@@ -11,14 +11,10 @@ QTextBrowser& operator<< (QTextBrowser& stream, std::string str){
     return stream;
 }
 
-HomeView::HomeView (QWidget *parent) : QWidget(parent) {
+HomeView::HomeView (QWidget *parent) : QWidget(parent), text(parent) {
     orderPanel = new OrderPanel(parent);
     
     // Output stream for logs
-    text = new QTextEdit();
-    text->setGeometry(0, 500, 930, 220);
-    text->setStyleSheet("QTextEdit { padding-left:5; padding-top:10;}");
-    text->setText("");
 
     // Chart Displayed using QWebEngine browser
     view = new QWebEngineView(parent); // to do: move VIEW to a chart widget
@@ -36,12 +32,12 @@ HomeView::HomeView (QWidget *parent) : QWidget(parent) {
     
     view->show();
     
-    pendingOrders = new PendingOrders(nullptr, text);
+    pendingOrders = new PendingOrders(nullptr);
     pendingOrders->setObjectName("PendingOrders");
     
     tabWidget = new QTabWidget(parent);
     tabWidget->setGeometry(0, 480, 930, 240);
-    tabWidget->addTab(text, tr("Output"));
+    tabWidget->addTab(&text, tr("Output"));
     tabWidget->addTab(pendingOrders, tr("Open Orders"));
     
     //chartPanel->playground = new AutoPlayground(text);
@@ -54,7 +50,7 @@ HomeView::HomeView (QWidget *parent) : QWidget(parent) {
         float amount = atof(orderPanel->txtAmount->text().toStdString().c_str());
         
         if (price == 0){
-            *(text) << "Error - Price cannot be empty.";
+            text << "Error - Price cannot be empty.";
             return;
         }
         
@@ -73,20 +69,20 @@ HomeView::HomeView (QWidget *parent) : QWidget(parent) {
             }
            
             else if (amount < 0.0005f){
-                *(text) << "Error - cannot trade for less than 0.000500 BTC";
+                text << "Error - cannot trade for less than 0.000500 BTC";
                 return;
             }
             
             // output
             std::string result = Luno::LunoClient::postLimitOrder("XBTZAR", action, amount, price);
-            *(text) << std::string(action) + " order at price: " + std::to_string(price);
-            *(text) << "   Amount: " + std::to_string(amount);
-            *(text) << "   Valued: " + std::to_string(amount * price);
-            *(text) << "COMPLETE: " + result;
+            text << std::string(action) + " order at price: " + std::to_string(price);
+            text << "   Amount: " + std::to_string(amount);
+            text << "   Valued: " + std::to_string(amount * price);
+            text << "COMPLETE: " + result;
             
         } catch (ResponseEx ex){
-            *(text) << " [Error] Unable to place order! at " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
-            *(text) << ex.String();
+            text << " [Error] Unable to place order! at " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
+            text << ex.String();
         }
     });
     
@@ -99,8 +95,6 @@ HomeView::HomeView (QWidget *parent) : QWidget(parent) {
 
 HomeView::~HomeView(){
     delete orderPanel;
-    delete text;
-    text = nullptr;
     orderPanel = nullptr;
     lunoClient = nullptr;
 }

@@ -19,14 +19,19 @@ CONFIG(debug, debug|release) {
 
 SOURCES += tradeBot.cpp \
             label.cpp orderPanel.cpp pendingOrders.cpp \
+            textPanel.cpp \
             window.cpp
 HEADERS += tradeBot.hpp \
             label.hpp orderPanel.hpp pendingOrders.hpp \
+            textPanel.hpp \
             window.hpp
 SOURCES += jobManager.cpp
 HEADERS += jobManager.hpp
-SOURCES += lunoclientOrderFuncs.cpp lunoclientMarketFuncs.cpp
-HEADERS += lunoTypes.hpp lunoclient.hpp
+SOURCES += lunoclient/lunoclient.cpp \
+            lunoclient/orderFuncs.cpp lunoclient/marketFuncs.cpp \
+            lunoclient/transferFuncs.cpp lunoclient/srFuncs.cpp \
+            lunoclient/quoteFuncs.cpp lunoclient/accountFuncs.cpp
+HEADERS += lunoclient/lunoTypes.hpp lunoclient.hpp
 SOURCES += client.cpp
 HEADERS += client.hpp
 SOURCES += exceptions.cpp

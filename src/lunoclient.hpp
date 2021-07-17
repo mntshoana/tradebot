@@ -1,7 +1,7 @@
 #ifndef lunoclient_hpp
 #define lunoclient_hpp
 
-#include "lunoTypes.hpp"
+#include "lunoclient/lunoTypes.hpp"
 #include "client.hpp"
 
 namespace Luno {

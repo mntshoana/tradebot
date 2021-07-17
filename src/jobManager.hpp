@@ -53,29 +53,28 @@ void Job<T, stream, res, proc>::performJob(){
 }
 //
 
-template <class T, class param, class error>
+template <class T, class param>
 class func1 : public JobBase{
     T* object;
-    error* errorStream;
+    TextPanel text;
     param arg;
     void (T::*task)(param);
 public:
     virtual void performJob() override;
-    inline func1(T* object, void (T::*func)(param),  param arg, error* errorStream, bool repeat = true){
+    inline func1(T* object, void (T::*func)(param),  param arg, bool repeat = true){
         this->object = object;
         this->arg = arg;
         this->task = func;
         this->repeat = repeat;
-        this->errorStream = errorStream;
     }
 };
 
-template <class T, class param, class error>
-void func1<T, param, error>::performJob(){
+template <class T, class param>
+void func1 <T, param>::performJob(){
     try{
         (object->*task)(arg);
     } catch (ResponseEx ex){
-            (*errorStream) << ex.String(); // To do:: should be an error stream here
+            text << ex.String(); // To do:: should be an error stream here
     }
 }
 

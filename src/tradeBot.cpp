@@ -58,8 +58,8 @@ void TradeBot::OnFinishedUpdate(){
     if (*timerCount == 0)
         manager.enqueue(new func1(this,
                                  &TradeBot::downloadTicks,
-                                 std::string("XBTZAR"),
-                                 home->text), true);
+                                 std::string("XBTZAR")
+                                 ), true);
     
     *timerCount = *timerCount +1;
     if (!closing)
@@ -179,7 +179,7 @@ void TradeBot::downloadTicks(std::string pair){
         }
         else {
             file.clear();
-            *(home->text) << std::string("[Error] : At ")
+            home->text << std::string("[Error] : At ")
                             + __FILE__ + ": line " + std::to_string(__LINE__)
                         + ". Couldn't write ticks to file.";
         }
@@ -231,7 +231,7 @@ bool TradeBot::eventFilter(QObject *obj, QEvent *event){
     if (event->type() == QEvent::KeyPress){
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         if (keyEvent->key() == Qt::Key_Escape){
-            home->pendingOrders->popFrontOrder(home->text);
+            home->pendingOrders->popFrontOrder();
         }
         else if (keyEvent->key() == Qt::Key_BracketRight){
             std::string price = home->orderPanel->txtPrice->text().toStdString();

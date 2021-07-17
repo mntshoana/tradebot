@@ -5,6 +5,7 @@
 #include <QWebEngineView>
 #include "orderPanel.hpp"
 #include "pendingOrders.hpp"
+#include "textPanel.hpp"
 
 
 QTextEdit& operator<< (QTextEdit& stream, std::string str);
@@ -30,7 +31,7 @@ public:
     
     QTabWidget *tabWidget;
     // Tabs will have
-    QTextEdit* text;
+    TextPanel text;
     PendingOrders *pendingOrders;
     ///
     OrderPanel *orderPanel;
