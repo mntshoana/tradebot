@@ -32,7 +32,6 @@ private:
     HomeView* home;
     Window* current;
     
-    Luno::LunoClient lunoClient;
     JobManager manager;
     
     size_t* timerCount;

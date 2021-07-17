@@ -11,7 +11,7 @@ QTextBrowser& operator<< (QTextBrowser& stream, std::string str){
     return stream;
 }
 
-HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent), lunoClient(client) {
+HomeView::HomeView (QWidget *parent) : QWidget(parent) {
     orderPanel = new OrderPanel(parent);
     
     // Output stream for logs
@@ -36,7 +36,7 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
     
     view->show();
     
-    pendingOrders = new PendingOrders(nullptr, lunoClient, text);
+    pendingOrders = new PendingOrders(nullptr, text);
     pendingOrders->setObjectName("PendingOrders");
     
     tabWidget = new QTabWidget(parent);
@@ -63,11 +63,11 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
         try {
             if (amount == 0.0f){
                 if (orderPanel->isBuy){
-                    auto balances = lunoClient->getBalances("ZAR");
+                    auto balances = Luno::LunoClient::getBalances("ZAR");
                     amount = (balances[0].balance - balances[0].reserved) / float(price);
                 }
                 else if (!orderPanel->isBuy){
-                    auto balances = lunoClient->getBalances("XBT");
+                    auto balances = Luno::LunoClient::getBalances("XBT");
                     amount = balances[0].balance - balances[0].reserved;
                 }
             }
@@ -78,7 +78,7 @@ HomeView::HomeView (QWidget *parent, Luno::LunoClient* client) : QWidget(parent)
             }
             
             // output
-            std::string result = lunoClient->postLimitOrder("XBTZAR", action, amount, price);
+            std::string result = Luno::LunoClient::postLimitOrder("XBTZAR", action, amount, price);
             *(text) << std::string(action) + " order at price: " + std::to_string(price);
             *(text) << "   Amount: " + std::to_string(amount);
             *(text) << "   Valued: " + std::to_string(amount * price);

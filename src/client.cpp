@@ -19,6 +19,10 @@ size_t Client::redirect (char *ptr, size_t size, size_t nmemb, void *stream) {
     return size * nmemb;
 }
 
+int Client::getHttpCode(){
+    return httpCode;
+}
+
 std::string Client::request (const char* method, const char* uri, bool auth) {
     buffer.str(""); // clear stream
     if(curl) {

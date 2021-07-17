@@ -2,7 +2,7 @@
 
 // Constructor
 TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
-    current = home = new HomeView(this, &lunoClient); // active home screen window
+    current = home = new HomeView(this); // active home screen window
     
     // on update event
     connect(this, &TradeBot::finishedUpdate,
@@ -30,7 +30,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
         Cleanup();
     });
     // begin job manager
-    manager.enqueue(new Job1WPArg(&lunoClient,
+    manager.enqueue(new Job1WPArg(
                              home->orderPanel->orderview,
                              &Luno::LunoClient::getOrderBook,
                              std::string("XBTZAR"),
@@ -152,7 +152,7 @@ void TradeBot::loadLocalTicks(){
 }
 
 void TradeBot::downloadTicks(std::string pair){
-    home->moreticks = lunoClient.getTrades(pair, *timestamp); // order = newest to oldest
+    home->moreticks = Luno::LunoClient::getTrades(pair, *timestamp); // order = newest to oldest
     while (home->ticks.size() > 0
             && home->moreticks.size() > 0
             && home->moreticks.back().sequence <= home->ticks.back().sequence)

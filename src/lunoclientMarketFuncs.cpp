@@ -1,13 +1,16 @@
 #include "lunoclient.hpp"
 
 namespace Luno {
+
+    extern Client client;
     // GET ORDERBOOK
     //
     //
     OrderBook LunoClient::getOrderBook(std::string pair){
         std::string uri = "https://api.mybitx.com/api/1/orderbook_top?pair=" + pair;
-        std::string res = this->request("GET", uri.c_str());
+        std::string res = client.request("GET", uri.c_str());
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -80,8 +83,9 @@ namespace Luno {
     //
     OrderBook LunoClient::getFullOrderBook(std::string pair){
         std::string uri = "https://api.mybitx.com/api/1/orderbook?pair=" + pair;
-        std::string res = this->request("GET", uri.c_str());
+        std::string res = client.request("GET", uri.c_str());
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -288,8 +292,9 @@ namespace Luno {
     //
     Ticker LunoClient::getTicker(std::string pair){
         std::string uri = "https://api.mybitx.com/api/1/ticker?pair=" + pair;
-        std::string res = this->request("GET", uri.c_str());
+        std::string res = client.request("GET", uri.c_str());
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -372,8 +377,9 @@ namespace Luno {
     //
     std::vector<Ticker> LunoClient::getTickers(){
         std::string uri = "https://api.mybitx.com/api/1/tickers";
-        std::string res = this->request("GET", uri.c_str());
+        std::string res = client.request("GET", uri.c_str());
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -456,8 +462,9 @@ namespace Luno {
         std::string uri = "https://api.mybitx.com/api/1/trades?pair=" + pair;
         if (since != 0)
             uri += "&since=" + std::to_string(since);
-        std::string res = this->request("GET", uri.c_str());
+        std::string res = client.request("GET", uri.c_str());
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         

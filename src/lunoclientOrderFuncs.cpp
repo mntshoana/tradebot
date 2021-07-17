@@ -1,6 +1,7 @@
 #include "lunoclient.hpp"
 namespace Luno {
 
+    Client client; // quick singleton
     // GET BALANCE
     //
     // assets can list multiple comma separated assets
@@ -8,8 +9,9 @@ namespace Luno {
         std::string uri = "https://api.mybitx.com/api/1/balance";
         if (assets != "")
             uri += "?assets=" + assets;
-        std::string res = this->request("GET", uri.c_str(), true);
+        std::string res = client.request("GET", uri.c_str(), true);
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -86,8 +88,9 @@ namespace Luno {
     //
     Fee LunoClient::getFeeInfo(std::string pair){
         std::string uri = "https://api.mybitx.com/api/1/fee_info?pair=" + pair;
-        std::string res = this->request("GET", uri.c_str(), true);
+        std::string res = client.request("GET", uri.c_str(), true);
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -159,8 +162,9 @@ namespace Luno {
             uri += "created_before=" + std::to_string(before);
         }
         
-        std::string res = this->request("GET", uri.c_str(), true);
+        std::string res = client.request("GET", uri.c_str(), true);
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -333,8 +337,9 @@ namespace Luno {
             uri += "&sort=true";
         if (limit != 0)
             uri += "&limit=" + std::to_string(limit);
-        std::string res = this->request("GET", uri.c_str(), true);
+        std::string res = client.request("GET", uri.c_str(), true);
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -473,8 +478,9 @@ namespace Luno {
     //
     std::string LunoClient::getOrderDetails(std::string id){
         std::string uri = "https://api.mybitx.com/api/1/orders/" + id;
-        std::string res = this->request("GET", uri.c_str(), true);
+        std::string res = client.request("GET", uri.c_str(), true);
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -492,8 +498,9 @@ namespace Luno {
         uri += "&volume=" + std::to_string(volume);
         uri += "&price=" + std::to_string(price);
         
-        std::string res = this->request("POST", uri.c_str(), true);
+        std::string res = client.request("POST", uri.c_str(), true);
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -506,8 +513,9 @@ namespace Luno {
     std::string LunoClient::stopOrder(std::string orderId){
         std::string uri = "https://api.mybitx.com/api/1/stoporder?order_id=" + orderId;
         
-        std::string res = this->request("POST", uri.c_str(), true);
+        std::string res = client.request("POST", uri.c_str(), true);
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -520,8 +528,9 @@ namespace Luno {
     std::string LunoClient::getRecieveAddress(std::string asset){
         std::string uri = "https://api.mybitx.com/api/1/funding_address";
         uri += "?asset=" + asset;
-        std::string res = this->request("GET", uri.c_str(), true);
+        std::string res = client.request("GET", uri.c_str(), true);
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -537,7 +546,9 @@ namespace Luno {
         uri += "&address=" + address; /*This must be tested, verified first*/
         uri += "&amount=" + std::to_string(amount);
         
-        std::string res = this->request("POST", uri.c_str(), true);
+        std::string res = client.request("POST", uri.c_str(), true);
+        
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -549,8 +560,9 @@ namespace Luno {
     //
     std::string LunoClient::getWithdrawalList(){
         std::string uri = "https://api.mybitx.com/api/1/withdrawals";
-        std::string res = this->request("GET", uri.c_str(), true);
+        std::string res = client.request("GET", uri.c_str(), true);
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -565,8 +577,9 @@ namespace Luno {
         uri += "?type=ZAR_EFT";
         uri += "&amount=" + std::to_string(amount);
         
-        std::string res = this->request("POST", uri.c_str(), true);
+        std::string res = client.request("POST", uri.c_str(), true);
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -578,8 +591,9 @@ namespace Luno {
     //
     std::string LunoClient::getWithdrawal(std::string id){
         std::string uri = "https://api.mybitx.com/api/1/withdrawals/" + id;
-        std::string res = this->request("GET", uri.c_str(), true);
+        std::string res = client.request("GET", uri.c_str(), true);
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
@@ -591,8 +605,9 @@ namespace Luno {
     //
     std::string LunoClient::cancelWithdrawal(std::string id){
         std::string uri = "https://api.mybitx.com/api/1/withdrawals/" + id;
-        std::string res = this->request("DELETE", uri.c_str(), true);
+        std::string res = client.request("DELETE", uri.c_str(), true);
         
+        int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         

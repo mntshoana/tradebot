@@ -21,7 +21,6 @@ protected:
     CURLcode res; // with respect to curl's attempt to communicate
     int httpCode; // after successful communication with server
     
-    virtual std::string  request (const char* method, const char* uri, bool auth = false);
     static size_t redirect (char *ptr, size_t size, size_t nmemb, void *stream);
 public:
     static bool abort; // exit a tediously long task
@@ -29,6 +28,8 @@ public:
     static std::stringstream buffer;
     Client();
     ~Client();
+    int getHttpCode();
+    virtual std::string  request (const char* method, const char* uri, bool auth = false);
     
 };
 #endif /* client_hpp */

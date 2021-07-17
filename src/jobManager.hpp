@@ -26,15 +26,13 @@ public:
 template <class T, class stream, class res, class proc = std::string>
 class Job : public JobBase {
 private:
-    T* object;
     stream* outputStream;
     res (T::*request)();
     proc (res::*preprocessor)();
 public:
     virtual void performJob() override;
     
-    inline Job (T* object, stream* outputStream, res (T::*request)(), proc (res::*preprocessor)() = nullptr) {
-        this->object = object;
+    inline Job (stream* outputStream, res (T::*request)(), proc (res::*preprocessor)() = nullptr) {
         this->outputStream = outputStream;
         this->request = request;
         this->preprocessor = preprocessor;
@@ -44,7 +42,7 @@ public:
 template <class T, class stream, class res, class proc>
 void Job<T, stream, res, proc>::performJob(){
     try{
-        res result = (object->*request)();
+        res result = (*request)();
         if (preprocessor)
             (*outputStream) << (result.*preprocessor)();
         else
@@ -81,20 +79,18 @@ void func1<T, param, error>::performJob(){
     }
 }
 
-template <class T, class stream,
+template <class stream,
             class res, class param, class error = void, class proc = std::string>
 class Job1 : public JobBase{
-    T* object;
     stream* outputStream;
     error* errorStream;
     param arg;
-    res (T::*request)(param);
+    res (*request)(param);
     proc (res::*preprocessor)();
 public:
     virtual void performJob() override;
     
-    inline Job1(T* object, stream* outputStream, res (T::*request)(param), param arg, proc (res::*preprocessor )() = nullptr, error* errorStream = nullptr, bool repeat = true) {
-        this->object = object;
+    inline Job1(stream* outputStream, res (*request)(param), param arg, proc (res::*preprocessor )() = nullptr, error* errorStream = nullptr, bool repeat = true) {
         this->outputStream = outputStream;
         this->arg = arg;
         this->request = request;
@@ -105,11 +101,11 @@ public:
     
 };
 
-template <class T, class stream, class res, class param, class error, class proc>
-void Job1<T, stream, res, param, error,proc>::performJob(){
+template <class stream, class res, class param, class error, class proc>
+void Job1<stream, res, param, error,proc>::performJob(){
     if constexpr (!std::is_same_v<stream, unsigned long long>)
         try{
-            res result = (object->*request)(arg);
+            res result = (*request)(arg);
             if (preprocessor){
                 proc processedResults = (result.*preprocessor)();
                 (*outputStream) << processedResults;
@@ -124,7 +120,7 @@ void Job1<T, stream, res, param, error,proc>::performJob(){
     if constexpr (std::is_same_v<stream, unsigned long long>)
         try{
             if (preprocessor){
-                res result = (object->*request)(arg);
+                res result = (*request)(arg);
                 proc processedResults = (result.*preprocessor)();
                 (*outputStream) = processedResults;
             }
@@ -134,21 +130,19 @@ void Job1<T, stream, res, param, error,proc>::performJob(){
         }
 }
 
-template <class T, class stream,
+template <class stream,
             class res, class param, class prc_param, class error = void, class proc = std::string>
 class Job1WPArg : public JobBase{ // with preprocessor arguemtn
-    T* object;
     stream* outputStream;
     error* errorStream;
     param arg;
     prc_param* pArg;
-    res (T::*request)(param);
+    res (*request)(param);
     proc (res::*preprocessor)(prc_param*);
 public:
     virtual void performJob() override;
     
-    inline Job1WPArg(T* object, stream* outputStream, res (T::*request)(param), param arg, proc (res::*preprocessor)(prc_param*), prc_param* pArg , error* errorStream = nullptr, bool repeat = true) : pArg(pArg){
-        this->object = object;
+    inline Job1WPArg(stream* outputStream, res (*request)(param), param arg, proc (res::*preprocessor)(prc_param*), prc_param* pArg , error* errorStream = nullptr, bool repeat = true) : pArg(pArg){
         this->outputStream = outputStream;
         this->arg = arg;
         this->request = request;
@@ -160,11 +154,11 @@ public:
     
 };
 
-template <class T, class stream, class res, class param, class prc_param, class error, class proc>
-void Job1WPArg<T, stream, res, param, prc_param, error,proc>::performJob(){
+template <class stream, class res, class param, class prc_param, class error, class proc>
+void Job1WPArg <stream, res, param, prc_param, error,proc>::performJob(){
     if constexpr (!std::is_same_v<stream, unsigned long long>)
         try{
-            res result = (object->*request)(arg);
+            res result = (*request)(arg);
             proc processedResults = (result.*preprocessor)( pArg);
             (*outputStream) << processedResults;
         } catch (ResponseEx ex){
@@ -173,7 +167,7 @@ void Job1WPArg<T, stream, res, param, prc_param, error,proc>::performJob(){
     
     if constexpr (std::is_same_v<stream, unsigned long long>)
         try{
-                res result = (object->*request)(arg);
+                res result = (*request)(arg);
                 proc processedResults = (result.*preprocessor)(pArg);
                 (*outputStream) = processedResults;
             

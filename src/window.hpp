@@ -25,7 +25,7 @@ private:
     virtual void darkTheme();
     virtual void lightTheme();
 public:
-    HomeView (QWidget *parent = 0, Luno::LunoClient* client = nullptr);
+    HomeView (QWidget *parent = 0);
     virtual ~HomeView();
     
     QTabWidget *tabWidget;
