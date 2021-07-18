@@ -29,6 +29,5 @@ qmake ../src -spec macx-xcode
 ````
 
 Note: A few files have been excluded from the repository.
- - A header file containing the login credentials has been excluded.
- - A .csv file meant to store any offline tick data is excluded. The code will refer to 'src/data/' using an absolute path function. Place your .csv file in this folder. Then rename it to match the code or change the code to match the name of the file.
+ - The header file containing the login credentials has been excluded as it contains my private login info.
  - You will also need to update the Qt main.pro project file with the paths for libcurl, (i.e, include paths, libs).
