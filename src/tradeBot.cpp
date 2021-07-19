@@ -89,6 +89,10 @@ void TradeBot::OnUpdate() {
             home->pendingOrders->addOrders();
         }
             
+        if (*timerCount % 30 == 0){
+            home->userBalances->reloadItems();
+        }
+        
         emit finishedUpdate();
     }
     else if (*timerCount % 2 == 1 ){

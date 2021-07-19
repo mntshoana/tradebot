@@ -95,13 +95,13 @@ void OrderPanel::clickedLink(const QUrl& url){
 void OrderPanel::changeIsBuy(const QUrl& url) {
     if (url.path().toStdString() == "buy"){
         isBuy = true;
-        liveTradeLabel->rename("<th class=Chosen><a href=buy> Buy </a> </th>"
+        liveTradeLabel->setLabel("<th class=Chosen><a href=buy> Buy </a> </th>"
                                "<th> <a href=sell> Sell </a> </th>");
         request->setText("Bid");
     }
     else {
         isBuy = false;
-        liveTradeLabel->rename("<th><a href=buy> Buy </a> </th>"
+        liveTradeLabel->setLabel("<th><a href=buy> Buy </a> </th>"
                                "<th class=Chosen> <a href=sell> Sell </a> </th>");
         request->setText("Ask");
     }

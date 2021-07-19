@@ -2,10 +2,10 @@
 
 Label::Label(std::string title, QWidget* parent) : QTextBrowser(parent) {
     setReadOnly(true);
-    rename(title);
+    setLabel(title);
 }
 
-void Label::rename(std::string title) {
+void Label::setLabel(std::string title) {
     std::stringstream ss;
     ss << std::fixed;
     ss << R"(

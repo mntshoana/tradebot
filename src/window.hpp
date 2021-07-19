@@ -5,6 +5,7 @@
 #include <QWebEngineView>
 #include "orderPanel.hpp"
 #include "pendingOrders.hpp"
+#include "balancePanel.hpp"
 #include "textPanel.hpp"
 
 
@@ -32,7 +33,8 @@ public:
     QTabWidget *tabWidget;
     // Tabs will have
     TextPanel text;
-    PendingOrders *pendingOrders;
+    PendingOrdersPanel *pendingOrders;
+    BalancePanel *userBalances;
     ///
     OrderPanel *orderPanel;
     

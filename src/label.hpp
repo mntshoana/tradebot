@@ -7,7 +7,7 @@
 class Label : public QTextBrowser {
 public:
     Label(std::string title, QWidget* parent = nullptr );
-    void rename(std::string title);
+    void setLabel(std::string title);
 };
 
 #endif /* TradeBot_OrderBookPanel_hpp */

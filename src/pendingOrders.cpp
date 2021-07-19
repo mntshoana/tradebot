@@ -1,23 +1,18 @@
 #include "pendingOrders.hpp"
 
-PendingOrders::PendingOrders(QWidget* parent) : QWidget(parent) {
+PendingOrdersPanel::PendingOrdersPanel(QWidget* parent) : QWidget(parent) {
     setGeometry(0, 500, 930, 220);
-    
-    //QScrollArea* scrollArea = new QScrollArea(this);
-    //scrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-    //scrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
     
     format = new QVBoxLayout;
     format->setSpacing(0);
     format->setAlignment(Qt::AlignTop);
-    //scrollArea->widget()
     setLayout(format);
     
     createTitle();
     addOrders();
 }
 
-void PendingOrders::clearItems(){
+void PendingOrdersPanel::clearItems(){
     for  (int i = orderIds.size(); i >= 0; i--){
         QLayout *level = format->takeAt(i)->layout();
         while(!level->isEmpty()) {
@@ -31,7 +26,7 @@ void PendingOrders::clearItems(){
     addOrders();
 }
 
-void PendingOrders::createTitle (){
+void PendingOrdersPanel::createTitle (){
     QLabel *lblDate = new QLabel ( QString::fromStdString("Created" ) );
     QLabel *lblType = new QLabel ( QString::fromStdString("Type" ) );
     QLabel *lblPrice = new QLabel ( QString::fromStdString("Price") );
@@ -56,10 +51,9 @@ void PendingOrders::createTitle (){
     line->setContentsMargins(1,0,0,15);
     line->setAlignment(Qt::AlignTop);
     format->addLayout(line);
-    hasTitle = true;
 }
 
-void PendingOrders::createItem (Luno::UserOrder& order)
+void PendingOrdersPanel::createItem (Luno::UserOrder& order)
 {
     QLabel *lblDate = new QLabel ( QDateTime::fromMSecsSinceEpoch(order.createdTime).toString("ddd MMMM d yyyy hh:mm") );
     QLabel *lblType = new QLabel ( QString::fromStdString(order.type ) );
@@ -125,7 +119,7 @@ void PendingOrders::createItem (Luno::UserOrder& order)
     
 }
 
-void PendingOrders::addOrders (){
+void PendingOrdersPanel::addOrders (){
     try{
         openUserOrders = Luno::LunoClient::getUserOrders("XBTZAR", "PENDING");
         for (Luno::UserOrder& order : openUserOrders){
@@ -147,7 +141,7 @@ void PendingOrders::addOrders (){
     }
 }
 
-void PendingOrders::paintEvent(QPaintEvent *)
+void PendingOrdersPanel::paintEvent(QPaintEvent *)
  {
      // The following allows Qt style sheets to work on a derived class (#derivedClassName)
      QStyleOption options;
@@ -156,7 +150,7 @@ void PendingOrders::paintEvent(QPaintEvent *)
      style()->drawPrimitive(QStyle::PE_Widget, &options, &painter, this);
  }
 
-void PendingOrders::popFrontOrder(){
+void PendingOrdersPanel::popFrontOrder(){
     QList<QHBoxLayout *> list = format->findChildren<QHBoxLayout *> ();
     int displayedOrderListCount = list.size();
     displayedOrderListCount--; // Must exclude the title row

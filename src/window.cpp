@@ -32,13 +32,17 @@ HomeView::HomeView (QWidget *parent) : QWidget(parent), text(parent) {
     
     view->show();
     
-    pendingOrders = new PendingOrders(nullptr);
+    pendingOrders = new PendingOrdersPanel(nullptr);
     pendingOrders->setObjectName("PendingOrders");
     
+    userBalances = new BalancePanel(nullptr);
+    userBalances->setObjectName("UserBalances");
+    
     tabWidget = new QTabWidget(parent);
-    tabWidget->setGeometry(0, 480, 930, 240);
+    tabWidget->setGeometry(0, 472, 930, 248);
     tabWidget->addTab(&text, tr("Output"));
     tabWidget->addTab(pendingOrders, tr("Open Orders"));
+    tabWidget->addTab(userBalances, tr("User Balances"));
     
     //chartPanel->playground = new AutoPlayground(text);
     // request button
@@ -115,13 +119,41 @@ void HomeView::darkTheme(){
     
     tabWidget->setStyleSheet(R"(QTabWidget::tab-bar  {
                                 left: 5px;
-                                top: 26px;
+                                top: 28px;
                              } QTabWidget::pane {
-                             border-top: 25px solid #1a1a1a;
-                             } QTextEdit, #PendingOrders {
-                             background-color: rgb(28, 28, 28);
-                             border-style: outset;
-                             border-width: 0.5px;
+                                border-top: 25px solid #1a1a1a;
+                             } QTabBar::tab {
+                                border-style: outset;
+                                border-radius: 10px;
+                                padding-left: 8px;
+                                padding-right: 8px;
+                                padding-top: 2px;
+                                padding-bottom: 2px;
+                                margin-bottom: 2px;
+                             } QTabBar::tab:!first:!last {
+                                border-radius: 0px;
+                             } QTabBar::tab:first {
+                                border-top-right-radius: 0px;
+                                border-bottom-right-radius: 0px;
+                             } QTabBar::tab:last {
+                                border-top-left-radius: 0px;
+                                border-bottom-left-radius: 0px;
+                             } QTabBar::tab:selected {
+                                color: rgb(241 , 231, 242);
+                                border-top: 1px solid rgb(26 ,120, 220);
+                                background-color: rgb(21 ,111, 215);
+                                border-bottom: 1px solid rgb(10 ,55, 107);
+                                margin-top: 2px;
+                                margin-bottom: 0px;
+                             } QTabBar::tab:!selected {
+                                color: rgb(241 , 231, 242);
+                                border-top: 1px solid rgb(87 ,87, 87);
+                                background-color: rgb(83 ,83, 83);
+                                border-bottom: 1px solid rgb(77 ,77, 77);
+                             } QTextEdit, #PendingOrders, #UserBalances {
+                                background-color: rgb(28, 28, 28);
+                                border-style: outset;
+                                border-width: 0.5px;
                              border-top-color: rgb(25, 25, 25);
                              } )");
     
@@ -142,17 +174,45 @@ void HomeView::lightTheme() {
     
     tabWidget->setStyleSheet(R"(QTabWidget::tab-bar  {
                                 left: 5px;
-                                top: 26px;
+                                top: 28px;
                              } QTabWidget::pane {
-                             border-top: 25px solid #fdfdfd;
-                             } QTextEdit, #PendingOrders {
-                             background-color: rgb(253, 253, 253);
-                             border-style: outset;
-                             border-width: 0.5px;
-                             border-top-color: rgb(165, 165, 165);
-                             border-bottom-color: rgb(245, 245, 245);
-                             border-left-color: rgb(185, 185, 185);
-                             border-right-color: rgb(225, 225, 225);
+                                border-top: 25px solid #fdfdfd;
+                             } QTabBar::tab {
+                                border-style: outset;
+                                border-radius: 10px;
+                                padding-left: 8px;
+                                padding-right: 8px;
+                                padding-top: 2px;
+                                padding-bottom: 2px;
+                                margin-bottom: 2px;
+                              } QTabBar::tab:!first:!last {
+                                border-radius: 0px;
+                              } QTabBar::tab:first {
+                                border-top-right-radius: 0px;
+                                border-bottom-right-radius: 0px;
+                              } QTabBar::tab:last {
+                                border-top-left-radius: 0px;
+                                border-bottom-left-radius: 0px;
+                              } QTabBar::tab:selected {
+                                color: rgb(241 , 231, 242);
+                                border-top: 1px solid rgb(26 ,120, 220);
+                                background-color: rgb(21 ,111, 215);
+                                border-bottom: 1px solid rgb(10 ,55, 107);
+                                margin-top: 2px;
+                                margin-bottom: 0px;
+                              } QTabBar::tab:!selected {
+                                color: rgb(241 , 231, 242);
+                                border-top: 1px solid rgb(87 ,87, 87);
+                                background-color: rgb(83 ,83, 83);
+                                border-bottom: 1px solid rgb(77 ,77, 77);
+                              } QTextEdit, #PendingOrders, #UserBalances {
+                                background-color: rgb(253, 253, 253);
+                                border-style: outset;
+                                border-width: 0.5px;
+                                border-top-color: rgb(165, 165, 165);
+                                border-bottom-color: rgb(245, 245, 245);
+                                border-left-color: rgb(185, 185, 185);
+                                border-right-color: rgb(225, 225, 225);
                              } )");
     
     nightmode = false;

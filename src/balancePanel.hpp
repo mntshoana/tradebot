@@ -1,5 +1,5 @@
-#ifndef OPEN_ORDER_PANEL_HPP
-#define OPEN_ORDER_PANEL_HPP
+#ifndef USER_BALANCE_PANEL_HPP
+#define USER_BALANCE_PANEL_HPP
 #include <QPushButton>
 #include <QFormLayout>
 #include <QLabel>
@@ -14,25 +14,24 @@
 #include "textPanel.hpp"
 
 #include <sstream>
-class PendingOrdersPanel : public QWidget {
+class BalancePanel : public QWidget {
     Q_OBJECT
 private:
-    std::vector<std::string> orderIds;
+    std::vector<std::string> accountIDs;
     TextPanel text;
     
+    std::string floatToString(float val, const int decimals = 6);
 public:
     QVBoxLayout *format;
     QHBoxLayout *line;
-    std::vector<Luno::UserOrder> openUserOrders;
+    std::vector<Luno::Balance> userBalances;
     
-    void clearItems();
-    void createItem (Luno::UserOrder&);
+    void reloadItems();
+    void createItem (Luno::Balance&);
     void createTitle ();
-    void addOrders ();
-    PendingOrdersPanel(QWidget* parent = nullptr);
+    void loadItems ();
+    BalancePanel(QWidget* parent = nullptr);
     void paintEvent(QPaintEvent *);
-    
-    void popFrontOrder();
 };
 
 #endif
