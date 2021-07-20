@@ -6,6 +6,7 @@
 #include "orderPanel.hpp"
 #include "pendingOrders.hpp"
 #include "balancePanel.hpp"
+#include "withdrawPanel.hpp"
 #include "textPanel.hpp"
 
 
@@ -35,6 +36,7 @@ public:
     TextPanel text;
     PendingOrdersPanel *pendingOrders;
     BalancePanel *userBalances;
+    WithdrawPanel *withdrawals;
     ///
     OrderPanel *orderPanel;
     

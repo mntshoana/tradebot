@@ -91,6 +91,7 @@ void TradeBot::OnUpdate() {
             
         if (*timerCount % 30 == 0){
             home->userBalances->reloadItems();
+            home->withdrawals->loadItems(home->userBalances->userBalances);
         }
         
         emit finishedUpdate();

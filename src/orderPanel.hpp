@@ -11,6 +11,7 @@
 #include <QPushButton>
 
 #include "lunoclient.hpp"
+#include "lineBlock.hpp"
 
 class OrderView : public QTextBrowser {
 public:
@@ -31,15 +32,6 @@ template <>
 OrderView& operator<< <std::string>(OrderView& stream, std::string str);
 
 
-//
-class LineBlock : public QLineEdit
-{
-    QPushButton* button;
-    Q_OBJECT
-public:
-    LineBlock(QWidget* parent = nullptr, QPushButton* button = nullptr): QLineEdit(parent), button(button) { }
-    void keyPressEvent(QKeyEvent *event) override;
-};
 
 //
 class OrderPanel : public QWidget {

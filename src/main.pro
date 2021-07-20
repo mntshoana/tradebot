@@ -18,13 +18,15 @@ CONFIG(debug, debug|release) {
 
 
 SOURCES += tradeBot.cpp \
-            label.cpp orderPanel.cpp pendingOrders.cpp \
-            balancePanel.cpp \
+            label.cpp lineBlock.cpp \
+            orderPanel.cpp pendingOrders.cpp \
+            balancePanel.cpp withdrawPanel.cpp \
             textPanel.cpp \
             window.cpp
 HEADERS += tradeBot.hpp \
-            label.hpp orderPanel.hpp pendingOrders.hpp \
-            balancePanel.hpp \
+            label.hpp lineBlock.hpp \
+            orderPanel.hpp pendingOrders.hpp \
+            balancePanel.hpp withdrawPanel.hpp \
             textPanel.hpp \
             window.hpp
 SOURCES += jobManager.cpp

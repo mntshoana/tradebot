@@ -38,11 +38,15 @@ HomeView::HomeView (QWidget *parent) : QWidget(parent), text(parent) {
     userBalances = new BalancePanel(nullptr);
     userBalances->setObjectName("UserBalances");
     
+    withdrawals = new WithdrawPanel(nullptr);
+    withdrawals->setObjectName("Withdrawals");
+    
     tabWidget = new QTabWidget(parent);
     tabWidget->setGeometry(0, 472, 930, 248);
     tabWidget->addTab(&text, tr("Output"));
     tabWidget->addTab(pendingOrders, tr("Open Orders"));
     tabWidget->addTab(userBalances, tr("User Balances"));
+    tabWidget->addTab(withdrawals, tr("User Balances"));
     
     //chartPanel->playground = new AutoPlayground(text);
     // request button
@@ -109,13 +113,15 @@ void HomeView::darkTheme(){
         tvWidget.changeTheme("Dark");
     )java");
     
-    orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
-                                        background-color: #1e1e1e;
-                                        color: white;
-                                        border: none;
-                                 } QGroupBox::title {
-                                        background-color:transparent;
-                                 })");
+    const char* groupBoxTheme = R"(QGroupBox {
+                                    background-color: #1e1e1e;
+                                    color: white;
+                                    border: none;
+                                } QGroupBox::title {
+                                    background-color:transparent;
+    })";
+    orderPanel->livetradeview->setStyleSheet(groupBoxTheme);
+    withdrawals->boundingBox->setStyleSheet(groupBoxTheme);
     
     tabWidget->setStyleSheet(R"(QTabWidget::tab-bar  {
                                 left: 5px;
@@ -150,7 +156,7 @@ void HomeView::darkTheme(){
                                 border-top: 1px solid rgb(87 ,87, 87);
                                 background-color: rgb(83 ,83, 83);
                                 border-bottom: 1px solid rgb(77 ,77, 77);
-                             } QTextEdit, #PendingOrders, #UserBalances {
+                             } QTextEdit, #PendingOrders, #UserBalances, #Withdrawals {
                                 background-color: rgb(28, 28, 28);
                                 border-style: outset;
                                 border-width: 0.5px;
@@ -164,13 +170,16 @@ void HomeView::lightTheme() {
         tvWidget.changeTheme("Light");
     )java");
     
-    orderPanel->livetradeview->setStyleSheet(R"(QGroupBox {
+    const char* groupBoxTheme = R"(QGroupBox {
                                         background-color: white;
                                         color: black;
                                         border: none;
                                  } QGroupBox::title {
                                         background-color:transparent;
-                                 })");
+                                 })";
+    
+    orderPanel->livetradeview->setStyleSheet(groupBoxTheme);
+    withdrawals->boundingBox->setStyleSheet(groupBoxTheme);
     
     tabWidget->setStyleSheet(R"(QTabWidget::tab-bar  {
                                 left: 5px;
@@ -194,18 +203,20 @@ void HomeView::lightTheme() {
                                 border-top-left-radius: 0px;
                                 border-bottom-left-radius: 0px;
                               } QTabBar::tab:selected {
-                                color: rgb(241 , 231, 242);
-                                border-top: 1px solid rgb(26 ,120, 220);
-                                background-color: rgb(21 ,111, 215);
-                                border-bottom: 1px solid rgb(10 ,55, 107);
+                                color: rgb(255 , 255, 255);
+                                border-top: 1px solid rgb(41 ,155, 255);
+                                background-color: rgb(21 ,133, 255);
+                                border-bottom: 1px solid rgb(1 ,123, 255);
                                 margin-top: 2px;
                                 margin-bottom: 0px;
                               } QTabBar::tab:!selected {
-                                color: rgb(241 , 231, 242);
-                                border-top: 1px solid rgb(87 ,87, 87);
-                                background-color: rgb(83 ,83, 83);
-                                border-bottom: 1px solid rgb(77 ,77, 77);
-                              } QTextEdit, #PendingOrders, #UserBalances {
+                                color: rgb(69 , 69, 69);
+                                border-top: 1px solid rgb(230 ,230, 230);
+                                background-color: rgb(255 ,255, 255);
+                                border-bottom: 1px solid rgb(209, 209, 209);
+                              } QTabBar::tab:!last:!selected {
+                                 border-right: 1px solid rgb(209, 209, 209);
+                              } QTextEdit, #PendingOrders, #UserBalances, #Withdrawals {
                                 background-color: rgb(253, 253, 253);
                                 border-style: outset;
                                 border-width: 0.5px;

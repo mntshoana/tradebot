@@ -1,5 +1,4 @@
 #include "orderPanel.hpp"
-#include <QKeyEvent>
 
 template<>
 OrderView& operator<< <std::string>(OrderView& stream, std::string str)
@@ -22,17 +21,6 @@ OrderView& operator<< <std::string>(OrderView& stream, std::string str)
         }
     }
     return stream;
-}
-
-void LineBlock::keyPressEvent(QKeyEvent *event){
-    if (event->key() == Qt::Key_Return && button != nullptr)
-    {
-        emit button->clicked();
-    }
-    else
-    {
-        QLineEdit::keyPressEvent(event);
-    }
 }
 
 OrderPanel::OrderPanel(QWidget* parent) : QWidget(parent) {

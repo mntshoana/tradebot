@@ -19,10 +19,12 @@ namespace Luno {
     // REQUEST WITHDRAW
     //
     //
-    std::string LunoClient::withdraw(float amount){
+    std::string LunoClient::withdraw(float amount, bool isFast){
         std::string uri = "https://api.mybitx.com/api/1/withdrawals";
         uri += "?type=ZAR_EFT";
         uri += "&amount=" + std::to_string(amount);
+        if (isFast)
+            uri += "&fast=true";
         
         std::string res = client.request("POST", uri.c_str(), true);
         
