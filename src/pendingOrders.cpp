@@ -34,12 +34,12 @@ void PendingOrdersPanel::createTitle (){
     QLabel *lblValue = new QLabel ( QString::fromStdString("Value" ) );
     QLabel *lblFill = new QLabel ( QString::fromStdString("Fill" ) );
     
-    lblDate->setFixedHeight(10);lblDate->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    lblType->setFixedHeight(10);lblType->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    lblPrice->setFixedHeight(10);lblPrice->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    lblVolume->setFixedHeight(10);lblVolume->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    lblValue->setFixedHeight(10);lblValue->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    lblFill->setFixedHeight(10); lblFill->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblDate->setFixedHeight(15);lblDate->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblType->setFixedHeight(15);lblType->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblPrice->setFixedHeight(15);lblPrice->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblVolume->setFixedHeight(15);lblVolume->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblValue->setFixedHeight(15);lblValue->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblFill->setFixedHeight(15); lblFill->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
     
     line = new QHBoxLayout;
     line->addWidget( lblDate,5);

@@ -4,6 +4,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QComboBox>
+#include <QCheckBox>
 #include <QPainter>
 #include <QPaintEvent>
 
@@ -21,9 +22,10 @@ private:
     std::vector<Luno::Balance> userBalances;
     TextPanel text;
     
-    QLabel* lblAsset, *lblAmount, *lblBalance;
-    LineBlock *txtAmount;
     QComboBox* assetBox;
+    QLabel* lblAsset, *lblAmount, *lblBalance, *lblInstantWithdrawal;
+    LineBlock *txtAmount;
+    QCheckBox *cbxFastWithdraw;
     QGridLayout* withdrawLayout;
     QPushButton* withdraw;
     std::string floatToString(float val, const int decimals = 6);

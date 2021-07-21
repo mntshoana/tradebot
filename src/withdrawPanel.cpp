@@ -14,26 +14,30 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
     assetBox->addItems(assetList);
     assetBox->setCurrentIndex(0);
     
-    
     lblAmount = new QLabel("Amount", this);
 
-    withdraw = new QPushButton(this);
+    withdraw = new QPushButton("Withdraw", this);
     
     
     txtAmount = new LineBlock(this, withdraw);
+    
     lblBalance = new QLabel("", this);
+    
+    lblInstantWithdrawal = new QLabel("Instant Withdrawal", this);
+    cbxFastWithdraw = new QCheckBox(this);
     
     withdrawLayout = new QGridLayout;
     boundingBox = new QGroupBox(this);
     withdrawLayout->addWidget(lblAsset, 1, 1);
-    withdrawLayout->addWidget(assetBox, 1, 2);
+    withdrawLayout->addWidget(assetBox, 1, 2, 1, 2);
     withdrawLayout->addWidget(lblAmount, 2, 1);
-    withdrawLayout->addWidget(txtAmount, 2, 2);
-    withdrawLayout->addWidget(lblBalance, 2, 3);
-    withdrawLayout->addWidget(withdraw, 3, 1, 1, 2,
-                              Qt::AlignmentFlag::AlignCenter);
+    withdrawLayout->addWidget(txtAmount, 2, 2, 1, 2);
+    withdrawLayout->addWidget(lblBalance, 2, 4, 1, 1);
+    withdrawLayout->addWidget(lblInstantWithdrawal, 3, 1);
+    withdrawLayout->addWidget(cbxFastWithdraw, 3, 2);
+    withdrawLayout->addWidget(withdraw, 4, 2);
     
-    //    std::string period = assetBox->currentText().toStdString();
+    withdrawLayout->setContentsMargins(60, 30, 0, 0);
 
     boundingBox->setLayout(withdrawLayout);
     
@@ -42,16 +46,21 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
                 for (Luno::Balance bal : userBalances){
                     if (bal.asset == selection.toStdString()){
                         bool isZar = (bal.asset == "ZAR");
-                        std::string label =floatToString(bal.balance, ( isZar ? 2 : 6 ));
+                        std::string label =floatToString(bal.balance - bal.reserved, ( isZar ? 2 : 6 ));
+                        if (isZar)
+                            label = "R " + label;
                         lblBalance->setText(QString::fromStdString(label));
                     }
                 }
     });
+    emit assetBox->currentTextChanged(assetBox->currentText());
+    
     connect(withdraw,
             &QPushButton::clicked, this,[this](){
         text << "Withdraw button clicked. To Widthraw " + txtAmount->text().toStdString();
         try {
-        std::string result = Luno::LunoClient::withdraw(atoi(txtAmount->text().toStdString().c_str()), true);
+            bool isFastWithdrawl = cbxFastWithdraw->isChecked();
+            std::string result = Luno::LunoClient::withdraw(atoi(txtAmount->text().toStdString().c_str()), isFastWithdrawl);
             text << result;
         }
         catch (ResponseEx ex){
@@ -61,9 +70,18 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
     });
 }
 
+struct SepFacet : std::numpunct<char> {
+   /* use space as separator */
+   char do_thousands_sep() const { return ' '; }
+
+   /* digits are grouped by 3 digits each */
+   std::string do_grouping() const { return "\3"; }
+};
+
 std::string WithdrawPanel::floatToString(float val, const int decimals )
 {
     std::ostringstream out;
+    out.imbue(std::locale(std::locale(), new SepFacet));
     out.precision(decimals);
     out << std::fixed << val;
     return out.str();

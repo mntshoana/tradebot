@@ -33,26 +33,36 @@ void BalancePanel::createTitle (){
     QLabel *lblUncomfirmed = new QLabel ( QString::fromStdString("Uncomfirmed" ) );
     QLabel *lblAccountID = new QLabel ( QString::fromStdString("AccountID" ) );
     
-    lblAsset->setFixedHeight(10);lblAsset->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    lblBalance->setFixedHeight(10);lblBalance->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    lblReserved->setFixedHeight(10);lblReserved->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    lblUncomfirmed->setFixedHeight(10);lblUncomfirmed->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    lblAccountID->setFixedHeight(10);lblAccountID->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblAsset->setFixedHeight(15);lblAsset->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblBalance->setFixedHeight(15);lblBalance->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblReserved->setFixedHeight(15);lblReserved->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblUncomfirmed->setFixedHeight(15);lblUncomfirmed->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    lblAccountID->setFixedHeight(15);lblAccountID->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
     
     line = new QHBoxLayout;
     line->addWidget( lblAsset,3);
-    line->addWidget( lblBalance,4);
-    line->addWidget( lblReserved,4);
-    line->addWidget( lblUncomfirmed,4);
-    line->addWidget( lblAccountID,5);
-    line->setContentsMargins(1,0,0,15);
+    line->addWidget( lblBalance,8, Qt::AlignCenter);
+    line->addWidget( lblReserved,8, Qt::AlignCenter);
+    line->addWidget( lblUncomfirmed,8, Qt::AlignCenter);
+    line->addWidget( new QLabel(""), 2);
+    line->addWidget( lblAccountID,8, Qt::AlignCenter);
+    line->setContentsMargins(1,0,0,12);
     line->setAlignment(Qt::AlignTop);
     format->addLayout(line);
 }
 
+struct SepFacet : std::numpunct<char> {
+   /* use space as separator */
+   char do_thousands_sep() const { return ' '; }
+
+   /* digits are grouped by 3 digits each */
+   std::string do_grouping() const { return "\3"; }
+};
+
 std::string BalancePanel::floatToString(float val, const int decimals )
 {
     std::ostringstream out;
+    out.imbue(std::locale(std::locale(), new SepFacet));
     out.precision(decimals);
     out << std::fixed << val;
     return out.str();
@@ -60,15 +70,24 @@ std::string BalancePanel::floatToString(float val, const int decimals )
 
 void BalancePanel::createItem (Luno::Balance& balance)
 {
-    QLabel *lblAsset = new QLabel ( QString::fromStdString(balance.asset ) );
-    bool isZar = balance.asset == "ZAR";
-    QLabel *lblBalance = new QLabel ( QString::fromStdString(floatToString(balance.balance, isZar ? 2 : 6 )) );
+    QFont big( "Helvetica", 15, QFont::Normal);
+    QFont normal( "Helvetica", 13, QFont::Normal);
     
-    QLabel *lblReserved = new QLabel ( QString::fromStdString(floatToString(balance.reserved, isZar ? 2 : 6 ) ) );
-    QLabel *lblUncomfirmed = new QLabel ( QString::fromStdString(floatToString(balance.uncomfirmed, isZar ? 2 : 6 ) ) );
+    QLabel *lblAsset = new QLabel ( QString::fromStdString(balance.asset ) );
+    lblAsset->setFont(big);
+    
+    bool isZar = balance.asset == "ZAR";
+    std::string prefixR = (isZar ? "R " : "");
+    QLabel *lblBalance = new QLabel ( QString::fromStdString(prefixR + floatToString(balance.balance, isZar ? 2 : 6 )) );
+    lblBalance->setFont(normal);
+    
+    QLabel *lblReserved = new QLabel ( QString::fromStdString(prefixR +floatToString(balance.reserved, isZar ? 2 : 6 ) ) );
+    lblReserved->setFont(normal);
+    QLabel *lblUncomfirmed = new QLabel ( QString::fromStdString(prefixR +floatToString(balance.uncomfirmed, isZar ? 2 : 6 ) ) );
+    lblUncomfirmed->setFont(normal);
     
     QLabel *lblAccountID = new QLabel ( QString::fromStdString(balance.accountID ) );
-    
+    lblAccountID->setFont(normal);
     
 
     
@@ -81,11 +100,12 @@ void BalancePanel::createItem (Luno::Balance& balance)
     // add the label and button to the layout
     line = new QHBoxLayout;
     line->addWidget( lblAsset,3);
-    line->addWidget( lblBalance,4);
-    line->addWidget( lblReserved,4);
-    line->addWidget( lblUncomfirmed,4);
-    line->addWidget( lblAccountID,5);
-    line->setContentsMargins(1,0,0,0);
+    line->addWidget( lblBalance,8, Qt::AlignCenter);
+    line->addWidget( lblReserved,8, Qt::AlignCenter);
+    line->addWidget( lblUncomfirmed,8, Qt::AlignCenter);
+    line->addWidget( new QLabel(""), 2);
+    line->addWidget( lblAccountID,8, Qt::AlignCenter);
+    line->setContentsMargins(1,10,0,0);
     line->setAlignment(Qt::AlignTop);
     //line->sizeHint()
     
