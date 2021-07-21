@@ -3,17 +3,15 @@
 #include <QPushButton>
 #include <QFormLayout>
 #include <QLabel>
-#include <QTextStream>
+#include <QDateTime>
+
 #include <QPainter>
 #include <QPaintEvent>
 #include <QStyleOption>
 
-#include <QScrollArea>
-#include <QDateTime>
 #include "lunoclient.hpp"
 #include "textPanel.hpp"
 
-#include <sstream>
 class PendingOrdersPanel : public QWidget {
     Q_OBJECT
 private:

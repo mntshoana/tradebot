@@ -3,7 +3,7 @@
 
 #include <thread>
 #include <QWebEngineView>
-#include "orderPanel.hpp"
+#include "livePanel.hpp"
 #include "pendingOrders.hpp"
 #include "balancePanel.hpp"
 #include "withdrawPanel.hpp"
@@ -38,7 +38,7 @@ public:
     BalancePanel *userBalances;
     WithdrawPanel *withdrawals;
     ///
-    OrderPanel *orderPanel;
+    LivePanel *orderPanel;
     
     QWebEngineView *view;
     

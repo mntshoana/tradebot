@@ -1,57 +1,72 @@
-#ifndef TradeBot_OrderPanel_hpp
-#define TradeBot_OrderPanel_hpp
-
-#include "label.hpp"
+#ifndef ORDER_PANEL_HEADER
+#define ORDER_PANEL_HEADER
 
 #include <QLayout>
 #include <QScrollBar>
-#include <QGroupBox>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
 
-#include "lunoclient.hpp"
-#include "lineBlock.hpp"
+#include "label.hpp"
 
-class OrderView : public QTextBrowser {
+class OrderPanel : public QWidget {
+    Q_OBJECT
+    Label* header;
+    QTextBrowser* body;
 public:
     bool orderViewIsEmpty;
-    explicit OrderView(QWidget* parent = nullptr) : QTextBrowser(parent) {
+    explicit OrderPanel(QWidget* parent, std::string titleL, std::string titleR = "") : QWidget(parent) {
         orderViewIsEmpty = true;
         installEventFilter(this);
+        
+        std::string labelBuilder;
+        if (titleR == ""){
+            labelBuilder = "<th colspan=2>";
+            labelBuilder += titleL;
+            labelBuilder += "</th>";
+        }
+        else{
+            labelBuilder = "<th>";
+            labelBuilder += titleL;
+            labelBuilder += "</th>";
+            labelBuilder = "<th>";
+            labelBuilder += titleR;
+            labelBuilder += "</th>";
+        }
+
+        header = new Label(labelBuilder, parent);
+        body = new QTextBrowser(parent);
+        body->setText("");
+        body->setReadOnly(true);
+        body->setOpenLinks(false);
+        
+        connect(body, &QTextBrowser::anchorClicked, this, [this](const QUrl &link){emit anchorClicked(link);});
     }
     
+    void setGeometry(int ax, int ay, int aw, int ah) {
+        header->setGeometry(ax, ay, aw, 30);
+        body->setGeometry(ax, ay+29, aw, ah - 30);
+    }
+    
+    void setHtml(const char* html){
+        body->setHtml(html);
+    }
+    
+    QScrollBar *verticalScrollBar() const{
+        return body->verticalScrollBar();
+    }
+        
+    template<class T>
+    friend OrderPanel& operator<< (OrderPanel& stream, T obj);
+    
+Q_SIGNALS:
+    void anchorClicked(const QUrl &link);
+
 };
 
-template <class T> OrderView& operator<< (OrderView& stream, T obj){
-    stream.append(obj.toString().c_str());
+template <class T> OrderPanel& operator<< (OrderPanel& stream, T obj){
+    stream.body->append(obj.toString().c_str());
     return stream;
 }
 
 template <>
-OrderView& operator<< <std::string>(OrderView& stream, std::string str);
+OrderPanel& operator<< <std::string>(OrderPanel& stream, std::string str);
 
-
-
-//
-class OrderPanel : public QWidget {
-    Q_OBJECT
-    Label* orderViewLabel, *tradeViewLabel, *liveTradeLabel;
-public:
-    bool isBuy;
-    OrderView* orderview;
-    QTextBrowser *tradeview;
-    QGroupBox *livetradeview;
-    QGridLayout *livetradeviewLayout;
-    QLabel *lblPrice, *lblAmount;
-    LineBlock* txtPrice, *txtAmount;
-    QPushButton* request;
-    
-    OrderPanel(QWidget* parent = nullptr);    
-    
-private slots:
-    void clickedLink(const QUrl& url);
-    void changeIsBuy(const QUrl& url);
-};
-
-#endif /* TradeBot_OrderPanel_hpp */
+#endif /* exceptions_hpp */

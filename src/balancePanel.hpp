@@ -1,19 +1,15 @@
 #ifndef USER_BALANCE_PANEL_HPP
 #define USER_BALANCE_PANEL_HPP
-#include <QPushButton>
 #include <QFormLayout>
 #include <QLabel>
-#include <QTextStream>
+
 #include <QPainter>
 #include <QPaintEvent>
 #include <QStyleOption>
 
-#include <QScrollArea>
-#include <QDateTime>
 #include "lunoclient.hpp"
 #include "textPanel.hpp"
 
-#include <sstream>
 class BalancePanel : public QWidget {
     Q_OBJECT
 private:

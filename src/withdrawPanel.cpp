@@ -26,20 +26,20 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
     lblInstantWithdrawal = new QLabel("Instant Withdrawal", this);
     cbxFastWithdraw = new QCheckBox(this);
     
-    withdrawLayout = new QGridLayout;
+    panelLayout = new QGridLayout;
     boundingBox = new QGroupBox(this);
-    withdrawLayout->addWidget(lblAsset, 1, 1);
-    withdrawLayout->addWidget(assetBox, 1, 2, 1, 2);
-    withdrawLayout->addWidget(lblAmount, 2, 1);
-    withdrawLayout->addWidget(txtAmount, 2, 2, 1, 2);
-    withdrawLayout->addWidget(lblBalance, 2, 4, 1, 1);
-    withdrawLayout->addWidget(lblInstantWithdrawal, 3, 1);
-    withdrawLayout->addWidget(cbxFastWithdraw, 3, 2);
-    withdrawLayout->addWidget(withdraw, 4, 2);
+    panelLayout->addWidget(lblAsset, 1, 1);
+    panelLayout->addWidget(assetBox, 1, 2, 1, 2);
+    panelLayout->addWidget(lblAmount, 2, 1);
+    panelLayout->addWidget(txtAmount, 2, 2, 1, 2);
+    panelLayout->addWidget(lblBalance, 2, 4, 1, 1);
+    panelLayout->addWidget(lblInstantWithdrawal, 3, 1);
+    panelLayout->addWidget(cbxFastWithdraw, 3, 2);
+    panelLayout->addWidget(withdraw, 4, 2);
     
-    withdrawLayout->setContentsMargins(60, 30, 0, 0);
+    panelLayout->setContentsMargins(60, 30, 0, 0);
 
-    boundingBox->setLayout(withdrawLayout);
+    boundingBox->setLayout(panelLayout);
     
     connect(assetBox, &QComboBox::currentTextChanged, this,
             [this](const QString &selection){

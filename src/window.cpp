@@ -12,7 +12,7 @@ QTextBrowser& operator<< (QTextBrowser& stream, std::string str){
 }
 
 HomeView::HomeView (QWidget *parent) : QWidget(parent), text(parent) {
-    orderPanel = new OrderPanel(parent);
+    orderPanel = new LivePanel(parent);
     
     // Output stream for logs
 

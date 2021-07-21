@@ -19,13 +19,15 @@ CONFIG(debug, debug|release) {
 
 SOURCES += tradeBot.cpp \
             label.cpp lineBlock.cpp \
-            orderPanel.cpp pendingOrders.cpp \
+            orderPanel.cpp \
+            livePanel.cpp pendingOrders.cpp \
             balancePanel.cpp withdrawPanel.cpp \
             textPanel.cpp \
             window.cpp
 HEADERS += tradeBot.hpp \
             label.hpp lineBlock.hpp \
-            orderPanel.hpp pendingOrders.hpp \
+            orderPanel.hpp \
+            livePanel.hpp pendingOrders.hpp \
             balancePanel.hpp withdrawPanel.hpp \
             textPanel.hpp \
             window.hpp

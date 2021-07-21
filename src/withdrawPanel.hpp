@@ -26,7 +26,7 @@ private:
     QLabel* lblAsset, *lblAmount, *lblBalance, *lblInstantWithdrawal;
     LineBlock *txtAmount;
     QCheckBox *cbxFastWithdraw;
-    QGridLayout* withdrawLayout;
+    QGridLayout* panelLayout;
     QPushButton* withdraw;
     std::string floatToString(float val, const int decimals = 6);
 public:
