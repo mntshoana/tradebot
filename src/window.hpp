@@ -38,7 +38,7 @@ public:
     BalancePanel *userBalances;
     WithdrawPanel *withdrawals;
     ///
-    LivePanel *orderPanel;
+    LivePanel *livePanel;
     
     QWebEngineView *view;
     

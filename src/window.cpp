@@ -12,7 +12,7 @@ QTextBrowser& operator<< (QTextBrowser& stream, std::string str){
 }
 
 HomeView::HomeView (QWidget *parent) : QWidget(parent), text(parent) {
-    orderPanel = new LivePanel(parent);
+    livePanel = new LivePanel(parent);
     
     // Output stream for logs
 
@@ -49,50 +49,6 @@ HomeView::HomeView (QWidget *parent) : QWidget(parent), text(parent) {
     tabWidget->addTab(withdrawals, tr("User Balances"));
     
     //chartPanel->playground = new AutoPlayground(text);
-    // request button
-    // click event
-    connect(orderPanel->request,
-            &QPushButton::clicked, this,[this](){
-        
-        int price = atoi(orderPanel->txtPrice->text().toStdString().c_str());
-        float amount = atof(orderPanel->txtAmount->text().toStdString().c_str());
-        
-        if (price == 0){
-            text << "Error - Price cannot be empty.";
-            return;
-        }
-        
-        const char *action = (orderPanel->isBuy)
-                ? "BID" : "ASK";
-        try {
-            if (amount == 0.0f){
-                if (orderPanel->isBuy){
-                    auto balances = Luno::LunoClient::getBalances("ZAR");
-                    amount = (balances[0].balance - balances[0].reserved) / float(price);
-                }
-                else if (!orderPanel->isBuy){
-                    auto balances = Luno::LunoClient::getBalances("XBT");
-                    amount = balances[0].balance - balances[0].reserved;
-                }
-            }
-           
-            else if (amount < 0.0005f){
-                text << "Error - cannot trade for less than 0.000500 BTC";
-                return;
-            }
-            
-            // output
-            std::string result = Luno::LunoClient::postLimitOrder("XBTZAR", action, amount, price);
-            text << std::string(action) + " order at price: " + std::to_string(price);
-            text << "   Amount: " + std::to_string(amount);
-            text << "   Valued: " + std::to_string(amount * price);
-            text << "COMPLETE: " + result;
-            
-        } catch (ResponseEx ex){
-            text << " [Error] Unable to place order! at " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
-            text << ex.String();
-        }
-    });
     
     // Theme
     if (isDarkMode())
@@ -102,8 +58,8 @@ HomeView::HomeView (QWidget *parent) : QWidget(parent), text(parent) {
 }
 
 HomeView::~HomeView(){
-    delete orderPanel;
-    orderPanel = nullptr;
+    delete livePanel;
+    livePanel = nullptr;
     lunoClient = nullptr;
 }
 
@@ -120,7 +76,7 @@ void HomeView::darkTheme(){
                                 } QGroupBox::title {
                                     background-color:transparent;
     })";
-    orderPanel->livetradeview->setStyleSheet(groupBoxTheme);
+    livePanel->livetrade->livetradeview->setStyleSheet(groupBoxTheme);
     withdrawals->boundingBox->setStyleSheet(groupBoxTheme);
     
     tabWidget->setStyleSheet(R"(QTabWidget::tab-bar  {
@@ -178,7 +134,7 @@ void HomeView::lightTheme() {
                                         background-color:transparent;
                                  })";
     
-    orderPanel->livetradeview->setStyleSheet(groupBoxTheme);
+    livePanel->livetrade->livetradeview->setStyleSheet(groupBoxTheme);
     withdrawals->boundingBox->setStyleSheet(groupBoxTheme);
     
     tabWidget->setStyleSheet(R"(QTabWidget::tab-bar  {

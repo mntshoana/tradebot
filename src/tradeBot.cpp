@@ -31,7 +31,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
     });
     // begin job manager
     manager.enqueue(new Job1WPArg(
-                             home->orderPanel->orderview,
+                             home->livePanel->orderview,
                              &Luno::LunoClient::getOrderBook,
                              std::string("XBTZAR"),
                              &Luno::OrderBook::FormatToShowUserOrders,
@@ -72,7 +72,7 @@ void TradeBot::OnUpdate() {
     }
     
     if (*timerCount == 0) { // Initiate ticks
-        home->orderPanel->tradeview->setHtml(lastTrades().c_str());
+        home->livePanel->tradeview->setHtml(lastTrades().c_str());
         thread = std::thread([this]{
             loadLocalTicks();
             emit finishedUpdate();
@@ -97,9 +97,9 @@ void TradeBot::OnUpdate() {
         emit finishedUpdate();
     }
     else if (*timerCount % 2 == 1 ){
-        auto y = home->orderPanel->tradeview->verticalScrollBar()->value();
-        home->orderPanel->tradeview->setHtml(lastTrades().c_str());
-        home->orderPanel->tradeview->verticalScrollBar()->setValue(y);
+        auto y = home->livePanel->tradeview->verticalScrollBar()->value();
+        home->livePanel->tradeview->setHtml(lastTrades().c_str());
+        home->livePanel->tradeview->verticalScrollBar()->setValue(y);
         
         emit finishedUpdate();
     }
@@ -239,25 +239,25 @@ bool TradeBot::eventFilter(QObject *obj, QEvent *event){
             home->pendingOrders->popFrontOrder();
         }
         else if (keyEvent->key() == Qt::Key_BracketRight){
-            std::string price = home->orderPanel->txtPrice->text().toStdString();
+            std::string price = home->livePanel->livetrade->txtPrice->text().toStdString();
             if (price != ""){
                 int priceInt = atoi(price.c_str());
                 price = std::to_string(priceInt+1);
                 
-                home->orderPanel->txtPrice->setText(QString::fromStdString(price));
+                home->livePanel->livetrade->txtPrice->setText(QString::fromStdString(price));
             }
         }
         else if (keyEvent->key() == Qt::Key_BracketLeft){
-            std::string price = home->orderPanel->txtPrice->text().toStdString();
+            std::string price = home->livePanel->livetrade->txtPrice->text().toStdString();
             if (price != ""){
                 int priceInt = atoi(price.c_str());
                 price = std::to_string(priceInt-1);
                 
-                home->orderPanel->txtPrice->setText(QString::fromStdString(price));
+                home->livePanel->livetrade->txtPrice->setText(QString::fromStdString(price));
             }
         }
         else if (keyEvent->key() == Qt::Key_Return){
-            emit home->orderPanel->request->clicked();
+            emit home->livePanel->livetrade->request->clicked();
         }
         else
         {
