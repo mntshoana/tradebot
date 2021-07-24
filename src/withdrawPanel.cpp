@@ -4,7 +4,7 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
     setGeometry(0, 500, 930, 220);
     
     loadItems();
-    
+    text.getQText() << userWithdrawals; // quick test of function only
     lblAsset = new QLabel("Asset", this);
     
     QStringList assetList;
@@ -60,7 +60,8 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
         text << "Withdraw button clicked. To Widthraw " + txtAmount->text().toStdString();
         try {
             bool isFastWithdrawl = cbxFastWithdraw->isChecked();
-            std::string result = Luno::LunoClient::withdraw(atoi(txtAmount->text().toStdString().c_str()), isFastWithdrawl);
+            float amount = atof(txtAmount->text().toStdString().c_str()); // ZAR
+            std::string result = Luno::LunoClient::withdraw(amount, isFastWithdrawl);
             text << result;
         }
         catch (ResponseEx ex){
@@ -91,6 +92,7 @@ std::string WithdrawPanel::floatToString(float val, const int decimals )
 void WithdrawPanel::loadItems (){
     try{
         userBalances = Luno::LunoClient::getBalances();
+        userWithdrawals = Luno::LunoClient::getWithdrawalList();
         
     } catch (ResponseEx ex){
             text << ex.String().c_str(); // To do:: should be an error stream here

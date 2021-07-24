@@ -1,6 +1,7 @@
 #include "tradePanel.hpp"
 
 TradePanel::TradePanel(QWidget* parent){
+    isBuy = true;
     header = new Label( loadHeader(), parent);
     
     livetradeview = new QGroupBox(parent);
@@ -84,7 +85,7 @@ void TradePanel::executeTrade(){
     }
     
     const char *action = (isBuy) ? "BID" : "ASK";
-    try {
+    
         if (amount == 0.0f){
             if (isBuy){
                 auto balances = Luno::LunoClient::getBalances("ZAR");
@@ -100,7 +101,7 @@ void TradePanel::executeTrade(){
             text << "Error - cannot trade for less than 0.000500 BTC";
             return;
         }
-        
+    try {
         // output
         std::string result = Luno::LunoClient::postLimitOrder("XBTZAR", action, amount, price);
         text << std::string(action) + " order at price: " + std::to_string(price);

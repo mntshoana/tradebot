@@ -22,3 +22,7 @@ TextPanel::TextPanel(QWidget* parent) : QWidget(parent) {
     if (!isInitialized)
         TextPanel::init(this);
 }
+
+QTextEdit& TextPanel::getQText(){
+    return *text;
+}

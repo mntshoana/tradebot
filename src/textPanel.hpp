@@ -11,6 +11,7 @@ class TextPanel : public QWidget {
 public:
     TextPanel(QWidget* parent = nullptr);
     TextPanel& operator<< (std::string str);
+    QTextEdit& getQText();
     void init(QWidget* parent);
 };
 

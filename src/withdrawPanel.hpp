@@ -20,10 +20,13 @@ class WithdrawPanel : public QWidget {
     Q_OBJECT
 private:
     std::vector<Luno::Balance> userBalances;
+    std::vector<Luno::Withdrawal> userWithdrawals;
     TextPanel text;
     
     QComboBox* assetBox;
-    QLabel* lblAsset, *lblAmount, *lblBalance, *lblInstantWithdrawal;
+    QLabel *lblAsset, *lblAmount,
+            *lblBalance, *lblInstantWithdrawal;
+    
     LineBlock *txtAmount;
     QCheckBox *cbxFastWithdraw;
     QGridLayout* panelLayout;

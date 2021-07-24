@@ -114,6 +114,20 @@ namespace Luno {
     template <class T> T& operator << (T& stream, UserTrade& trade);
     template <class T> T& operator << (T& stream, std::vector<UserTrade>& trades);
 
+    /* Transfer Functions Types*/
+    class Withdrawal {
+    public:
+        Withdrawal(){}
+        long long id;
+        std::string status;
+        long long createdTime;
+        std::string type;
+        std::string currency;
+        float amount;
+        float fee;
+    };
+    template <class T> T& operator << (T& stream, Withdrawal& fee);
+    template <class T> T& operator << (T& stream, std::vector<Withdrawal>& trades);
 }
 
 #endif /* lunoTypes_h */
