@@ -35,7 +35,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
                              &Luno::LunoClient::getOrderBook,
                              std::string("XBTZAR"),
                              &Luno::OrderBook::FormatToShowUserOrders,
-                             &(home->pendingOrders->openUserOrders)),
+                             &(home->workPanel->pendingOrders->openUserOrders)),
                     true);
 
     installEventFilter(this);
@@ -85,13 +85,13 @@ void TradeBot::OnUpdate() {
         current->updateTheme();
     
         if (*timerCount % 10 == 0){
-            home->pendingOrders->clearItems();
-            home->pendingOrders->addOrders();
+            home->workPanel->pendingOrders->clearItems();
+            home->workPanel->pendingOrders->addOrders();
         }
             
         if (*timerCount % 30 == 0){
-            home->userBalances->reloadItems();
-            home->withdrawals->reloadItemsUsing(home->userBalances->userBalances);
+            home->workPanel->userBalances->reloadItems();
+            home->workPanel->withdrawals->reloadItemsUsing(home->workPanel->userBalances->userBalances);
         }
         
         emit finishedUpdate();
@@ -184,7 +184,7 @@ void TradeBot::downloadTicks(std::string pair){
         }
         else {
             file.clear();
-            home->text << std::string("[Error] : At ")
+            home->workPanel->text << std::string("[Error] : At ")
                             + __FILE__ + ": line " + std::to_string(__LINE__)
                         + ". Couldn't write ticks to file.";
         }
@@ -236,7 +236,7 @@ bool TradeBot::eventFilter(QObject *obj, QEvent *event){
     if (event->type() == QEvent::KeyPress){
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         if (keyEvent->key() == Qt::Key_Escape){
-            home->pendingOrders->popFrontOrder();
+            home->workPanel->pendingOrders->popFrontOrder();
         }
         else if (keyEvent->key() == Qt::Key_BracketRight){
             std::string price = home->livePanel->livetrade->txtPrice->text().toStdString();

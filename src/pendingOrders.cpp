@@ -1,8 +1,6 @@
 #include "pendingOrders.hpp"
 
-PendingOrdersPanel::PendingOrdersPanel(QWidget* parent) : QWidget(parent) {
-    setGeometry(0, 500, 930, 220);
-    
+PendingOrdersPanel::PendingOrdersPanel(QWidget* parent) : QWidget(parent) {    
     format = new QVBoxLayout;
     format->setSpacing(0);
     format->setAlignment(Qt::AlignTop);

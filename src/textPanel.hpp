@@ -9,10 +9,10 @@ class TextPanel : public QWidget {
     static QTextEdit* text;
     static bool isInitialized;
 public:
-    TextPanel(QWidget* parent = nullptr);
     TextPanel& operator<< (std::string str);
     QTextEdit& getQText();
-    void init(QWidget* parent);
+    void setGeometry(int ax, int ay, int aw, int ah);
+    static void init(QWidget* parent);
 };
 
 #endif

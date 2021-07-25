@@ -25,27 +25,28 @@ private:
     TextPanel text;
     
     QComboBox* assetBox;
-    QLabel *lblAsset, *lblAmount,
+    QLabel  *lblAmount,
             *lblBalance, *lblInstantWithdrawal,
-            *lblPending;
+            *lblPendingTitle;
     
     LineBlock *txtAmount;
     QCheckBox *cbxFastWithdraw;
     QGridLayout* panelLayout;
     QPushButton* withdraw;
     
-    class Pending : public QWidget {
+    class PendingWithdrawals : public QWidget {
         std::vector<Luno::Withdrawal> userWithdrawals;
         TextPanel text;
     public:
         QVBoxLayout *format;
         QHBoxLayout *line;
         
-        Pending(QWidget* parent = nullptr);
+        PendingWithdrawals(QWidget* parent = nullptr);
         void loadItems();
         void reloadItems();
         void createItem (Luno::Withdrawal&);
         void createTitle ();
+        void pushBack(Luno::Withdrawal& w);
         void paintEvent(QPaintEvent *);
     }*pending;
     
@@ -57,6 +58,9 @@ public:
     void reloadItemsUsing(std::vector<Luno::Balance>& toCopy);
     WithdrawPanel(QWidget* parent = nullptr);
     void paintEvent(QPaintEvent *);
+    
+    void lightTheme();
+    void darkTheme();
 };
 
 #endif

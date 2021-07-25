@@ -9,20 +9,20 @@ TextPanel& TextPanel::operator<< (std::string str) {
 }
 
 void TextPanel::init(QWidget* parent){
-    TextPanel::text = new QTextEdit(parent);
-    parent->setGeometry(0, 515, 930, 205);
-    parent->setStyleSheet("QTextEdit { padding-left:5; padding-top:10;}");
-    text->setGeometry(0, 0, 930, 205);
+    if (isInitialized)
+        return;
+    text = new QTextEdit(parent);
+    text->document()->setDocumentMargin(10);
+    text->setStyleSheet("QTextEdit { border:0;}");
     text->setText("");
     
     isInitialized = true;
 }
 
-TextPanel::TextPanel(QWidget* parent) : QWidget(parent) {
-    if (!isInitialized)
-        TextPanel::init(this);
-}
-
 QTextEdit& TextPanel::getQText(){
     return *text;
+}
+
+void TextPanel::setGeometry(int ax, int ay, int aw, int ah) {
+    text->setGeometry(ax, ay, aw, ah);
 }

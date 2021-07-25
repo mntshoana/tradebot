@@ -1,11 +1,9 @@
 #include "withdrawPanel.hpp"
 
-WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
-    setGeometry(0, 500, 930, 220);
+WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {    
+    setObjectName("WithdrawalPanel");
     
     loadItems();
-    
-    lblAsset = new QLabel("Asset", this);
     
     QStringList assetList;
     for (Luno::Balance bal : userBalances)
@@ -23,29 +21,29 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
     
     lblBalance = new QLabel("", this);
     
-    lblInstantWithdrawal = new QLabel("Instant Withdrawal", this);
+    lblInstantWithdrawal = new QLabel("Is instant?", this);
     cbxFastWithdraw = new QCheckBox(this);
+
     
-    lblPending = new QLabel("Pending withdrawals", this);
-    pending = new Pending(this);
+    lblPendingTitle = new QLabel("List of pending withdrawals", this);
+    pending = new PendingWithdrawals(this);
     
     
     panelLayout = new QGridLayout;
     boundingBox = new QGroupBox(this);
-    panelLayout->addWidget(lblAsset, 1, 1);
     panelLayout->addWidget(assetBox, 1, 2, 1, 2);
     panelLayout->addWidget(lblAmount, 2, 1);
     panelLayout->addWidget(txtAmount, 2, 2, 1, 2);
-    panelLayout->addWidget(lblBalance, 2, 4, 1, 1);
+    panelLayout->addWidget(lblBalance, 2, 4, 1, 2);
     panelLayout->addWidget(lblInstantWithdrawal, 3, 1);
     panelLayout->addWidget(cbxFastWithdraw, 3, 2);
     panelLayout->addWidget(withdraw, 4, 2);
-    panelLayout->addWidget(lblPending, 1, 5, 1, 4, Qt::AlignRight);
-    panelLayout->addWidget(pending, 2, 5, 3, 4);
+    panelLayout->addWidget(lblPendingTitle, 0, 6, 1, 5, Qt::AlignCenter);
+    panelLayout->addWidget(pending, 1, 6, 4, 5);
     panelLayout->setContentsMargins(30, 30, 30, 60);
 
     boundingBox->setLayout(panelLayout);
-    boundingBox->setGeometry(0, 0, 930, 220);
+    boundingBox->setGeometry(0, 1, 930, 220);
     connect(assetBox, &QComboBox::currentTextChanged, this,
             [this](const QString &selection){
                 for (Luno::Balance bal : userBalances){
@@ -66,8 +64,10 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
         try {
             bool isFastWithdrawl = cbxFastWithdraw->isChecked();
             float amount = atof(txtAmount->text().toStdString().c_str()); // ZAR
-            std::string result = Luno::LunoClient::withdraw(amount, isFastWithdrawl);
-            text << result;
+            Luno::Withdrawal w = Luno::LunoClient::withdraw(amount, isFastWithdrawl);
+            pending->pushBack(w);
+            
+            text.getQText() << w;
         }
         catch (ResponseEx ex){
             text << " [Error] Unable to withdraw! At " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
@@ -115,7 +115,42 @@ void WithdrawPanel::paintEvent(QPaintEvent *) {
     
 }
     
-void WithdrawPanel::Pending::reloadItems(){
+void WithdrawPanel::lightTheme(){
+    
+    boundingBox->setStyleSheet(R"(QGroupBox {
+                                    background-color: white;
+                                    color: black;
+                                    border: none;
+                                 } QGroupBox::title {
+                                    background-color:transparent;
+                                 })");
+    pending->setStyleSheet(R"(#PendingWithdrawals {
+                               border-top: 1px solid #d4d4d4;
+                               background-color: #fdfdfd;
+                               border-bottom: 1px solid #cfcfcf;
+                               color: black;
+                               border: none;
+                           })");
+}
+
+void WithdrawPanel::darkTheme(){
+    boundingBox->setStyleSheet(R"(QGroupBox {
+                                    background-color: #1e1e1e;
+                                    color: white;
+                                    border: none;
+                                 } QGroupBox::title {
+                                    background-color:transparent;
+                                 })");
+    pending->setStyleSheet(R"(#PendingWithdrawals {
+                               border-top: 1px solid #292929;
+                               background-color: #242424;
+                               border-bottom: 1px solid #202020;
+                               color: white;
+                               border: none;
+                           })");
+}
+
+void WithdrawPanel::PendingWithdrawals::reloadItems(){
     for  (int i = userWithdrawals.size(); i >= 0; i--){
         QLayout *level = format->takeAt(i)->layout();
         while(!level->isEmpty()) {
@@ -129,9 +164,9 @@ void WithdrawPanel::Pending::reloadItems(){
     loadItems();
 }
 
-WithdrawPanel::Pending::Pending(QWidget* parent) : QWidget(parent){
-    setAutoFillBackground(true);
-    
+WithdrawPanel::PendingWithdrawals::PendingWithdrawals(QWidget* parent) : QWidget(parent){
+    //setAutoFillBackground(true);
+    setObjectName("PendingWithdrawals");
     format = new QVBoxLayout;
     format->setSpacing(0);
     format->setAlignment(Qt::AlignTop);
@@ -141,7 +176,7 @@ WithdrawPanel::Pending::Pending(QWidget* parent) : QWidget(parent){
     loadItems();
 }
 
-void WithdrawPanel::Pending::createItem (Luno::Withdrawal& withdrawal){
+void WithdrawPanel::PendingWithdrawals::createItem (Luno::Withdrawal& withdrawal){
     QLabel *lblDate = new QLabel ( QDateTime::fromMSecsSinceEpoch(withdrawal.createdTime).toString("ddd d, hh:mm") );
     QLabel *lblType = new QLabel ( QString::fromStdString(withdrawal.currency ) );
     
@@ -199,7 +234,7 @@ void WithdrawPanel::Pending::createItem (Luno::Withdrawal& withdrawal){
     });
 }
 
-void WithdrawPanel::Pending::createTitle (){
+void WithdrawPanel::PendingWithdrawals::createTitle (){
     QLabel *lblDate = new QLabel ( QString::fromStdString("Created on" ) );
     QLabel *lblType = new QLabel ( QString::fromStdString("Type" ) );
 
@@ -221,24 +256,30 @@ void WithdrawPanel::Pending::createTitle (){
     format->addLayout(line);
 }
 
-void WithdrawPanel::Pending::loadItems (){
+void WithdrawPanel::PendingWithdrawals::loadItems (){
     try {
         std::vector<Luno::Withdrawal> retrieved = Luno::LunoClient::getWithdrawalList();
         for (Luno::Withdrawal& w : retrieved){
             if (w.status == "PENDING"){
-                createItem( w );
-                userWithdrawals.push_back(w);
+                pushBack(w);
             }
         }
     } catch (ResponseEx ex){
             text << ex.String().c_str(); // To do:: should be an error stream here
     }
 }
-void WithdrawPanel::Pending::paintEvent(QPaintEvent *){
+void WithdrawPanel::PendingWithdrawals::paintEvent(QPaintEvent *){
     // The following allows Qt style sheets to work on a derived class (#derivedClassName)
     QStyleOption options;
     options.initFrom(this);
     QPainter painter(this);
     style()->drawPrimitive(QStyle::PE_Widget, &options, &painter, this);
    
+}
+
+void WithdrawPanel::PendingWithdrawals::pushBack(Luno::Withdrawal& w){
+    if (w.status == "PENDING"){
+        createItem( w );
+        userWithdrawals.push_back(w);
+    }
 }

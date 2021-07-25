@@ -20,6 +20,8 @@ public:
     
     LivePanel(QWidget* parent = nullptr);
     
+    void lightTheme();
+    void darkTheme();
 };
 
-#endif /* TradeBot_OrderPanel_hpp */
+#endif

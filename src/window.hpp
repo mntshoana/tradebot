@@ -4,10 +4,7 @@
 #include <thread>
 #include <QWebEngineView>
 #include "livePanel.hpp"
-#include "pendingOrders.hpp"
-#include "balancePanel.hpp"
-#include "withdrawPanel.hpp"
-#include "textPanel.hpp"
+#include "workspacePanel.hpp"
 
 
 QTextEdit& operator<< (QTextEdit& stream, std::string str);
@@ -28,22 +25,13 @@ private:
     virtual void darkTheme();
     virtual void lightTheme();
 public:
-    HomeView (QWidget *parent = 0);
+    HomeView (QWidget *parent = nullptr);
     virtual ~HomeView();
     
-    QTabWidget *tabWidget;
-    // Tabs will have
-    TextPanel text;
-    PendingOrdersPanel *pendingOrders;
-    BalancePanel *userBalances;
-    WithdrawPanel *withdrawals;
-    ///
-    LivePanel *livePanel;
-    
     QWebEngineView *view;
+    LivePanel *livePanel;
+    WorkspacePanel *workPanel;
     
-    
-    Luno::LunoClient *lunoClient;
     std::vector<Luno::Trade> ticks, moreticks;
     
     virtual void updateTheme();

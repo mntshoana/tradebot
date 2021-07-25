@@ -20,16 +20,20 @@ CONFIG(debug, debug|release) {
 SOURCES += tradeBot.cpp \
             label.cpp lineBlock.cpp \
             orderPanel.cpp tradePanel.cpp \
-            livePanel.cpp pendingOrders.cpp \
+            livePanel.cpp \
+            pendingOrders.cpp \
             balancePanel.cpp withdrawPanel.cpp \
             textPanel.cpp \
+            workspacePanel.cpp \
             window.cpp
 HEADERS += tradeBot.hpp \
             label.hpp lineBlock.hpp \
             orderPanel.hpp tradePanel.hpp \
-            livePanel.hpp pendingOrders.hpp \
+            livePanel.hpp \
+            pendingOrders.hpp \
             balancePanel.hpp withdrawPanel.hpp \
             textPanel.hpp \
+            workspacePanel.hpp \
             window.hpp
 SOURCES += jobManager.cpp
 HEADERS += jobManager.hpp

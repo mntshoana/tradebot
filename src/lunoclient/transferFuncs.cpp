@@ -106,7 +106,7 @@ namespace Luno {
     // REQUEST WITHDRAW
     //
     //
-    std::string LunoClient::withdraw(float amount, bool isFast){
+    Withdrawal LunoClient::withdraw(float amount, bool isFast){
         std::string uri = "https://api.mybitx.com/api/1/withdrawals";
         uri += "?type=ZAR_EFT";
         
@@ -124,7 +124,68 @@ namespace Luno {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        return res;
+        Withdrawal withdrawal;
+        size_t last = 0, next = 0;
+        
+
+        // id
+        last = res.find("id", last);
+        last = res.find(":", last) + 2;
+        next = res.find("\"", last);
+        std::string token = res.substr(last, next-last);
+        withdrawal.id = atoll(token.c_str());
+        last = next + 1;
+           
+        // status
+        last = res.find("status", last);
+        last = res.find(":", last) + 2;
+        next = res.find("\"", last);
+        token = res.substr(last, next-last);
+        withdrawal.status = token.c_str();
+        last = next + 1;
+        
+        // created_at
+        last = res.find("created_at", last);
+        last = res.find(":", last) + 1;
+        next = res.find(",", last);
+        token = res.substr(last, next-last);
+        withdrawal.createdTime = atoll(token.c_str());
+        last = next + 1;
+
+        // type
+        last = res.find("type", last);
+        last = res.find(":", last) + 2;
+        next = res.find("\"", last);
+        token = res.substr(last, next-last);
+        withdrawal.type = token.c_str();
+        last = next + 1;
+        
+        // currency
+        last = res.find("currency", last);
+        last = res.find(":", last) + 2;
+        next = res.find("\"", last);
+        token = res.substr(last, next-last);
+        withdrawal.currency = token.c_str();
+        last = next + 1;
+        
+        // amount
+        last = res.find("amount", last);
+        last = res.find(":", last) + 2;
+        next = res.find("\"", last);
+        token = res.substr(last, next-last);
+        withdrawal.amount = atof(token.c_str());
+        last = next + 1;
+           
+        // fee
+        last = res.find("fee", last);
+        last = res.find(":", last) + 2;
+        next = res.find("\"", last);
+        token = res.substr(last, next-last);
+        withdrawal.fee = atof(token.c_str());
+        last = next + 1;
+        
+        
+        return withdrawal;
     }
 
     // GET WITHDRAWAL
