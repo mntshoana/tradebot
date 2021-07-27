@@ -195,7 +195,7 @@ void TradeBot::downloadTicks(std::string pair){
 std::string TradeBot::lastTrades() {
     std::stringstream ss;
     ss << std::fixed;
-    ss << R"(
+    ss << R"html(
             <style>
             table {width: 100%;}
             tr { padding: 15px;}
@@ -212,7 +212,8 @@ std::string TradeBot::lastTrades() {
             .Ask a {color: rgb(192, 51, 35);}
             .Bid a {color: rgb(54, 136, 87);}
             </style>
-            <table width=100%>)";
+            <table width=100%>
+    )html";
     
     
     for (int i = home->ticks.size() -1, limit = 1000; i >= 0 && limit >= 0; i--, limit--){

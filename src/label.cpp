@@ -8,7 +8,7 @@ Label::Label(std::string title, QWidget* parent) : QTextBrowser(parent) {
 void Label::setLabel(std::string title) {
     std::stringstream ss;
     ss << std::fixed;
-    ss << R"(
+    ss << R"html(
             <style>
             table {width: 100%;}
             tr { padding: 15px;}
@@ -29,7 +29,8 @@ void Label::setLabel(std::string title) {
             }
             </style>
             <table width=100%>
-                <tr>)";
+                <tr>
+    )html";
     ss << title;
     ss << "</tr>";
     ss << "</table>\n";

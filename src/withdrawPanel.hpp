@@ -17,6 +17,22 @@
 #include "lineBlock.hpp"
 #include "textPanel.hpp"
 
+class PendingWithdrawals : public QWidget {
+    std::vector<Luno::Withdrawal> userWithdrawals;
+    TextPanel text;
+public:
+    QVBoxLayout *format;
+    QHBoxLayout *line;
+    
+    PendingWithdrawals(QWidget* parent = nullptr);
+    void loadItems();
+    void reloadItems();
+    void createItem (Luno::Withdrawal&);
+    void createTitle ();
+    void pushBack(Luno::Withdrawal& w);
+    void paintEvent(QPaintEvent *);
+};
+
 class WithdrawPanel : public QWidget {
     Q_OBJECT
 private:
@@ -34,26 +50,12 @@ private:
     QGridLayout* panelLayout;
     QPushButton* withdraw;
     
-    class PendingWithdrawals : public QWidget {
-        std::vector<Luno::Withdrawal> userWithdrawals;
-        TextPanel text;
-    public:
-        QVBoxLayout *format;
-        QHBoxLayout *line;
-        
-        PendingWithdrawals(QWidget* parent = nullptr);
-        void loadItems();
-        void reloadItems();
-        void createItem (Luno::Withdrawal&);
-        void createTitle ();
-        void pushBack(Luno::Withdrawal& w);
-        void paintEvent(QPaintEvent *);
-    }*pending;
+    PendingWithdrawals *pending;
     
-    static std::string floatToString(float val, const int decimals = 6);
 public:
     QGroupBox *boundingBox;
     
+    static std::string floatToString(float val, const int decimals = 6);
     void loadItems ();
     void reloadItemsUsing(std::vector<Luno::Balance>& toCopy);
     WithdrawPanel(QWidget* parent = nullptr);

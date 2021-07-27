@@ -150,7 +150,7 @@ void WithdrawPanel::darkTheme(){
                            })");
 }
 
-void WithdrawPanel::PendingWithdrawals::reloadItems(){
+void PendingWithdrawals::reloadItems(){
     for  (int i = userWithdrawals.size(); i >= 0; i--){
         QLayout *level = format->takeAt(i)->layout();
         while(!level->isEmpty()) {
@@ -164,7 +164,7 @@ void WithdrawPanel::PendingWithdrawals::reloadItems(){
     loadItems();
 }
 
-WithdrawPanel::PendingWithdrawals::PendingWithdrawals(QWidget* parent) : QWidget(parent){
+PendingWithdrawals::PendingWithdrawals(QWidget* parent) : QWidget(parent){
     //setAutoFillBackground(true);
     setObjectName("PendingWithdrawals");
     format = new QVBoxLayout;
@@ -176,13 +176,13 @@ WithdrawPanel::PendingWithdrawals::PendingWithdrawals(QWidget* parent) : QWidget
     loadItems();
 }
 
-void WithdrawPanel::PendingWithdrawals::createItem (Luno::Withdrawal& withdrawal){
+void PendingWithdrawals::createItem (Luno::Withdrawal& withdrawal){
     QLabel *lblDate = new QLabel ( QDateTime::fromMSecsSinceEpoch(withdrawal.createdTime).toString("ddd d, hh:mm") );
     QLabel *lblType = new QLabel ( QString::fromStdString(withdrawal.currency ) );
     
-    std::string amount = floatToString(withdrawal.amount, (withdrawal.currency == "ZAR" ? 2 : 6));
+    std::string amount = WithdrawPanel::floatToString(withdrawal.amount, (withdrawal.currency == "ZAR" ? 2 : 6));
     QLabel *lblAmount = new QLabel ( QString::fromStdString(amount ) );
-    std::string fee = floatToString(withdrawal.fee, (withdrawal.currency == "ZAR" ? 2 : 6));
+    std::string fee = WithdrawPanel::floatToString(withdrawal.fee, (withdrawal.currency == "ZAR" ? 2 : 6));
     QLabel *lblFee = new QLabel ( QString::fromStdString(fee ) );
     
     QPushButton *but = new QPushButton ( "Cancel" );
@@ -234,7 +234,7 @@ void WithdrawPanel::PendingWithdrawals::createItem (Luno::Withdrawal& withdrawal
     });
 }
 
-void WithdrawPanel::PendingWithdrawals::createTitle (){
+void PendingWithdrawals::createTitle (){
     QLabel *lblDate = new QLabel ( QString::fromStdString("Created on" ) );
     QLabel *lblType = new QLabel ( QString::fromStdString("Type" ) );
 
@@ -256,7 +256,7 @@ void WithdrawPanel::PendingWithdrawals::createTitle (){
     format->addLayout(line);
 }
 
-void WithdrawPanel::PendingWithdrawals::loadItems (){
+void PendingWithdrawals::loadItems (){
     try {
         std::vector<Luno::Withdrawal> retrieved = Luno::LunoClient::getWithdrawalList();
         for (Luno::Withdrawal& w : retrieved){
@@ -268,7 +268,7 @@ void WithdrawPanel::PendingWithdrawals::loadItems (){
             text << ex.String().c_str(); // To do:: should be an error stream here
     }
 }
-void WithdrawPanel::PendingWithdrawals::paintEvent(QPaintEvent *){
+void PendingWithdrawals::paintEvent(QPaintEvent *){
     // The following allows Qt style sheets to work on a derived class (#derivedClassName)
     QStyleOption options;
     options.initFrom(this);
@@ -277,7 +277,7 @@ void WithdrawPanel::PendingWithdrawals::paintEvent(QPaintEvent *){
    
 }
 
-void WithdrawPanel::PendingWithdrawals::pushBack(Luno::Withdrawal& w){
+void PendingWithdrawals::pushBack(Luno::Withdrawal& w){
     if (w.status == "PENDING"){
         createItem( w );
         userWithdrawals.push_back(w);
