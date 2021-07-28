@@ -1,7 +1,9 @@
-#ifndef AUTOPLAYGROUND_H
-#define AUTOPLAYGROUND_H
+#ifndef AUTO_PLAYGROUND_HEADER
+#define AUTO_PLAYGROUND_HEADER
 
 #include <QTextEdit>
+
+#include "textPanel.hpp"
 #include "objectivec.h"
 
 #define TICK_CANDLE 100
@@ -15,15 +17,15 @@
 #include <Python.h>
 #pragma pop_macro("slots")
 
-class AutoPlayground {
-    QTextEdit* outputStream;
+class AutoPlayground  : public QWidget {
+    TextPanel text;
     FILE* script;
     std::string file, filepath;
     std::wstring wfilepath;
     
     wchar_t** argv;
 public:
-    AutoPlayground(QTextEdit* output);
+    AutoPlayground(QWidget* parent = nullptr);
     ~AutoPlayground();
     void runScript();
 };
