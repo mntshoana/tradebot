@@ -51,6 +51,8 @@ HEADERS += objectivec.h
 HEADERS += autoPlayground.hpp
 SOURCES += autoPlayground.cpp
 SOURCES += main.cpp
+SOURCES += $$files(data/*.py, true)
+SOURCES += $$files(data/*.csv, true)
 
 ### External #####
 #libcurl#

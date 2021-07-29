@@ -5,6 +5,7 @@
 #include "balancePanel.hpp"
 #include "withdrawPanel.hpp"
 #include "textPanel.hpp"
+#include "autoPlayground.hpp"
 
 //
 class WorkspacePanel : public QWidget {
@@ -17,6 +18,7 @@ public:
     PendingOrdersPanel *pendingOrders;
     BalancePanel *userBalances;
     WithdrawPanel *withdrawals;
+    AutoPlaygroundPanel *autoPlayground;
     
     WorkspacePanel(QWidget* parent = nullptr);
     

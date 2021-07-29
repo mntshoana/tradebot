@@ -35,9 +35,6 @@ HomeView::HomeView (QWidget *parent) : QWidget(parent) {
         });
     
     view->show();
-
-    
-    //chartPanel->playground = new AutoPlayground(text);
     
     // Theme
     if (isDarkMode())

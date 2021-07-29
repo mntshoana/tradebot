@@ -87,6 +87,7 @@ void TradeBot::OnUpdate() {
         if (*timerCount % 10 == 0){
             home->workPanel->pendingOrders->clearItems();
             home->workPanel->pendingOrders->addOrders();
+          //  home->workPanel->autoPlayground->runScript();
         }
             
         if (*timerCount % 30 == 0){

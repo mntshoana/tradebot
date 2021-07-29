@@ -10,17 +10,20 @@ WorkspacePanel::WorkspacePanel(QWidget* parent) {
     
     withdrawals = new WithdrawPanel(this);
     
+    autoPlayground = new AutoPlaygroundPanel(this);
     
     tabWidget = new QTabWidget(parent);
     tabWidget->addTab(&text, tr("Output"));
     tabWidget->addTab(pendingOrders, tr("Open Orders"));
     tabWidget->addTab(userBalances, tr("User Balances"));
     tabWidget->addTab(withdrawals, tr("Withdrawals"));
+    tabWidget->addTab(autoPlayground, tr("Auto Playground"));
 }
 
 void WorkspacePanel::setGeometry(int ax, int ay, int aw, int ah) {
     tabWidget->setGeometry(ax, ay, aw, ah);
     text.setGeometry(ax-4, ay + 50, aw+4, ah - 50);
+    autoPlayground->setGeometry(ax, ay, aw, ah);
 }
 
 void WorkspacePanel::lightTheme(){
