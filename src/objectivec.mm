@@ -18,9 +18,10 @@ std::string absolutePath (){
     char path[1024];
 #ifdef TARGET_OS_MAC
     uint32_t size = sizeof(path);
-    if (_NSGetExecutablePath(path, &size) == 0){
+    if (_NSGetExecutablePath(path, &size) == 0){ // Successfully copied
+        // return the path to the directory that leads to "[only this].../tradebot.app"
         char* ptr = strstr(path, "tradebot.app");
-        return std::string (path, strlen(path) - strlen(ptr)); // tradebot = 8
+        return std::string (path, strlen(path) - strlen(ptr));
     }
     else
         //Buffer was too small;

@@ -51,6 +51,8 @@ void TradeBot::Cleanup(){
     if (home)
         delete home;
     
+    // Not clean, but not important
+    home->workPanel->autoPlayground->deleteSharedMem();
     emit close();
 }
 

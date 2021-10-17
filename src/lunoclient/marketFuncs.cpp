@@ -192,17 +192,22 @@ namespace Luno {
                 .Bid a {color: rgb(54, 136, 87);}
                 .Mid {padding: 5px 2px;}
                 </style>
-                <table width=100%>)";
+                <table width=100%>
+        )";
         
         for (auto order = this->asks.rbegin(); order != this->asks.rend(); order++){
-            ss << "\n<tr><a href=\"" << order->price << "\">";
-            ss << "\n<td class=Ask>";
+            ss << "<tr>\n";
+            ss << "<td class=Ask>";
             ss << std::setprecision(0);
             ss << "<a href=\"" << order->price << "\">";
-            ss  << /*...add asterisk if is my price*/ order->price;
-            ss << "</a></td>";
-            ss << "\n<td>" << std::setprecision(6)<< order->volume << "</td>";
-            ss << "\n</a></tr>";
+            ss  << order->price;
+            ss << "</a></td>\n";
+            
+            ss << "<td>"
+                << std::setprecision(6)
+                << "<p>" <<  order->volume << "</p>"
+                << "</td>\n";
+            ss << "</tr>";
         }
         ss << "\n<tr><td class=Mid colspan=2>"
                 << std::setprecision(0) << (this->asks[0].price - this->bids[0].price)
@@ -226,7 +231,7 @@ namespace Luno {
             ss << std::fixed;
             ss << R"(
                     <style>
-                    table {width: 100%;}
+                    table {width: 100%; border-collapse:collapse;}
                     tr { padding: 15px;}
                     a {
                         color: inherit;
@@ -242,7 +247,8 @@ namespace Luno {
                     .Bid a {color: rgb(54, 136, 87);}
                     .Mid {padding: 5px 2px;}
                     </style>
-                    <table width=100%>)";
+                    <table width=100%>
+            )";
             
             std::map<int, bool> tradeOpenByUser;
                 
@@ -255,27 +261,37 @@ namespace Luno {
                         tradeOpenByUser[order.price] = true;
                         });
             for (auto order = this->asks.rbegin(); order != this->asks.rend(); order++){
-                ss << "\n<tr><a href=\"" << order->price << "\">";
-                ss << "\n<td class=Ask>";
+                float trans = order->volume / 20.0;
+                ss << "<tr "
+                    << "style=\""
+                    << "background-color:rgba(192, 51, 35, " << trans << ");\""
+                    << ">\n";
+                ss << "<td class=Ask>";
                 ss << std::setprecision(0);
                 ss << "<a href=\"" << order->price << "\">";
                 ss  << ((tradeOpenByUser[order->price]) ? "*" : " ") << order->price;
-                ss << "</a></td>";
-                ss << "\n<td>" << std::setprecision(6)<< order->volume << "</td>";
-                ss << "\n</a></tr>";
+                ss << "</a></td>\n";
+                ss << "<td> <span style=\"background: none;\">"
+                << std::setprecision(6)<< order->volume << "<span></td>\n";
+                ss << "</tr>";
             }
             ss << "\n<tr><td class=Mid colspan=2>"
                     << std::setprecision(0) << (this->asks[0].price - this->bids[0].price)
                     << " Spread </td></tr>";
             for (Order order : this->bids){
-                ss << "\n<tr>";
-                ss << "\n<td class=Bid>";
+                float trans = order.volume / 20.0;
+                ss << "<tr "
+                    << "style=\""
+                    << "background-color:rgba(54, 136, 87, " << trans << ");\""
+                    << ">\n";
+                ss << "<td class=Bid>";
                 ss << std::setprecision(0);
                 ss << "<a href=\"" << order.price << "\">";
                 ss  << ((tradeOpenByUser[order.price]) ? "*" : " ") << order.price;
-                ss << "</a></td>";
-                ss << "\n<td>" << std::setprecision(6) << order.volume<< "</td>";
-                ss << "\n</tr>";
+                ss << "</a></td>\n";
+                ss << "<td> <span style=\"background: none;\">"
+                << std::setprecision(6) << order.volume<< "<span></td>\n";
+                ss << "</tr>";
             }
             ss << "</table>\n";
             return ss.str();

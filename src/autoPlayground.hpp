@@ -1,7 +1,13 @@
 #ifndef AUTO_PLAYGROUND_HEADER
 #define AUTO_PLAYGROUND_HEADER
 
-#include <QProcess>
+#include <QImage>
+#include <QGraphicsScene>
+#include <QPixmap>
+#include <QGraphicsView>
+#include <QTimer>
+#include <QVBoxLayout>
+
 #include "textPanel.hpp"
 #include "objectivec.h"
 
@@ -10,28 +16,48 @@
 #include <iostream>
 #include <cstdio>
 
-#pragma push_macro("slots")
-#undef slots
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
+#if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
+// POSIX PROCESS CREATION AND SHARED MEMORRY WILL BE REQUIRED
+#define POSIX_ENVIRONMENT true
+    #include <sys/wait.h>
+    #include <unistd.h> //  fork
+    #include <sys/shm.h>
+    #include <sys/mman.h>
+    #include <fcntl.h>
+    #include <string.h>
+    #include <signal.h> // kill
 
-#pragma pop_macro("slots")
+
+    #define MEMSIZE (10240*3)
+#else
+#define POSIX_ENVIRONMENT false
+#endif
 
 class AutoPlaygroundPanel  : public QWidget {
     Q_OBJECT
     TextPanel text;
-    std::thread* thread;
+    uchar* imageData;
+    QTimer* timer;
     
-    FILE* script;
+    QWidget* parentPointer;
+    QGraphicsScene *scene;
+    QGraphicsView* view;
+    
+private:
+#if POSIX_ENVIRONMENT
+    pid_t pid = -1;
+#endif
     std::string file, filepath;
     std::wstring wfilepath;
-    
-    //QProcess *myProcess;
+
     wchar_t** argv;
 public:
     AutoPlaygroundPanel(QWidget* parent = nullptr);
     ~AutoPlaygroundPanel();
-    void run();
-    void runScript();
+    int runScript();
+    void deleteSharedMem();
+    
+public slots:
+    void Onupdate();
 };
 #endif /* AUTOPLAYGROUND_H */

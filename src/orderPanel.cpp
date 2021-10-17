@@ -14,7 +14,7 @@ OrderPanel::OrderPanel(QWidget* parent, std::string titleL, std::string titleR) 
         labelBuilder = "<th>";
         labelBuilder += titleL;
         labelBuilder += "</th>";
-        labelBuilder = "<th>";
+        labelBuilder += "<th>";
         labelBuilder += titleR;
         labelBuilder += "</th>";
     }

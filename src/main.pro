@@ -58,7 +58,3 @@ SOURCES += $$files(data/*.csv, true)
 #libcurl#
 INCLUDEPATH += /usr/local/include/
 LIBS += -L"/usr/local/lib/" -lcurl.4
-
-#python#
-QMAKE_CXXFLAGS += $$system(python3-config --cflags)
-LIBS += $$system(python3-config --ldflags --embed)
