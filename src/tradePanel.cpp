@@ -1,6 +1,9 @@
 #include "tradePanel.hpp"
 
 TradePanel::TradePanel(QWidget* parent){
+    TextPanel::init(this);
+    text = TextPanel::textPanel;
+    
     isBuy = true;
     header = new Label( loadHeader(), parent);
     
@@ -80,7 +83,7 @@ void TradePanel::executeTrade(){
     float amount = atof(txtAmount->text().toStdString().c_str());
     
     if (price == 0){
-        text << "Error - Price cannot be empty.";
+        *text << "Error - Price cannot be empty.";
         return;
     }
     
@@ -98,19 +101,19 @@ void TradePanel::executeTrade(){
         }
        
         else if (amount < 0.0005f){
-            text << "Error - cannot trade for less than 0.000500 BTC";
+            *text << "Error - cannot trade for less than 0.000500 BTC";
             return;
         }
     try {
         // output
         std::string result = Luno::LunoClient::postLimitOrder("XBTZAR", action, amount, price);
-        text << std::string(action) + " order at price: " + std::to_string(price);
-        text << "   Amount: " + std::to_string(amount);
-        text << "   Valued: " + std::to_string(amount * price);
-        text << "COMPLETE: " + result;
+        *text << std::string(action) + " order at price: " + std::to_string(price);
+        *text << "   Amount: " + std::to_string(amount);
+        *text << "   Valued: " + std::to_string(amount * price);
+        *text << "COMPLETE: " + result;
         
     } catch (ResponseEx ex){
-        text << " [Error] Unable to place order! at " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
-        text << ex.String();
+        *text << " [Error] Unable to place order! at " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
+        *text << ex.String();
     }
 }

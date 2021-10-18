@@ -19,7 +19,7 @@
 
 class PendingWithdrawals : public QWidget {
     std::vector<Luno::Withdrawal> userWithdrawals;
-    TextPanel text;
+    TextPanel* text;
 public:
     QVBoxLayout *format;
     QHBoxLayout *line;
@@ -38,7 +38,7 @@ class WithdrawPanel : public QWidget {
 private:
     std::vector<Luno::Balance> userBalances;
 
-    TextPanel text;
+    TextPanel* text;
     
     QComboBox* assetBox;
     QLabel  *lblAmount,

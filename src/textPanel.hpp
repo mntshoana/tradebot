@@ -8,7 +8,11 @@ class TextPanel : public QWidget {
     Q_OBJECT
     static QTextEdit* text;
     static bool isInitialized;
+    
+    TextPanel (QWidget* parent);
 public:
+    static TextPanel* textPanel;
+
     TextPanel& operator<< (std::string str);
     QTextEdit& getQText();
     void setGeometry(int ax, int ay, int aw, int ah);

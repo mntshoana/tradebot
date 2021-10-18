@@ -1,6 +1,10 @@
 #include "balancePanel.hpp"
 
-BalancePanel::BalancePanel(QWidget* parent) : QWidget(parent) {    
+BalancePanel::BalancePanel(QWidget* parent) : QWidget(parent) {
+    setObjectName("UserBalances");
+    
+    TextPanel::init(parent);
+    text = TextPanel::textPanel;
     format = new QVBoxLayout;
     format->setSpacing(0);
     format->setAlignment(Qt::AlignTop);
@@ -125,7 +129,7 @@ void BalancePanel::loadItems (){
         }
         
     } catch (ResponseEx ex){
-            text << ex.String().c_str(); // To do:: should be an error stream here
+            *text << ex.String().c_str(); // To do:: should be an error stream here
     }
 }
 

@@ -14,7 +14,7 @@ class BalancePanel : public QWidget {
     Q_OBJECT
 private:
     std::vector<std::string> accountIDs;
-    TextPanel text;
+    TextPanel* text;
     
     std::string floatToString(float val, const int decimals = 6);
 public:

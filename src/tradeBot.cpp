@@ -187,7 +187,7 @@ void TradeBot::downloadTicks(std::string pair){
         }
         else {
             file.clear();
-            home->workPanel->text << std::string("[Error] : At ")
+            *TextPanel::textPanel << std::string("[Error] : At ")
                             + __FILE__ + ": line " + std::to_string(__LINE__)
                         + ". Couldn't write ticks to file.";
         }

@@ -1,19 +1,20 @@
 #include "workspacePanel.hpp"
 
 WorkspacePanel::WorkspacePanel(QWidget* parent) {
+    TextPanel::init(parent);
+    text = TextPanel::textPanel;
+    text->setParent(this);
     
     pendingOrders = new PendingOrdersPanel(this);
-    pendingOrders->setObjectName("PendingOrders");
     
     userBalances = new BalancePanel(this);
-    userBalances->setObjectName("UserBalances");
     
     withdrawals = new WithdrawPanel(this);
     
     autoPlayground = new AutoPlaygroundPanel(this);
     
     tabWidget = new QTabWidget(parent);
-    tabWidget->addTab(&text, tr("Output"));
+    tabWidget->addTab(text, tr("Output"));
     tabWidget->addTab(pendingOrders, tr("Open Orders"));
     tabWidget->addTab(userBalances, tr("User Balances"));
     tabWidget->addTab(withdrawals, tr("Withdrawals"));
@@ -22,7 +23,7 @@ WorkspacePanel::WorkspacePanel(QWidget* parent) {
 
 void WorkspacePanel::setGeometry(int ax, int ay, int aw, int ah) {
     tabWidget->setGeometry(ax, ay, aw, ah);
-    text.setGeometry(ax-4, ay + 50, aw+4, ah - 50);
+    text->setGeometry(ax-4, ay + 50, aw+4, ah - 50);
     autoPlayground->setGeometry(ax, ay, aw, ah);
 }
 
@@ -66,7 +67,7 @@ void WorkspacePanel::lightTheme(){
                                 border-bottom: 1px solid rgb(209, 209, 209);
                               } QTabBar::tab:!last:!selected {
                                  border-right: 1px solid rgb(209, 209, 209);
-                              } QTextEdit, #PendingOrders, #UserBalances, #WithdrawalPanel {
+                              } #TextEditPanel>QTextEdit, #PendingOrders, #UserBalances, #WithdrawalPanel, #AutoPlaygroundPanel>QGraphicsView {
                                 background-color: rgb(253, 253, 253);
                                 border-style: outset;
                                 border-width: 0.5px;
@@ -75,6 +76,7 @@ void WorkspacePanel::lightTheme(){
                                 border-left-color: rgb(185, 185, 185);
                                 border-right-color: rgb(225, 225, 225);
                              } )");
+    autoPlayground->lightTheme();
 }
 void WorkspacePanel::darkTheme(){
     withdrawals->darkTheme();
@@ -114,13 +116,14 @@ void WorkspacePanel::darkTheme(){
                                 border-top: 1px solid rgb(87 ,87, 87);
                                 background-color: rgb(83 ,83, 83);
                                 border-bottom: 1px solid rgb(77 ,77, 77);
-                             } QTextEdit, #PendingOrders, #UserBalances, #WithdrawalPanel {
+                             } #TextEditPanel>QTextEdit, #PendingOrders, #UserBalances, #WithdrawalPanel, #AutoPlaygroundPanel>QGraphicsView {
                                 background-color: rgb(28, 28, 28);
                                 border-style: outset;
                                 border-width: 0.5px;
-                                border-top-color: rgb(32, 32, 32);
+                                border-top-color: rgb(12, 12, 12);
                                 border-bottom-color: rgb(25, 25, 25);
                                 border-left-color: rgb(28, 28, 28);
                                 border-right-color: rgb(37, 37, 37);
                              } )");
+    autoPlayground->darkTheme();
 }

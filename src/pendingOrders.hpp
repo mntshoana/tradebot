@@ -16,7 +16,7 @@ class PendingOrdersPanel : public QWidget {
     Q_OBJECT
 private:
     std::vector<std::string> orderIds;
-    TextPanel text;
+    TextPanel* text;
     
 public:
     QVBoxLayout *format;

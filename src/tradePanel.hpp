@@ -15,7 +15,7 @@
 
 class TradePanel : public QWidget {
     Q_OBJECT
-    TextPanel text;
+    TextPanel* text;
     Label* header;
     
     std::string loadHeader();

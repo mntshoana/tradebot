@@ -14,7 +14,7 @@ class WorkspacePanel : public QWidget {
 public:
     QTabWidget *tabWidget;
     
-    TextPanel text;
+    TextPanel* text;
     PendingOrdersPanel *pendingOrders;
     BalancePanel *userBalances;
     WithdrawPanel *withdrawals;

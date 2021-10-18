@@ -56,7 +56,7 @@ void Job<T, stream, res, proc>::performJob(){
 template <class T, class param>
 class func1 : public JobBase{
     T* object;
-    TextPanel text;
+    TextPanel* text;
     param arg;
     void (T::*task)(param);
 public:
@@ -74,7 +74,7 @@ void func1 <T, param>::performJob(){
     try{
         (object->*task)(arg);
     } catch (ResponseEx ex){
-            text << ex.String(); // To do:: should be an error stream here
+            *TextPanel::textPanel << ex.String(); // To do:: should be an error stream here
     }
 }
 

@@ -2,6 +2,15 @@
 
 bool TextPanel::isInitialized = false;
 QTextEdit* TextPanel::text = nullptr;
+TextPanel* TextPanel::textPanel = nullptr;
+
+TextPanel::TextPanel (QWidget* parent){
+    text = new QTextEdit(this);
+    text->setObjectName("TextEditPanel");
+    text->document()->setDocumentMargin(10);
+    text->setStyleSheet("QTextEdit { border:0;}");
+    text->setText("");
+}
 
 TextPanel& TextPanel::operator<< (std::string str) {
     text->append(str.c_str());
@@ -11,11 +20,7 @@ TextPanel& TextPanel::operator<< (std::string str) {
 void TextPanel::init(QWidget* parent){
     if (isInitialized)
         return;
-    text = new QTextEdit(parent);
-    text->document()->setDocumentMargin(10);
-    text->setStyleSheet("QTextEdit { border:0;}");
-    text->setText("");
-    
+    textPanel = new TextPanel(parent);
     isInitialized = true;
 }
 
@@ -24,5 +29,5 @@ QTextEdit& TextPanel::getQText(){
 }
 
 void TextPanel::setGeometry(int ax, int ay, int aw, int ah) {
-    text->setGeometry(ax, ay, aw, ah);
+    text->setGeometry(0, 0, aw, ah);
 }

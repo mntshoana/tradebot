@@ -1,6 +1,11 @@
 #include "pendingOrders.hpp"
 
-PendingOrdersPanel::PendingOrdersPanel(QWidget* parent) : QWidget(parent) {    
+PendingOrdersPanel::PendingOrdersPanel(QWidget* parent) : QWidget(parent) {
+    setObjectName("PendingOrders");
+    
+    TextPanel::init(parent);
+    text = TextPanel::textPanel;
+    
     format = new QVBoxLayout;
     format->setSpacing(0);
     format->setAlignment(Qt::AlignTop);
@@ -108,8 +113,8 @@ void PendingOrdersPanel::createItem (Luno::UserOrder& order)
         orderIds.erase(it);
         
         // output
-        text << "Cancelled order!";
-        text << ("COMPLETE: " + result).c_str();
+        *text << "Cancelled order!";
+        *text << ("COMPLETE: " + result).c_str();
     });
     
 }
@@ -132,7 +137,7 @@ void PendingOrdersPanel::addOrders (){
             }
         }
     } catch (ResponseEx ex){
-            text << ex.String().c_str();
+            *text << ex.String().c_str();
     }
 }
 
@@ -163,7 +168,7 @@ void PendingOrdersPanel::popFrontOrder(){
         orderIds.erase(orderIds.begin());
         
         // output
-        text << "Cancelled order!";
-        text << ("COMPLETE: " + result).c_str();
+        *text << "Cancelled order!";
+        *text << ("COMPLETE: " + result).c_str();
     }
 }

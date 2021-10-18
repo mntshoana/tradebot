@@ -3,6 +3,9 @@
 WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {    
     setObjectName("WithdrawalPanel");
     
+    TextPanel::init(parent);
+    text = TextPanel::textPanel;
+    
     loadItems();
     
     QStringList assetList;
@@ -60,18 +63,18 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
     
     connect(withdraw,
             &QPushButton::clicked, this,[this](){
-        text << "Withdraw button clicked. To Widthraw " + txtAmount->text().toStdString();
+        *text << "Withdraw button clicked. To Widthraw " + txtAmount->text().toStdString();
         try {
             bool isFastWithdrawl = cbxFastWithdraw->isChecked();
             float amount = atof(txtAmount->text().toStdString().c_str()); // ZAR
             Luno::Withdrawal w = Luno::LunoClient::withdraw(amount, isFastWithdrawl);
             pending->pushBack(w);
             
-            text.getQText() << w;
+            text->getQText() << w;
         }
         catch (ResponseEx ex){
-            text << " [Error] Unable to withdraw! At " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
-            text << ex.String();
+            *text << " [Error] Unable to withdraw! At " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
+            *text << ex.String();
         }
     });
 }
@@ -98,7 +101,7 @@ void WithdrawPanel::loadItems (){
     try{
         userBalances = Luno::LunoClient::getBalances();
     } catch (ResponseEx ex){
-            text << ex.String().c_str();
+            *text << ex.String().c_str();
     }
 }
 
@@ -167,6 +170,10 @@ void PendingWithdrawals::reloadItems(){
 PendingWithdrawals::PendingWithdrawals(QWidget* parent) : QWidget(parent){
     //setAutoFillBackground(true);
     setObjectName("PendingWithdrawals");
+    
+    TextPanel::init(parent);
+    text = TextPanel::textPanel;
+    
     format = new QVBoxLayout;
     format->setSpacing(0);
     format->setAlignment(Qt::AlignTop);
@@ -224,12 +231,12 @@ void PendingWithdrawals::createItem (Luno::Withdrawal& withdrawal){
             
             userWithdrawals.erase(userWithdrawals.begin() + index);
             // output
-            text << "Cancelled order!";
-            text << ("COMPLETE: " + result).c_str();
+            *text << "Cancelled order!";
+            *text << ("COMPLETE: " + result).c_str();
         }
         catch (ResponseEx& ex){
-            text << " [Error] Unable to cancel withdrawal! at " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
-            text << ex.String();
+            *text << " [Error] Unable to cancel withdrawal! at " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
+            *text << ex.String();
         }
     });
 }
@@ -265,7 +272,7 @@ void PendingWithdrawals::loadItems (){
             }
         }
     } catch (ResponseEx ex){
-            text << ex.String().c_str(); // To do:: should be an error stream here
+            *text << ex.String().c_str(); // To do:: should be an error stream here
     }
 }
 void PendingWithdrawals::paintEvent(QPaintEvent *){
