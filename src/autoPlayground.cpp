@@ -112,8 +112,8 @@ int AutoPlaygroundPanel::runScript() {
         view->fitInView(scene->sceneRect());
         view->show();
     }
-    else{
-        *text << ("Error! Data (length) read from shared memory is garbage, possibl fault with script. Length cannot be " + std::to_string(length) + ".").c_str();
+    else if (length < 0 || length >= MEMSIZE){
+        *text << ("Error! Data (length) read from shared memory is garbage, possible fault with script. Image length in bytes cannot be " + std::to_string(length) + ".").c_str();
     }
 
 
@@ -141,8 +141,8 @@ void AutoPlaygroundPanel::Onupdate(){
     scene->addPixmap( QPixmap::fromImage(QImage::fromData(imageData, length)));
     view->fitInView(scene->sceneRect());
     }
-    else{
-        *text << ("Error! Data (length) read from shared memory is garbage, possibl fault with script. Length cannot be " + std::to_string(length) + ".").c_str();
+    else if (length < 0 || length >= MEMSIZE){
+        *text << ("Error! Data (length) read from shared memory is garbage, possible fault with script. Image length in bytes cannot be " + std::to_string(length) + ".").c_str();
     }
     view->update();
 }
