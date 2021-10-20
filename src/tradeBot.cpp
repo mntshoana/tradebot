@@ -2,7 +2,7 @@
 
 // Constructor
 TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
-    current = home = new HomeView(this); // active home screen window
+    current = home = new HomeView(this, VALR_EXCHANGE); // active home screen window
     
     // on update event
     connect(this, &TradeBot::finishedUpdate,

@@ -24,8 +24,10 @@ class HomeView : public Window, public QWidget {
 private:
     virtual void darkTheme();
     virtual void lightTheme();
+    
+    int exchange;
 public:
-    HomeView (QWidget *parent = nullptr);
+    HomeView (QWidget *parent = nullptr, int exchange = LUNO_EXCHANGE);
     virtual ~HomeView();
     
     QWebEngineView *view;
