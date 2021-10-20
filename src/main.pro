@@ -37,11 +37,13 @@ HEADERS += tradeBot.hpp \
             window.hpp
 SOURCES += jobManager.cpp
 HEADERS += jobManager.hpp
-SOURCES += lunoclient/lunoclient.cpp \
-            lunoclient/orderFuncs.cpp lunoclient/marketFuncs.cpp \
+SOURCES += lunoclient/orderFuncs.cpp lunoclient/marketFuncs.cpp \
             lunoclient/transferFuncs.cpp lunoclient/srFuncs.cpp \
             lunoclient/quoteFuncs.cpp lunoclient/accountFuncs.cpp
 HEADERS += lunoclient/lunoTypes.hpp lunoclient.hpp
+SOURCES += valrclient/sha512.cpp
+HEADERS += valrclient/valrTypes.hpp valrclient.hpp \
+            valrclient/sha512.hpp
 SOURCES += client.cpp
 HEADERS += client.hpp
 SOURCES += exceptions.cpp

@@ -1,7 +1,8 @@
 #include "lunoclient.hpp"
 
+extern Client client;
+
 namespace Luno {
-    extern Client client;
     // GET ORDERBOOK
     //
     //

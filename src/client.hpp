@@ -2,6 +2,9 @@
 #ifndef client_hpp
 #define client_hpp
 
+#define LUNO_EXCHANGE 0
+#define VALR_EXCHANGE 1
+
 #include <QTextEdit>
 #include <curl/curl.h>
 #include <sstream>
@@ -29,7 +32,7 @@ public:
     Client();
     ~Client();
     int getHttpCode();
-    virtual std::string  request (const char* method, const char* uri, bool auth = false);
+    virtual std::string  request (const char* method, const char* uri,  bool auth = false, int exchange = LUNO_EXCHANGE);
     
 };
 #endif /* client_hpp */

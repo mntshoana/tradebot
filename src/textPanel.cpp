@@ -4,7 +4,7 @@ bool TextPanel::isInitialized = false;
 QTextEdit* TextPanel::text = nullptr;
 TextPanel* TextPanel::textPanel = nullptr;
 
-TextPanel::TextPanel (QWidget* parent){
+TextPanel::TextPanel (QWidget* parent) : QWidget(parent){
     text = new QTextEdit(this);
     text->setObjectName("TextEditPanel");
     text->document()->setDocumentMargin(10);

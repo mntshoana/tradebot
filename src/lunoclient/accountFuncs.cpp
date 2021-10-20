@@ -1,6 +1,8 @@
 #include "lunoclient.hpp"
+
+extern Client client;
+
 namespace Luno {
-    extern Client client;
 
     // create account
     // update account
