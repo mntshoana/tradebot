@@ -1,7 +1,9 @@
 #include "tradePanel.hpp"
 
-TradePanel::TradePanel(QWidget* parent){
+TradePanel::TradePanel(QWidget* parent, int exchange){
     TextPanel::init(this);
+    this->exchange = exchange;
+    
     text = TextPanel::textPanel;
     
     isBuy = true;

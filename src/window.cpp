@@ -67,9 +67,10 @@ HomeView::~HomeView(){
 
 void HomeView::darkTheme(){
     // Theme
-    view->page()->runJavaScript( R"javascript(
+    if (exchange == LUNO_EXCHANGE)
+        view->page()->runJavaScript( R"javascript(
                                     tvWidget.changeTheme("Dark");
-                                )javascript");
+                                    )javascript");
     
     workPanel->darkTheme();
     livePanel->darkTheme();
@@ -77,9 +78,10 @@ void HomeView::darkTheme(){
 }
 void HomeView::lightTheme() {
     // Theme
-    view->page()->runJavaScript( R"javascript(
+    if (exchange == LUNO_EXCHANGE)
+        view->page()->runJavaScript( R"javascript(
                                     tvWidget.changeTheme("Light");
-                                )javascript");
+                                    )javascript");
     
     livePanel->lightTheme();
     workPanel->lightTheme();

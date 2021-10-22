@@ -17,12 +17,13 @@ class TradePanel : public QWidget {
     Q_OBJECT
     TextPanel* text;
     Label* header;
+    int exchange;
     
     std::string loadHeader();
 public:
     bool isBuy;
     
-    TradePanel(QWidget* parent = nullptr);
+    TradePanel(QWidget* parent = nullptr, int exchange = LUNO_EXCHANGE);
     
     QGroupBox *livetradeview;
     QGridLayout *livetradeviewLayout;

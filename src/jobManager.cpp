@@ -1,8 +1,14 @@
 #include "jobManager.hpp"
 
+// LUNO allows 1 public request p/sec and
+//             5 authenticated requests p/sec
+// VALR allows 10 public requests p/min and (1 every 10 seconds)
+//             3 authenticated requests p/sec
 
 
-JobManager::JobManager(QObject *parent) : QObject(parent) {
+JobManager::JobManager(QObject *parent, int exchange) : QObject(parent) {
+    this->exchange = exchange;
+    timeElapsed = 0;
     abort = false;
     busy = false;
     timer = new QTimer();
@@ -15,11 +21,14 @@ JobManager::~JobManager(){
 }
 
 void JobManager::onUpdate(){
+    if (timeElapsed >= 60)
+        timeElapsed = 0;
     // every second
     if (abort)
         return;
     busy = true;
-    if (!marketQueue.empty()) {
+    bool wait = (exchange == VALR_EXCHANGE) && (timeElapsed % 10 != 0);
+    if (!wait && !marketQueue.empty()) {
         JobBase* job = marketQueue.front();
         if (abort)
             return;
@@ -30,9 +39,12 @@ void JobManager::onUpdate(){
         if (job->repeat)
             marketQueue.push(job);
     }
-    // dequeue 5 from fastQueue
-    // repeat
-    size_t count = 5;
+
+    size_t count;
+    if (exchange == LUNO_EXCHANGE) // dequeue 5 from fastQueue
+        count = 5;
+    if (exchange == VALR_EXCHANGE) // dequeue 3 from fastQueue
+        count = 3;
     while (count > 0){
         if (fasterQueue.empty())
             break;
@@ -44,6 +56,7 @@ void JobManager::onUpdate(){
         count--;
     }
     busy = false;
+    timeElapsed++; // update timeElapsed afterwards, not before!!
 }
 
 void JobManager::enqueue(JobBase* job, bool isMarket){

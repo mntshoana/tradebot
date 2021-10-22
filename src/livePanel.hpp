@@ -12,13 +12,14 @@
 //
 class LivePanel : public QWidget {
     Q_OBJECT
+    int exchange;
     
 public:
     OrderPanel* orderview;
     OrderPanel* tradeview;
     TradePanel* livetrade;
     
-    LivePanel(QWidget* parent = nullptr);
+    LivePanel(QWidget* parent = nullptr, int exchange = LUNO_EXCHANGE);
     
     void lightTheme();
     void darkTheme();

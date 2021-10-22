@@ -179,9 +179,11 @@ void Job1WPArg <stream, res, param, prc_param, error,proc>::performJob(){
 class JobManager : public QObject {
 Q_OBJECT
 public:
-    JobManager(QObject* parent = nullptr);
+    JobManager(QObject* parent = nullptr, int exchange = LUNO_EXCHANGE);
     ~JobManager();
 private:
+    int exchange;
+    int timeElapsed;
     bool abort, busy;
     QTimer* timer;
     std::queue<JobBase*> marketQueue, fasterQueue;

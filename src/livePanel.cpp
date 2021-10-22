@@ -1,15 +1,19 @@
 #include "livePanel.hpp"
 
-LivePanel::LivePanel(QWidget* parent) : QWidget(parent) {
+LivePanel::LivePanel(QWidget* parent, int exchange) : QWidget(parent) {
     setGeometry(930, 0, 200, 720);
+    this->exchange = exchange;
     
+    // Order Books
     orderview = new OrderPanel(this, "PRICE", "VOLUME");
     orderview->setGeometry(0, 0, 200, 358);
     
+    // Public Trades
     tradeview = new OrderPanel(this, "Last Trade");
     tradeview->setGeometry(0, 356, 200, 225);
     
-    livetrade = new TradePanel(this);
+    // Private Bid/Ask
+    livetrade = new TradePanel(this, exchange);
     livetrade->setGeometry(0, 580, 200, 141);
     
     
