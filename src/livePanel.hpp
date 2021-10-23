@@ -5,6 +5,7 @@
 
 
 #include "lunoclient.hpp"
+#include "valrclient.hpp"
 #include "tradePanel.hpp"
 
 #include "orderPanel.hpp"

@@ -21,11 +21,12 @@ namespace VALR {
     template <class T> T& operator << (T& stream, std::vector<Balance>& balances);
 
     /* Market Functions Types */
-    /*class Order {
+    class Order {
     public:
         Order() {}
         float price;
         float volume;
+        int count;
     };
 
     class UserOrder;
@@ -41,7 +42,7 @@ namespace VALR {
         std::string FormatToShowUserOrders(std::vector<UserOrder>*);
     };
 
-    class Ticker {
+    /*class Ticker {
     public:
         Ticker() {}
         std::string pair;
@@ -80,7 +81,7 @@ namespace VALR {
         float maker;
         float taker;
     };
-
+*/
     class UserOrder {
     public:
         UserOrder(){}
@@ -98,7 +99,7 @@ namespace VALR {
         float counterFee;
         std::string pair;
     };
-
+/*
     class UserTrade : public Trade {
     public:
         UserTrade() : Trade() {}

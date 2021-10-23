@@ -1,14 +1,15 @@
-#include "lunoclient.hpp"
-
+#include "valrclient.hpp"
+#include <iostream>
 extern Client client;
 
-namespace Luno {
+namespace VALR {
+    std::string host = "https://api.valr.com";
     // GET ORDERBOOK
     //
     //
-    OrderBook LunoClient::getOrderBook(std::string pair){
-        std::string uri = "https://api.mybitx.com/api/1/orderbook_top?pair=" + pair;
-        std::string res = client.request("GET", uri.c_str());
+    OrderBook VALRClient::getOrderBook(std::string pair){
+        std::string path = "/v1/public/" + pair + "/orderbook";
+        std::string res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
         
         int httpCode = client.getHttpCode();
         if (httpCode != 200)
@@ -17,22 +18,15 @@ namespace Luno {
         OrderBook ob;
         size_t last = 0, next = 0;
         
-        // timestamp
-        last = res.find("timestamp", last);
-        last = res.find(":", last) + 1;
-        next = res.find(",", last);
-        std::string token = res.substr(last, next-last);
-        ob.timestamp = atoll(token.c_str());
-        last = next + 1;
-        
+        std::string token;
         // asks and bids
-        last = res.find("asks", last);
+        last = res.find("Asks", last);
         last = res.find("[", last) + 1;
         next = res.find("]", last);
         std::string asks = res.substr(last, next-last);
         last = next + 1;
         
-        last = res.find("bids", last);
+        last = res.find("Bids", last);
         last = res.find("[", last) + 1;
         next = res.find("]", last);
         std::string bids = res.substr(last, next-last);
@@ -41,12 +35,9 @@ namespace Luno {
         last = next = 0;
         while ((last = asks.find("{", last)) != std::string::npos) {
             Order order;
-            // price
+            
+            // ignore "side":"..."
             last = asks.find(":", last) + 2;
-            next = asks.find("\"", last);
-            token = asks.substr(last, next-last);
-            order.price = atof(token.c_str());
-            last = next + 1;
             
             // volume
             last = asks.find(":", last) + 2;
@@ -54,6 +45,24 @@ namespace Luno {
             token = asks.substr(last, next-last);
             order.volume = atof(token.c_str());
             last = next + 1;
+            
+            // price
+            last = asks.find(":", last) + 2;
+            next = asks.find("\"", last);
+            token = asks.substr(last, next-last);
+            order.price = atof(token.c_str());
+            last = next + 1;
+            
+            // ignore currencPair
+            last = asks.find(":", last) + 2;
+            
+            // orderCount
+            last = asks.find(":", last) + 1;
+            next = asks.find("}", last);
+            token = asks.substr(last, next-last);
+            order.count = atoi(token.c_str());
+            last = next + 1;
+            
             ob.asks.push_back(order);
         }
         asks.erase();
@@ -61,12 +70,9 @@ namespace Luno {
         last = next = 0;
         while ((last = bids.find("{", last)) != std::string::npos) {
             Order order;
-            // price
+            
+            // ignore "side":"..."
             last = bids.find(":", last) + 2;
-            next = bids.find("\"", last);
-            token = bids.substr(last, next-last);
-            order.price = atof(token.c_str());
-            last = next + 1;
             
             // volume
             last = bids.find(":", last) + 2;
@@ -74,6 +80,24 @@ namespace Luno {
             token = bids.substr(last, next-last);
             order.volume = atof(token.c_str());
             last = next + 1;
+            
+            // price
+            last = bids.find(":", last) + 2;
+            next = bids.find("\"", last);
+            token = bids.substr(last, next-last);
+            order.price = atof(token.c_str());
+            last = next + 1;
+            
+            // ignore currencPair
+            last = bids.find(":", last) + 2;
+            
+            // orderCount
+            last = bids.find(":", last) + 1;
+            next = bids.find("}", last);
+            token = bids.substr(last, next-last);
+            order.count = atoi(token.c_str());
+            last = next + 1;
+            
             ob.bids.push_back(order);
         }
         return ob;
@@ -81,7 +105,7 @@ namespace Luno {
     // GET FULL ORDERBOOK
     //
     //
-    OrderBook LunoClient::getFullOrderBook(std::string pair){
+    /*OrderBook LunoClient::getFullOrderBook(std::string pair){
         std::string uri = "https://api.mybitx.com/api/1/orderbook?pair=" + pair;
         std::string res = client.request("GET", uri.c_str());
         
@@ -153,7 +177,7 @@ namespace Luno {
         }
         return ob;
     }
-
+*/
     std::string OrderBook::toString(){
         std::stringstream ss;
         ss << "Timestamp: " << this->timestamp << "\n";
@@ -258,7 +282,7 @@ namespace Luno {
               //      tradeOpenByUser[(*userOrders)[i].price] = true;
         std::string countString = std::to_string(count);
         std::for_each(userOrders->begin(), userOrders->end(),
-                      [&tradeOpenByUser](Luno::UserOrder& order) {
+                      [&tradeOpenByUser](VALR::UserOrder& order) {
                         tradeOpenByUser[order.price] = true;
                         });
             for (auto order = this->asks.rbegin(); order != this->asks.rend(); order++){
@@ -301,7 +325,7 @@ namespace Luno {
         stream.append(ob.toString().c_str());
         return stream;
     }
-    /*template*/ QTextEdit& operator << /*<QTextEdit>*/(QTextEdit&, OrderBook& ob);
+    template QTextEdit& operator << <QTextEdit>(QTextEdit&, OrderBook& ob);/*
 
     // GET Ticker
     //
@@ -386,7 +410,7 @@ namespace Luno {
         stream.append(ss.str().c_str());
         return stream;
     }
-    template QTextEdit& operator << /*<QTextEdit>*/(QTextEdit& stream, Ticker& ticker);
+    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, Ticker& ticker);
 
     // GET TICKERS
     //
@@ -588,5 +612,5 @@ namespace Luno {
             }
         }
         return stream;
-    }
+    }*/
 }

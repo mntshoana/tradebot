@@ -41,7 +41,8 @@ SOURCES += lunoclient/orderFuncs.cpp lunoclient/marketFuncs.cpp \
             lunoclient/transferFuncs.cpp lunoclient/srFuncs.cpp \
             lunoclient/quoteFuncs.cpp lunoclient/accountFuncs.cpp
 HEADERS += lunoclient/lunoTypes.hpp lunoclient.hpp
-SOURCES += valrclient/sha512.cpp
+SOURCES +=  valrclient/marketFuncs.cpp \
+            valrclient/sha512.cpp
 HEADERS += valrclient/valrTypes.hpp valrclient.hpp \
             valrclient/sha512.hpp
 SOURCES += client.cpp

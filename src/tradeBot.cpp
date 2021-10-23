@@ -1,8 +1,8 @@
 #include "tradeBot.hpp"
 
 // Constructor
-TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
-    current = home = new HomeView(this, VALR_EXCHANGE); // active home screen window
+TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EXCHANGE) {
+    current = home = new HomeView(this, LUNO_EXCHANGE); // active home screen window
     
     // on update event
     connect(this, &TradeBot::finishedUpdate,
@@ -38,6 +38,14 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent) {
                              &(home->workPanel->pendingOrders->openUserOrders)),
                     true);
 
+    /*manager.enqueue(new Job1(
+                              home->livePanel->orderview,
+                              &VALR::VALRClient::getOrderBook,
+                              std::string("BTCZAR"),
+                              &VALR::OrderBook::Format),
+                     true);
+    */
+    
     installEventFilter(this);
 }
 
@@ -88,7 +96,7 @@ void TradeBot::OnUpdate() {
     
         if (*timerCount % 10 == 0){
             home->workPanel->pendingOrders->clearItems();
-            home->workPanel->pendingOrders->addOrders();
+            home->workPanel->pendingOrders->addOrders(); 
           //  home->workPanel->autoPlayground->runScript();
         }
             
@@ -151,10 +159,10 @@ void TradeBot::loadLocalTicks(){
             *timestamp = home->ticks.back().timestamp;
         }
         else
-            *timestamp = QDateTime::currentMSecsSinceEpoch();;
+            *timestamp = QDateTime::currentMSecsSinceEpoch();
     }
     else {
-        *timestamp = QDateTime::currentMSecsSinceEpoch();;
+        *timestamp = QDateTime::currentMSecsSinceEpoch();
         file.clear();
     }
 }

@@ -14,6 +14,7 @@
 #include <QStyleOption>
 
 #include "lunoclient.hpp"
+#include "valrclient.hpp"
 #include "lineBlock.hpp"
 #include "textPanel.hpp"
 

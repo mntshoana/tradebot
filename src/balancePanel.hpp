@@ -8,6 +8,7 @@
 #include <QStyleOption>
 
 #include "lunoclient.hpp"
+#include "valrclient.hpp"
 #include "textPanel.hpp"
 
 class BalancePanel : public QWidget {
