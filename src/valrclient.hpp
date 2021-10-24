@@ -9,8 +9,8 @@ namespace VALR {
     public:
         /* Market Functions */
         static OrderBook getOrderBook(std::string pair);
-        /*static OrderBook getFullOrderBook(std::string pair);
-        static Ticker getTicker(std::string pair);
+        static OrderBook getFullOrderBook(std::string pair);
+        /*static Ticker getTicker(std::string pair);
         static std::vector<Ticker> getTickers();
         static std::vector<Trade> getTrades(std::string pair, unsigned long long since = 0);
 

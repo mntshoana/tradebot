@@ -104,10 +104,10 @@ namespace VALR {
     }
     // GET FULL ORDERBOOK
     //
-    //
-    /*OrderBook LunoClient::getFullOrderBook(std::string pair){
-        std::string uri = "https://api.mybitx.com/api/1/orderbook?pair=" + pair;
-        std::string res = client.request("GET", uri.c_str());
+    //X
+    OrderBook VALRClient::getFullOrderBook(std::string pair){
+        std::string path = "/v1/public/" + pair + "/orderbook/full";
+        std::string res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
         
         int httpCode = client.getHttpCode();
         if (httpCode != 200)
@@ -116,36 +116,36 @@ namespace VALR {
         OrderBook ob;
         size_t last = 0, next = 0;
         
-        // timestamp
-        last = res.find("timestamp", last);
-        last = res.find(":", last) + 1;
-        next = res.find(",", last);
-        std::string token = res.substr(last, next-last);
-        ob.timestamp = atoll(token.c_str());
-        last = next + 1;
+        std::string token;
         
         // asks and bids
-        last = res.find("asks", last);
+        last = res.find("Asks", last);
         last = res.find("[", last) + 1;
         next = res.find("]", last);
         std::string asks = res.substr(last, next-last);
         last = next + 1;
         
-        last = res.find("bids", last);
+        last = res.find("Bids", last);
         last = res.find("[", last) + 1;
         next = res.find("]", last);
         std::string bids = res.substr(last, next-last);
+        
+        // timestamp
+        last = res.find("LastChange", last);
+        last = res.find(":", last) + 2;
+        next = res.find("\"", last);
+        token = res.substr(last, next-last);
+        ob.timestamp = token;
+        last = next + 1;
+        
         res.erase();
         
         last = next = 0;
         while ((last = asks.find("{", last)) != std::string::npos) {
             Order order;
-            // price
+            
+            // ignore "side":"..."
             last = asks.find(":", last) + 2;
-            next = asks.find("\"", last);
-            token = asks.substr(last, next-last);
-            order.price = atof(token.c_str());
-            last = next + 1;
             
             // volume
             last = asks.find(":", last) + 2;
@@ -153,6 +153,31 @@ namespace VALR {
             token = asks.substr(last, next-last);
             order.volume = atof(token.c_str());
             last = next + 1;
+            
+            // price
+            last = asks.find(":", last) + 2;
+            next = asks.find("\"", last);
+            token = asks.substr(last, next-last);
+            order.price = atof(token.c_str());
+            last = next + 1;
+            
+            // ignore currencPair
+            last = asks.find(":", last) + 2;
+            
+            // id
+            last = asks.find(":", last) + 2;
+            next = asks.find("\"", last);
+            token = asks.substr(last, next-last);
+            order.id = token;
+            last = next + 1;
+            
+            // orderCount
+            last = asks.find(":", last) + 1;
+            next = asks.find("}", last);
+            token = asks.substr(last, next-last);
+            order.count = atoi(token.c_str());
+            last = next + 1;
+            
             ob.asks.push_back(order);
         }
         asks.erase();
@@ -160,12 +185,9 @@ namespace VALR {
         last = next = 0;
         while ((last = bids.find("{", last)) != std::string::npos) {
             Order order;
-            // price
+            
+            // ignore "side":"..."
             last = bids.find(":", last) + 2;
-            next = bids.find("\"", last);
-            token = bids.substr(last, next-last);
-            order.price = atof(token.c_str());
-            last = next + 1;
             
             // volume
             last = bids.find(":", last) + 2;
@@ -173,25 +195,56 @@ namespace VALR {
             token = bids.substr(last, next-last);
             order.volume = atof(token.c_str());
             last = next + 1;
+            
+            // price
+            last = bids.find(":", last) + 2;
+            next = bids.find("\"", last);
+            token = bids.substr(last, next-last);
+            order.price = atof(token.c_str());
+            last = next + 1;
+            
+            // ignore currencPair
+            last = bids.find(":", last) + 2;
+            
+            // id
+            last = bids.find(":", last) + 2;
+            next = bids.find("\"", last);
+            token = bids.substr(last, next-last);
+            order.id = token;
+            last = next + 1;
+            
+            // orderCount
+            last = bids.find(":", last) + 1;
+            next = bids.find("}", last);
+            token = bids.substr(last, next-last);
+            order.count = atoi(token.c_str());
+            last = next + 1;
+            
             ob.bids.push_back(order);
         }
         return ob;
     }
-*/
+
     std::string OrderBook::toString(){
         std::stringstream ss;
         ss << "Timestamp: " << this->timestamp << "\n";
         
         ss << "Asks\n";
         for (Order order : this->asks){
+            if (!order.id.empty())
+                ss << "ID: " << order.id << ",  ";
             ss << "Price: " << order.price << " ";
             ss << "Volume: " << order.volume << ",  ";
+            ss << "Count: " << order.count << ",  ";
         }
 
         ss << "\n" << "Bids\n";
         for (Order order : this->bids){
+            if (!order.id.empty())
+                ss << "ID: " << order.id << ",  ";
             ss << "Price: " << order.price << " ";
             ss << "Volume: " << order.volume << ",  ";
+            ss << "Count: " << order.count << ",  ";
         }
         return ss.str();
     }

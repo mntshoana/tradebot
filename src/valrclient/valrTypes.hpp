@@ -24,9 +24,11 @@ namespace VALR {
     class Order {
     public:
         Order() {}
+        std::string id;
         float price;
         float volume;
-        int count;
+        int count; // count represents a tally with partial OrderBook (40 bids and 40 asks prices, orders with matching prices are tallied by count)
+                   // count represents a position in queue when OrderBook is complete. Orders with matching price are seperate orders and are not tallied)
     };
 
     class UserOrder;
@@ -36,7 +38,7 @@ namespace VALR {
         OrderBook() {};
         std::vector<Order> asks;
         std::vector<Order> bids;
-        long long timestamp;
+        std::string timestamp;
         std::string toString();
         std::string Format();
         std::string FormatToShowUserOrders(std::vector<UserOrder>*);

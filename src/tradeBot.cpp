@@ -40,12 +40,12 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
 
     /*manager.enqueue(new Job1(
                               home->livePanel->orderview,
-                              &VALR::VALRClient::getOrderBook,
+                              &VALR::VALRClient::getFullOrderBook,
                               std::string("BTCZAR"),
                               &VALR::OrderBook::Format),
-                     true);
-    */
+                     true);*/
     
+    //*home->workPanel->text << VALR::VALRClient::getOrderBook("BTCZAR").toString();
     installEventFilter(this);
 }
 
