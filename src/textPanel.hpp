@@ -13,9 +13,12 @@ class TextPanel : public QWidget {
 public:
     static TextPanel* textPanel;
 
-    TextPanel& operator<< (std::string str);
+    TextPanel& operator<< (const std::string str);
+    
     QTextEdit& getQText();
     void setGeometry(int ax, int ay, int aw, int ah);
+    operator QTextEdit&();
+    
     static void init(QWidget* parent);
 };
 

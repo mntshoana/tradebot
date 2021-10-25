@@ -32,7 +32,8 @@ public:
     QPushButton* request;
     
     void setGeometry(int ax, int ay, int aw, int ah);
-
+    
+    
     public slots:
         void clickedLink(const QUrl& url);
     private slots:

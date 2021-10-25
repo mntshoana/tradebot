@@ -451,16 +451,20 @@ namespace VALR {
         return ticker;
     }
 
-    template <class T> T& operator << (T& stream, Ticker& ticker) {
+    std::string Ticker::toString(){
         std::stringstream ss;
-        ss << "Pair: " << ticker.pair << "\n";
-        ss << "Timestamp: " << ticker.timestamp << "\n";
-        ss << "Bid: " << ticker.bid << "\n";
-        ss << "Ask: " << ticker.ask << "\n";
-        ss << "Last trade: " << ticker.lastTrade << "\n";
-        ss << "Rolling 24 hour volume: " << ticker.rollingVolume << "\n";
-        ss << "Status: " << ticker.status << "\n";
-        stream.append(ss.str().c_str());
+        ss << "Pair: " << pair << "\n";
+        ss << "Timestamp: " << timestamp << "\n";
+        ss << "Bid: " << bid << "\n";
+        ss << "Ask: " << ask << "\n";
+        ss << "Last trade: " << lastTrade << "\n";
+        ss << "Rolling 24 hour volume: " << rollingVolume << "\n";
+        ss << "Status: " << status << "\n";
+        return ss.str();
+    }
+    template <class T> T& operator << (T& stream, Ticker& ticker) {
+        
+        stream.append(ticker.toString().c_str());
         return stream;
     }
     template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, Ticker& ticker);
@@ -539,7 +543,7 @@ namespace VALR {
         }
         return tickers;
     }
-
+                                                                        
     template <class T> T& operator << (T& stream,  std::vector<Ticker>& tickers) {
         for (Ticker& ticker : tickers){
             stream << ticker;

@@ -12,7 +12,7 @@ TextPanel::TextPanel (QWidget* parent) : QWidget(parent){
     text->setText("");
 }
 
-TextPanel& TextPanel::operator<< (std::string str) {
+TextPanel& TextPanel::operator<< (const std::string str) {
     text->append(str.c_str());
     return *this;
 }
@@ -30,4 +30,8 @@ QTextEdit& TextPanel::getQText(){
 
 void TextPanel::setGeometry(int ax, int ay, int aw, int ah) {
     text->setGeometry(0, 0, aw, ah);
+}
+
+TextPanel::operator QTextEdit&(){
+    return *this->text;
 }
