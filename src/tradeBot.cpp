@@ -46,7 +46,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                      true);*/
     
     //*home->workPanel->text << VALR::VALRClient::getOrderBook("BTCZAR").toString();
-    //for (auto currency : VALR::VALRClient::getCurrencies())
+    //for (auto currency : VALR::VALRClient::getCurrencyPairs())
       //  home->workPanel->text->getQText() << currency;
     installEventFilter(this);
 }

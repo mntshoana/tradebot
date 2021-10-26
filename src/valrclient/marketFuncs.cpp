@@ -469,6 +469,134 @@ namespace VALR {
         return stream;
     }
     template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, std::vector<CurrencyInfo>& currencies);
+
+    std::vector<CurrencyPairInfo> VALRClient::getCurrencyPairs(){
+        std::string path = "/v1/public/pairs";
+        std::string res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::vector<CurrencyPairInfo> list;
+        size_t last = 0, next = 0;
+        
+        std::string token;
+
+        while ((last = res.find("{", last)) != std::string::npos) {
+            CurrencyPairInfo info;
+            
+            // Symbol
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.symbol = token;
+            last = next + 1;
+            
+            // Base currency
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.baseCurrency = token;
+            last = next + 1;
+            
+            // Quote currency
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.quoteCurrency = token;
+            last = next + 1;
+            
+            // Currency pair's short name
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.shortName = token;
+            last = next + 1;
+            
+            // isActive
+            last = res.find(":", last) + 1;
+            next = res.find(",", last);
+            token = res.substr(last, next-last);
+            info.isActive = (token == "true") ? true : false;
+            last = next + 1;
+            
+            // min base amount
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.baseMinTradable = atof(token.c_str());
+            last = next + 1;
+            
+            // max base amount
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.baseMaxTradable = atof(token.c_str());
+            last = next + 1;
+            
+            // min quote amount
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.quoteMinTradable = atof(token.c_str());
+            last = next + 1;
+            
+            // max quote amount
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.quoteMaxTradable = atof(token.c_str());
+            last = next + 1;
+            
+            // Tick size
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.tickSize = atoi(token.c_str());
+            last = next + 1;
+            
+            // decimalPlace
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.baseDecimalCount = atoi(token.c_str());
+            last = next + 1;
+            
+            list.push_back(info);
+        }
+        res.erase();
+        return list;
+    }
+
+    std::string CurrencyPairInfo::toString(){
+        std::stringstream ss;
+        ss << "Symbol: " << symbol << "\n";
+        ss << "Base currency: " << baseCurrency << "\n";
+        ss << "Quote currency: " << quoteCurrency << "\n";
+        ss << "Is active: " << isActive << "\n";
+        ss << "Short name: " << shortName << "\n";
+        ss << "Minimum base amount: " << baseMinTradable << "\n";
+        ss << "Maximum base amount: " << baseMaxTradable << "\n";
+        ss << "Minimum quote amount: " << quoteMinTradable << "\n";
+        ss << "Maximum base amount: " << quoteMaxTradable << "\n";
+        ss << "Tick size: " << tickSize << "\n";
+        ss << "Base decimal places: " << baseDecimalCount << "\n";
+        
+        return ss.str();
+    }
+    template <class T> T& operator << (T& stream, CurrencyPairInfo& currency) {
+        stream.append(currency.toString().c_str());
+        return stream;
+    }
+    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, CurrencyPairInfo& ticker);
+
+    template <class T> T& operator << (T& stream, std::vector<CurrencyPairInfo>& currencies) {
+        for (CurrencyPairInfo& currency : currencies)
+            stream << currency;
+        return stream;
+    }
+    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, std::vector<CurrencyPairInfo>& currencies);
 /*
     // GET Ticker
     //

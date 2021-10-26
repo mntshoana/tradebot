@@ -56,8 +56,28 @@ namespace VALR {
         std::string toString();
     };
 
-    template <class T> T& operator << (T& stream, CurrencyInfo& balance);
-    template <class T> T& operator << (T& stream, std::vector<CurrencyInfo>& balances);
+    template <class T> T& operator << (T& stream, CurrencyInfo& currency);
+    template <class T> T& operator << (T& stream, std::vector<CurrencyInfo>& currencies);
+
+    class CurrencyPairInfo {
+    public:
+        std::string symbol;
+        std::string baseCurrency;
+        std::string quoteCurrency;
+        bool isActive;
+        std::string shortName;
+        float baseMinTradable;
+        float baseMaxTradable;
+        float quoteMinTradable;
+        float quoteMaxTradable;
+        int tickSize;
+        int baseDecimalCount;
+        
+        std::string toString();
+    };
+
+    template <class T> T& operator << (T& stream, CurrencyPairInfo& balance);
+    template <class T> T& operator << (T& stream, std::vector<CurrencyPairInfo>& balances);
 /*
     class Ticker {
     public:

@@ -11,6 +11,7 @@ namespace VALR {
         static OrderBook getOrderBook(std::string pair);
         static OrderBook getFullOrderBook(std::string pair);
         static std::vector<CurrencyInfo> getCurrencies();
+        static std::vector<CurrencyPairInfo> getCurrencyPairs();
         /*static Ticker getTicker(std::string pair);
         static std::vector<Ticker> getTickers();
         static std::vector<Trade> getTrades(std::string pair, unsigned long long since = 0);
