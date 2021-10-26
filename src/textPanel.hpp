@@ -17,7 +17,6 @@ public:
     
     QTextEdit& getQText();
     void setGeometry(int ax, int ay, int aw, int ah);
-    operator QTextEdit&();
     
     static void init(QWidget* parent);
 };

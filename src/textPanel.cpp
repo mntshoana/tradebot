@@ -31,7 +31,3 @@ QTextEdit& TextPanel::getQText(){
 void TextPanel::setGeometry(int ax, int ay, int aw, int ah) {
     text->setGeometry(0, 0, aw, ah);
 }
-
-TextPanel::operator QTextEdit&(){
-    return *this->text;
-}

@@ -115,7 +115,7 @@ namespace VALR {
         
         OrderBook ob;
         size_t last = 0, next = 0;
-        
+        std::cout << res << std::endl;
         std::string token;
         
         // asks and bids
@@ -378,8 +378,98 @@ namespace VALR {
         stream.append(ob.toString().c_str());
         return stream;
     }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit&, OrderBook& ob);/*
+    template QTextEdit& operator << <QTextEdit>(QTextEdit&, OrderBook& ob);
 
+    // Get Currencies
+    //
+    //
+    std::vector<CurrencyInfo> VALRClient::getCurrencies(){
+        std::string path = "/v1/public/currencies";
+        std::string res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::vector<CurrencyInfo> list;
+        size_t last = 0, next = 0;
+        
+        std::string token;
+
+        while ((last = res.find("{", last)) != std::string::npos) {
+            CurrencyInfo info;
+            
+            // Symbol
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.symbol = token;
+            last = next + 1;
+            
+            // isActive
+            last = res.find(":", last) + 1;
+            next = res.find(",", last);
+            token = res.substr(last, next-last);
+            info.isActive = (token == "true") ? true : false;
+            last = next + 1;
+            
+            // short Name
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.shortName = token;
+            last = next + 1;
+            
+            // long Name
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.longName = token;
+            last = next + 1;
+            
+            // decimalPlace
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.decimalCount = atoi(token.c_str());
+            last = next + 1;
+            
+            // withdrawalDecimalPlace
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.withdrawalDecimalCount = atoi(token.c_str());
+            last = next + 1;
+            
+            list.push_back(info);
+        }
+        res.erase();
+        return list;
+    }
+
+    std::string CurrencyInfo::toString(){
+        std::stringstream ss;
+        ss << "Symbol: " << symbol << "\n";
+        ss << "Is Active: " << isActive << "\n";
+        ss << "Short Name: " << shortName << "\n";
+        ss << "Long Name: " << longName << "\n";
+        ss << "Decimals: " << decimalCount << " ";
+        ss << "(withdrawal: " << withdrawalDecimalCount << ")\n";
+        return ss.str();
+    }
+    template <class T> T& operator << (T& stream, CurrencyInfo& currency) {
+        stream.append(currency.toString().c_str());
+        return stream;
+    }
+    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, CurrencyInfo& ticker);
+
+    template <class T> T& operator << (T& stream, std::vector<CurrencyInfo>& currencies) {
+        for (CurrencyInfo& currency : currencies)
+            stream << currency;
+        return stream;
+    }
+    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, std::vector<CurrencyInfo>& currencies);
+/*
     // GET Ticker
     //
     //

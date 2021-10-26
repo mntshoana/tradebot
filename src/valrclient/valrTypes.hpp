@@ -44,7 +44,22 @@ namespace VALR {
         std::string FormatToShowUserOrders(std::vector<UserOrder>*);
     };
 
-    /*class Ticker {
+    class CurrencyInfo {
+    public:
+        std::string symbol;
+        bool isActive;
+        std::string shortName;
+        std::string longName;
+        int decimalCount;
+        int withdrawalDecimalCount;
+        
+        std::string toString();
+    };
+
+    template <class T> T& operator << (T& stream, CurrencyInfo& balance);
+    template <class T> T& operator << (T& stream, std::vector<CurrencyInfo>& balances);
+/*
+    class Ticker {
     public:
         Ticker() {}
         std::string pair;
@@ -58,7 +73,7 @@ namespace VALR {
         std::string toString();
 
     };
-
+/*
     class Trade {
     public:
         Trade() {}
