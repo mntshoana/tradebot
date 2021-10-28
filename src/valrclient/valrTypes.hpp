@@ -1,6 +1,10 @@
 #ifndef valrTypes_h
 #define valrTypes_h
 
+#define declarePrintable(type) \
+    template <class T> T& operator << (T& stream, type& balance); \
+    template <class T> T& operator << (T& stream, std::vector<type>& balances);
+
 #include <string>
 #include <vector>
 
@@ -18,7 +22,7 @@ namespace VALR {
     };
 
     template <class T> T& operator << (T& stream, Balance& balance);
-    template <class T> T& operator << (T& stream, std::vector<Balance>& balances);
+    template <class T> T& operator << (T& stream, std::vector<Balance>& balances)
 
     /* Market Functions Types */
     class Order {
@@ -55,9 +59,7 @@ namespace VALR {
         
         std::string toString();
     };
-
-    template <class T> T& operator << (T& stream, CurrencyInfo& currency);
-    template <class T> T& operator << (T& stream, std::vector<CurrencyInfo>& currencies);
+    declarePrintable(CurrencyInfo);
 
     class CurrencyPairInfo {
     public:
@@ -76,8 +78,7 @@ namespace VALR {
         std::string toString();
     };
 
-    template <class T> T& operator << (T& stream, CurrencyPairInfo& balance);
-    template <class T> T& operator << (T& stream, std::vector<CurrencyPairInfo>& balances);
+    declarePrintable(CurrencyPairInfo);
 /*
     class Ticker {
     public:
@@ -170,5 +171,21 @@ namespace VALR {
     template <class T> T& operator << (T& stream, Withdrawal& fee);
     template <class T> T& operator << (T& stream, std::vector<Withdrawal>& trades);*/
 }
+
+#define declarePrintable(type) /*remove**/
+
+#define printableDefinition(type) \
+    template <class T> T& operator << (T& stream, type& variable) { \
+        stream.append(variable.toString().c_str()); \
+        return stream; \
+    }       \
+    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, type& variable); \
+            \
+    template <class T> T& operator << (T& stream, std::vector<type>& vars) {\
+        for (type& variable : vars) \
+            stream << variable; \
+        return stream; \
+    }       \
+    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream,  std::vector<type>& vars);
 
 #endif /* valrTypes_h */

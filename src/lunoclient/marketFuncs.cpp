@@ -374,24 +374,6 @@ namespace Luno {
         return ticker;
     }
 
-    std::string Ticker::toString(){
-        std::stringstream ss;
-        ss << "Pair: " << pair << "\n";
-        ss << "Timestamp: " << timestamp << "\n";
-        ss << "Bid: " << bid << "\n";
-        ss << "Ask: " << ask << "\n";
-        ss << "Last trade: " << lastTrade << "\n";
-        ss << "Rolling 24 hour volume: " << rollingVolume << "\n";
-        ss << "Status: " << status << "\n";
-        return ss.str();
-    }
-
-    template <class T> T& operator << (T& stream, Ticker& ticker) {
-        stream.append(ticker.toString().c_str());
-        return stream;
-    }
-    template QTextEdit& operator << (QTextEdit& stream, Ticker& ticker);
-
     // GET TICKERS
     //
     //
@@ -467,14 +449,6 @@ namespace Luno {
         return tickers;
     }
 
-    template <class T> T& operator << (T& stream,  std::vector<Ticker>& tickers) {
-        for (Ticker& ticker : tickers){
-            stream << ticker;
-        }
-        return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, std::vector<Ticker>& tickers);
-
     // GET TRADES
     //
     // Returns 100 trades only (cannot be changed), from a default of since the last 24 hours
@@ -539,58 +513,4 @@ namespace Luno {
         return trades;
     }
 
-    template <class T> T& operator << (T& stream, Trade& trade){
-        std::stringstream ss;
-        ss << "Sequence: " << trade.sequence << "\n";
-        ss << "Timestamp: " << trade.timestamp << "\n";
-        ss << "Price: " << trade.price << "\n";
-        ss << "Volume: " << trade.volume << "\n";
-        ss << "Is buy: " << (trade.isBuy ? "true":"false") << "\n";
-        stream.append(ss.str().c_str());
-        return stream;
-    }
-    template <class T> T& operator << (T& stream, std::vector<Trade>& trades){
-        for (Trade& trade : trades){
-            stream << trade;
-        }
-        return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, Trade& trade);
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, std::vector<Trade>& trades);
-    std::fstream& operator << (std::fstream& stream, std::vector<Trade>& trades){
-        for (Trade& trade : trades)
-            stream << trade.sequence << ", "
-            << trade.timestamp << ", "
-            << trade.price << ", "
-            << trade.volume << ", "
-            << trade.isBuy
-               << "\n";
-        return stream;
-    }
-    std::fstream& operator >> (std::fstream& stream, std::vector<Trade>& trades){
-        std::string line, token;
-        size_t index = 0;
-        while (getline(stream, line)) {
-            if (Client::abort)
-                return stream;
-            index = 0;
-            std::stringstream s(line);
-            while (getline(s, token, ',')) {
-                if (index == 0){
-                    trades.push_back(Trade());
-                    trades.back().sequence = atoll(token.c_str());
-                }
-                if (index == 1)
-                    trades.back().timestamp = atoll(token.c_str());
-                if (index == 2)
-                    trades.back().price = atof(token.c_str());
-                if (index == 3)
-                    trades.back().volume = atof(token.c_str());
-                if (index == 4)
-                    trades.back().isBuy = atoi(token.c_str());
-                index++;
-            }
-        }
-        return stream;
-    }
 }

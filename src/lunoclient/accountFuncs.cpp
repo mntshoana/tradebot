@@ -70,23 +70,6 @@ namespace Luno {
         return balances;
     }
 
-    template <class T> T& operator << (T& stream, Balance& balance) {
-        std::stringstream ss;
-        ss << "ID: : " << balance.accountID << "\n";
-        ss << "Asset: " << balance.asset << "\n";
-        ss << "Balance: " << balance.balance << "\n";
-        ss << "Reserved: " << balance.reserved << "\n";
-        ss << "Unconfirmed: " << balance.uncomfirmed << "\n";
-        stream.append(ss.str().c_str());
-        return stream;
-    }
-    template <class T> T& operator << (T& stream, std::vector<Balance>& balances){
-        for (Balance& balance : balances){
-            stream << balance;
-        }
-        return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit&, Balance& balance);
-    template QTextEdit& operator << <QTextEdit>(QTextEdit&, std::vector<Balance>& balances);
+    
 
 }

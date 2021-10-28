@@ -1,8 +1,16 @@
 #ifndef lunoTypes_h
 #define lunoTypes_h
 
+#define declarePrintable(type) \
+    template <class T> T& operator << (T& stream, type& balance); \
+    template <class T> T& operator << (T& stream, std::vector<type>& balances);
+
 #include <string>
 #include <vector>
+#include <sstream>
+#include <fstream>
+
+#include <QTextEdit>
 
 namespace Luno {
     /* Account Functions Types*/
@@ -14,10 +22,9 @@ namespace Luno {
         float balance;
         float reserved;
         float uncomfirmed;
+        std::string toString();
     };
-
-    template <class T> T& operator << (T& stream, Balance& balance);
-    template <class T> T& operator << (T& stream, std::vector<Balance>& balances);
+    declarePrintable(Balance);
 
     /* Market Functions Types */
     class Order {
@@ -53,6 +60,7 @@ namespace Luno {
         unsigned long long getTimestamp(){return timestamp;}
         std::string toString();
     };
+    declarePrintable(Ticker);
 
     class Trade {
     public:
@@ -62,13 +70,10 @@ namespace Luno {
         float price;
         float volume;
         bool isBuy;
+        std::string toString(std::string formatType = "");
     };
+    declarePrintable(Trade);
 
-    //template <class T> T& operator << (T& stream, OrderBook& ob);
-    template <class T> T& operator << (T& stream, Ticker& tick);
-    template <class T> T& operator << (T& stream, std::vector<Ticker>& ticks);
-    template <class T> T& operator << (T& stream, Trade& trade);
-    template <class T> T& operator << (T& stream, std::vector<Trade>& trades);
     std::fstream& operator << (std::fstream& stream, std::vector<Trade>& trades);
     std::fstream& operator >> (std::fstream& stream, std::vector<Trade>& trades);
 
@@ -79,7 +84,9 @@ namespace Luno {
         float thirtyDayVolume;
         float maker;
         float taker;
+        std::string toString();
     };
+    declarePrintable(Fee);
 
     class UserOrder {
     public:
@@ -97,7 +104,11 @@ namespace Luno {
         float baseFee;
         float counterFee;
         std::string pair;
+        
+        std::string toString();
     };
+    declarePrintable(UserOrder);
+
 
     class UserTrade : public Trade {
     public:
@@ -107,13 +118,10 @@ namespace Luno {
         std::string type;
         float baseValue, baseFee;
         float counterValue, counterFee;
+        
+        std::string toString();
     };
-
-    template <class T> T& operator << (T& stream, Fee& fee);
-    template <class T> T& operator << (T& stream, UserOrder& order);
-    template <class T> T& operator << (T& stream, std::vector<UserOrder>& orders);
-    template <class T> T& operator << (T& stream, UserTrade& trade);
-    template <class T> T& operator << (T& stream, std::vector<UserTrade>& trades);
+    declarePrintable(UserTrade);
 
     /* Transfer Functions Types*/
     class Withdrawal {
@@ -130,5 +138,7 @@ namespace Luno {
     template <class T> T& operator << (T& stream, Withdrawal& fee);
     template <class T> T& operator << (T& stream, std::vector<Withdrawal>& trades);
 }
+
+#define declarePrintable(type) /*remove**/
 
 #endif /* lunoTypes_h */

@@ -585,18 +585,7 @@ namespace VALR {
         
         return ss.str();
     }
-    template <class T> T& operator << (T& stream, CurrencyPairInfo& currency) {
-        stream.append(currency.toString().c_str());
-        return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, CurrencyPairInfo& ticker);
-
-    template <class T> T& operator << (T& stream, std::vector<CurrencyPairInfo>& currencies) {
-        for (CurrencyPairInfo& currency : currencies)
-            stream << currency;
-        return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, std::vector<CurrencyPairInfo>& currencies);
+    printableDefinition(CurrencyPairInfo);
 /*
     // GET Ticker
     //

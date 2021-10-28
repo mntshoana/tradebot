@@ -44,16 +44,6 @@ namespace Luno {
         return fee;
     }
 
-    template <class T> T& operator << (T& stream, Fee& fee) {
-        std::stringstream ss;
-        ss << "30 day volume: " << fee.thirtyDayVolume << "\n";
-        ss << "Maker fee: " << fee.maker << "\n";
-        ss << "Taker fee: "  << fee.taker << "\n";
-
-        stream.append(ss.str().c_str());
-        return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit&, Fee& fee);
 
     // GET USER ORDERS
     //
@@ -203,33 +193,6 @@ namespace Luno {
         return orders;
     }
 
-    template <class T> T& operator << (T& stream, UserOrder& order) {
-        std::stringstream ss;
-        ss << "ID: : " << order.orderID << "\n";
-        ss << "Created: " << order.createdTime
-            << ", expired: " << order.expirationTime
-            << ", completed: " << order.completedTime << "\n";
-        ss << "Type: " << order.type << "\n";
-        ss << "State: " << order.state << "\n";
-        ss << "Price: " << order.price << "\n";
-        ss << "Volume: " << order.volume << "\n";
-        ss << "Base: " << order.baseValue
-        << ", fee: " << order.baseFee << "\n";
-        ss << "Counter: " << order.counterValue
-        << ", fee: " << order.counterFee << "\n";
-        ss << "Pair: " << order.pair << "\n";
-        stream.append(ss.str().c_str());
-        return stream;
-    }
-    template <class T> T& operator << (T& stream, std::vector<UserOrder>& orders){
-        for (UserOrder& order : orders){
-            stream << order;
-        }
-        return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit&, UserOrder& order);
-    template QTextEdit& operator << <QTextEdit>(QTextEdit&, std::vector<UserOrder>& order);
-
     // GET USER TRADES
     //
     // since -- Filter to trades on or after this timestamp.
@@ -366,33 +329,6 @@ namespace Luno {
            }
         return trades;
     }
-    template <class T> T& operator << (T& stream, UserTrade& trade){
-        std::stringstream ss;
-        ss << "Pair: " << trade.pair << "\n";
-        ss << "Sequence: " << trade.sequence << "\n";
-        ss << "ID: " << trade.orderID << "\n";
-        ss << "Timestamp: " << trade.timestamp << "\n";
-        ss << "Type: " << trade.type << "\n";
-        ss << "Price: " << trade.price << "\n";
-        ss << "Volume: " << trade.volume << "\n";
-        ss << "Base: " << trade.baseValue
-        << ", fee: " << trade.baseFee << "\n";
-        ss << "Counter: " << trade.counterValue
-        << ", fee: " << trade.counterFee << "\n";
-        ss << "Is_buy: " << trade.isBuy << "\n";
-
-        stream.append(ss.str().c_str());
-        return stream;
-        
-    }
-    template <class T> T& operator << (T& stream, std::vector<UserTrade>& trades){
-        for (UserTrade& trade : trades){
-            stream << trade;
-        }
-        return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit&, UserTrade& order);
-    template QTextEdit& operator << <QTextEdit>(QTextEdit&, std::vector<UserTrade>& order);
 
     // GET ORDER DETAILS
     //
