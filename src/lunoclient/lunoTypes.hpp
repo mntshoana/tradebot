@@ -134,9 +134,11 @@ namespace Luno {
         std::string currency;
         float amount;
         float fee;
+        
+        std::string toString();
     };
-    template <class T> T& operator << (T& stream, Withdrawal& fee);
-    template <class T> T& operator << (T& stream, std::vector<Withdrawal>& trades);
+    declarePrintable(Withdrawal);
+    
 }
 
 #define declarePrintable(type) /*remove**/

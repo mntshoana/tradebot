@@ -146,5 +146,16 @@ namespace Luno {
     printableDefinition(UserTrade);
 
     /* Transfer Functions Types*/
-
+    std::string Withdrawal::toString(){
+        std::stringstream ss;
+        ss << "Timestamp: " << createdTime << "\n";
+        ss << "Withdrawal ID: " << id << "\n";
+        ss << "Type: " << type;
+        ss << " (Currency: " << currency << "\n";
+        ss << "Status: " << status << "\n";
+        ss << "Amount: "  << amount << "\n";
+        ss << "Fee: "  << fee << "\n";
+        return ss.str();
+    }
+    printableDefinition(Withdrawal);
 }
