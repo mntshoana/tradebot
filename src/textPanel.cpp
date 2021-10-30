@@ -1,5 +1,31 @@
 #include "textPanel.hpp"
 
+QTextEdit& operator << (QTextEdit& stream, std::string& variable){
+    stream.append(variable.c_str());
+    return stream;
+}
+TextPanel& operator << (TextPanel& stream, std::string& variable){
+    stream.getQText() << variable;
+    return stream;
+}
+QTextBrowser& operator<< (QTextBrowser& stream, std::string& str){
+    stream.append(str.c_str());
+    return stream;
+}
+
+QTextEdit* operator << (QTextEdit* stream, std::string& variable){
+    (*stream) << variable;
+    return stream;
+}
+TextPanel* operator << (TextPanel* stream, std::string& variable){
+    stream->getQText() << variable;
+    return stream;
+}
+QTextBrowser* operator<< (QTextBrowser* stream, std::string& str){
+    (*stream) << str;
+    return stream;
+}
+
 bool TextPanel::isInitialized = false;
 QTextEdit* TextPanel::text = nullptr;
 TextPanel* TextPanel::textPanel = nullptr;
@@ -24,7 +50,7 @@ void TextPanel::init(QWidget* parent){
     isInitialized = true;
 }
 
-QTextEdit& TextPanel::getQText(){
+QTextEdit& TextPanel::getQText() const{
     return *text;
 }
 

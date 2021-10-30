@@ -82,28 +82,6 @@ namespace Luno {
         return withdrawals;
     }
 
-    template <class T> T& operator << (T& stream, Withdrawal& w) {
-        std::stringstream ss;
-
-        ss << "Timestamp: " << w.createdTime << "\n";
-        ss << "Withdrawal ID: " << w.id << "\n";
-        ss << "Type: " << w.type;
-        ss << " (Currency: " << w.currency << "\n";
-        ss << "Status: " << w.status << "\n";
-        ss << "Amount: "  << w.amount << "\n";
-        ss << "Fee: "  << w.fee << "\n";
-
-        stream.append(ss.str().c_str());
-        return stream;
-    }
-    template <class T> T& operator << (T& stream, std::vector<Withdrawal>& w){
-        for (Withdrawal& item : w){
-            stream << item;
-        }
-        return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit&, Withdrawal& w);
-    template QTextEdit& operator << <QTextEdit>(QTextEdit&, std::vector<Withdrawal>& w);
 
     // REQUEST WITHDRAW
     //

@@ -1,13 +1,25 @@
 #include "lunoTypes.hpp"
-#include "client.hpp"
 
 #define printableDefinition(type) \
-    template <class T> T& operator << (T& stream, type& variable) { \
-        stream.append(variable.toString().c_str()); \
+    TextPanel& operator << (TextPanel& stream,  const type& variable) { \
+    stream.getQText().append(variable.toString().c_str()); \
         return stream; \
-    }       \
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, type& variable); \
-            \
+    }\
+    QTextEdit& operator << (QTextEdit& stream, const type& variable) { \
+    stream.append(variable.toString().c_str()); \
+        return stream; \
+    }\
+    TextPanel* operator << (TextPanel* stream, const type& variable) { \
+        (*stream) << variable; \
+        return stream; \
+    } \
+    QTextEdit* operator << (QTextEdit* stream, const type& variable) { \
+        (*stream) << variable; \
+        return stream; \
+    }
+
+            
+#define printableList(type) \
     template <class T> T& operator << (T& stream, std::vector<type>& vars) {\
         for (type& variable : vars) \
             stream << variable; \
@@ -15,22 +27,155 @@
     }       \
     template QTextEdit& operator << <QTextEdit>(QTextEdit& stream,  std::vector<type>& vars);
 
+bool abortStatus();
 namespace Luno {
-    /* Account Functions Types*/
-    std::string Balance::toString(){
-        std::stringstream ss;
-        ss << "ID: : " << accountID << "\n";
-        ss << "Asset: " << asset << "\n";
-        ss << "Balance: " << balance << "\n";
-        ss << "Reserved: " << reserved << "\n";
-        ss << "Unconfirmed: " << uncomfirmed << "\n";
-        ss.str();
-        return ss.str();
-    }
-    printableDefinition(Balance);
 
     /* Market Functions Types */
-    std::string Ticker::toString(){
+    std::string OrderBook::toString() const{
+        std::stringstream ss;
+        ss << "Timestamp: " << this->timestamp << "\n";
+        
+        ss << "Asks\n";
+        for (Order order : this->asks){
+            ss << "Price: " << order.price << " ";
+            ss << "Volume: " << order.volume << ",  ";
+        }
+        ss << "\n" << "Bids\n";
+        for (Order order : this->bids){
+            ss << "Price: " << order.price << " ";
+            ss << "Volume: " << order.volume << ",  ";
+        }
+        return ss.str();
+    }
+
+
+    std::string OrderBook::FormatHTML() const{
+        std::stringstream ss;
+        ss << std::fixed;
+        ss << R"(
+                <style>
+                table {width: 100%;}
+                tr { padding: 15px;}
+                a {
+                    color: inherit;
+                    text-decoration: none;
+                }
+                td {
+                    padding: 2px 4px 1px 2px;
+                    text-align: center;
+                    font-size: 15px;
+                    font-weight: 700;
+                }
+                .Ask a {color: rgb(192, 51, 35);}
+                .Bid a {color: rgb(54, 136, 87);}
+                .Mid {padding: 5px 2px;}
+                </style>
+                <table width=100%>
+        )";
+        
+        for (auto order = this->asks.rbegin(); order != this->asks.rend(); order++){
+            ss << "<tr>\n";
+            ss << "<td class=Ask>";
+            ss << std::setprecision(0);
+            ss << "<a href=\"" << order->price << "\">";
+            ss  << order->price;
+            ss << "</a></td>\n";
+            
+            ss << "<td>"
+                << std::setprecision(6)
+                << "<p>" <<  order->volume << "</p>"
+                << "</td>\n";
+            ss << "</tr>";
+        }
+        ss << "\n<tr><td class=Mid colspan=2>"
+                << std::setprecision(0) << (this->asks[0].price - this->bids[0].price)
+                << " Spread </td></tr>";
+        for (Order order : this->bids){
+            ss << "\n<tr>";
+            ss << "\n<td class=Bid>";
+            ss << std::setprecision(0);
+            ss << "<a href=\"" << order.price << "\">";
+            ss << order.price;
+            ss << "</a></td>";
+            ss << "\n<td>" << std::setprecision(6) << order.volume<< "</td>";
+            ss << "\n</tr>";
+        }
+        ss << "</table>\n";
+        return ss.str();
+    }
+
+    std::string OrderBook::FormatHTMLWith(std::vector<UserOrder>* userOrders){
+            std::stringstream ss;
+            ss << std::fixed;
+            ss << R"(
+                    <style>
+                    table {width: 100%; border-collapse:collapse;}
+                    tr { padding: 15px;}
+                    a {
+                        color: inherit;
+                        text-decoration: none;
+                    }
+                    td {
+                        padding: 2px 4px 1px 2px;
+                        text-align: center;
+                        font-size: 15px;
+                        font-weight: 700;
+                    }
+                    .Ask a {color: rgb(192, 51, 35);}
+                    .Bid a {color: rgb(54, 136, 87);}
+                    .Mid {padding: 5px 2px;}
+                    </style>
+                    <table width=100%>
+            )";
+            
+            std::map<int, bool> tradeOpenByUser;
+                
+            size_t count = userOrders->size();
+            //for (int i = 0; i < count ; i++)
+              //      tradeOpenByUser[(*userOrders)[i].price] = true;
+        std::string countString = std::to_string(count);
+        std::for_each(userOrders->begin(), userOrders->end(),
+                      [&tradeOpenByUser](Luno::UserOrder& order) {
+                        tradeOpenByUser[order.price] = true;
+                        });
+            for (auto order = this->asks.rbegin(); order != this->asks.rend(); order++){
+                float trans = order->volume / 20.0;
+                ss << "<tr "
+                    << "style=\""
+                    << "background-color:rgba(192, 51, 35, " << trans << ");\""
+                    << ">\n";
+                ss << "<td class=Ask>";
+                ss << std::setprecision(0);
+                ss << "<a href=\"" << order->price << "\">";
+                ss  << ((tradeOpenByUser[order->price]) ? "*" : " ") << order->price;
+                ss << "</a></td>\n";
+                ss << "<td> <span style=\"background: none;\">"
+                << std::setprecision(6)<< order->volume << "<span></td>\n";
+                ss << "</tr>";
+            }
+            ss << "\n<tr><td class=Mid colspan=2>"
+                    << std::setprecision(0) << (this->asks[0].price - this->bids[0].price)
+                    << " Spread </td></tr>";
+            for (Order order : this->bids){
+                float trans = order.volume / 20.0;
+                ss << "<tr "
+                    << "style=\""
+                    << "background-color:rgba(54, 136, 87, " << trans << ");\""
+                    << ">\n";
+                ss << "<td class=Bid>";
+                ss << std::setprecision(0);
+                ss << "<a href=\"" << order.price << "\">";
+                ss  << ((tradeOpenByUser[order.price]) ? "*" : " ") << order.price;
+                ss << "</a></td>\n";
+                ss << "<td> <span style=\"background: none;\">"
+                << std::setprecision(6) << order.volume<< "<span></td>\n";
+                ss << "</tr>";
+            }
+            ss << "</table>\n";
+            return ss.str();
+    }
+
+    std::string Ticker::toString() const{
         std::stringstream ss;
         ss << "Pair: " << pair << "\n";
         ss << "Timestamp: " << timestamp << "\n";
@@ -41,10 +186,9 @@ namespace Luno {
         ss << "Status: " << status << "\n";
         return ss.str();
     }
-    printableDefinition(Ticker);
 
 
-    std::string Trade::toString(std::string formatType){
+    std::string Trade::toString(std::string formatType) const{
         std::stringstream ss;
         if (formatType == "csv"){
             ss << sequence << ", "
@@ -63,18 +207,17 @@ namespace Luno {
         }
         return ss.str();
     }
-    printableDefinition(Trade);
+    
     std::fstream& operator << (std::fstream& stream, std::vector<Trade>& trades){
         for (Trade& trade : trades)
             stream << trade.toString("csv");
         return stream;
     }
-    
     std::fstream& operator >> (std::fstream& stream, std::vector<Trade>& trades){
         std::string line, token;
         size_t index = 0;
         while (getline(stream, line)) {
-            if (Client::abort)
+            if (abortStatus())
                 return stream;
             index = 0;
             std::stringstream s(line);
@@ -98,16 +241,16 @@ namespace Luno {
     }
 
     /* Order Functions Types*/
-    std::string Fee::toString(){
+    std::string Fee::toString() const{
         std::stringstream ss;
         ss << "30 day volume: " << thirtyDayVolume << "\n";
         ss << "Maker fee: " << maker << "\n";
         ss << "Taker fee: "  << taker << "\n";
         return ss.str();
     }
-    printableDefinition(Fee);
+    
 
-    std::string UserOrder::toString(){
+    std::string UserOrder::toString() const{
         std::stringstream ss;
         ss << "ID: : " << orderID << "\n";
         ss << "Created: " << createdTime
@@ -124,10 +267,9 @@ namespace Luno {
         ss << "Pair: " << pair << "\n";
         return ss.str();
     }
-    printableDefinition(UserOrder);
+    
 
-
-    std::string UserTrade::toString(){
+    std::string UserTrade::toString() const{
         std::stringstream ss;
         ss << "Pair: " << pair << "\n";
         ss << "Sequence: " << sequence << "\n";
@@ -143,10 +285,10 @@ namespace Luno {
         ss << "Is_buy: " << isBuy << "\n";
         return ss.str();
     }
-    printableDefinition(UserTrade);
+    
 
     /* Transfer Functions Types*/
-    std::string Withdrawal::toString(){
+    std::string Withdrawal::toString() const{
         std::stringstream ss;
         ss << "Timestamp: " << createdTime << "\n";
         ss << "Withdrawal ID: " << id << "\n";
@@ -157,5 +299,33 @@ namespace Luno {
         ss << "Fee: "  << fee << "\n";
         return ss.str();
     }
-    printableDefinition(Withdrawal);
+
+
+    /* Account Functions Types*/
+    std::string Balance::toString() const{
+        std::stringstream ss;
+        ss << "ID: : " << accountID << "\n";
+        ss << "Asset: " << asset << "\n";
+        ss << "Balance: " << balance << "\n";
+        ss << "Reserved: " << reserved << "\n";
+        ss << "Unconfirmed: " << uncomfirmed << "\n";
+        ss.str();
+        return ss.str();
+    }
+    
 }
+printableDefinition(Luno::OrderBook);
+printableDefinition(Luno::Ticker);
+printableList(Luno::Ticker);
+printableDefinition(Luno::Trade);
+printableList(Luno::Trade);
+printableDefinition(Luno::Fee);
+printableList(Luno::Fee);
+printableDefinition(Luno::UserOrder);
+printableList(Luno::UserOrder);
+printableDefinition(Luno::UserTrade);
+printableList(Luno::UserTrade);
+printableDefinition(Luno::Withdrawal);
+printableList(Luno::Withdrawal);
+printableDefinition(Luno::Balance);
+printableList(Luno::Balance);

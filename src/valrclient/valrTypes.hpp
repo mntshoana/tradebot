@@ -1,15 +1,22 @@
 #ifndef valrTypes_h
 #define valrTypes_h
 
-#define declarePrintable(type) \
-    template <class T> T& operator << (T& stream, type& balance); \
-    template <class T> T& operator << (T& stream, std::vector<type>& balances);
+#define declarePrintableList(type) \
+    template <class T> const T& operator << (const T& stream, const std::vector<type>& var);
 
+#define declarePrintable(type) \
+    TextPanel& operator << (TextPanel& stream, const type& variable); \
+    QTextEdit& operator << (QTextEdit& stream, const type& variable); \
+    TextPanel* operator << (TextPanel* stream, const type& variable); \
+    QTextEdit* operator << (QTextEdit* stream, const type& variable)
+
+#include "textPanel.hpp"
 #include <string>
+#include <iomanip>
 #include <vector>
+#include <sstream>
 
 namespace VALR {
-
     /* Account Functions Types*/
     /*class Balance {
     public:
@@ -19,10 +26,11 @@ namespace VALR {
         float balance;
         float reserved;
         float uncomfirmed;
+        std::string toString();
     };
 
-    template <class T> T& operator << (T& stream, Balance& balance);
-    template <class T> T& operator << (T& stream, std::vector<Balance>& balances)
+     declarePrintable(Balance);
+     declarePrintableList(Balance);
 
     /* Market Functions Types */
     class Order {
@@ -35,17 +43,17 @@ namespace VALR {
                    // count represents a position in queue when OrderBook is complete. Orders with matching price are seperate orders and are not tallied)
     };
 
+    /* Market Functions Types */
     class UserOrder;
     class OrderBook {
-    private:
     public:
         OrderBook() {};
         std::vector<Order> asks;
         std::vector<Order> bids;
         std::string timestamp;
-        std::string toString();
-        std::string Format();
-        std::string FormatToShowUserOrders(std::vector<UserOrder>*);
+        std::string toString()const;
+        std::string FormatHTML()const;
+        std::string FormatHTMLWith(std::vector<UserOrder>*);
     };
 
     class CurrencyInfo {
@@ -57,9 +65,9 @@ namespace VALR {
         int decimalCount;
         int withdrawalDecimalCount;
         
-        std::string toString();
+        std::string toString()const;
     };
-    declarePrintable(CurrencyInfo);
+    
 
     class CurrencyPairInfo {
     public:
@@ -75,10 +83,10 @@ namespace VALR {
         int tickSize;
         int baseDecimalCount;
         
-        std::string toString();
+        std::string toString()const;
     };
 
-    declarePrintable(CurrencyPairInfo);
+   
 /*
     class Ticker {
     public:
@@ -92,8 +100,10 @@ namespace VALR {
         std::string status;
         unsigned long long getTimestamp(){return timestamp;}
         std::string toString();
-
     };
+    declarePrintable(Ticker);
+    declarePrintableList(Ticker);
+ 
 /*
     class Trade {
     public:
@@ -103,15 +113,14 @@ namespace VALR {
         float price;
         float volume;
         bool isBuy;
+    std::string toString(std::string formatType = "");
     };
 
-    //template <class T> T& operator << (T& stream, OrderBook& ob);
-    template <class T> T& operator << (T& stream, Ticker& tick);
-    template <class T> T& operator << (T& stream, std::vector<Ticker>& ticks);
-    template <class T> T& operator << (T& stream, Trade& trade);
-    template <class T> T& operator << (T& stream, std::vector<Trade>& trades);
-    std::fstream& operator << (std::fstream& stream, std::vector<Trade>& trades);
-    std::fstream& operator >> (std::fstream& stream, std::vector<Trade>& trades);
+     declarePrintable(Trade);
+    declarePrintableList(Trade);
+
+     std::fstream& operator << (std::fstream& stream, std::vector<Trade>& trades);
+     std::fstream& operator >> (std::fstream& stream, std::vector<Trade>& trades);
 
     /* Order Functions Types*/
     /*class Fee {
@@ -120,7 +129,10 @@ namespace VALR {
         float thirtyDayVolume;
         float maker;
         float taker;
+        std::string toString();
     };
+    declarePrintable(Fee);
+    declarePrintableList(Fee);
 */
     class UserOrder {
     public:
@@ -138,6 +150,8 @@ namespace VALR {
         float baseFee;
         float counterFee;
         std::string pair;
+        
+        std::string toString();
     };
 /*
     class UserTrade : public Trade {
@@ -148,13 +162,10 @@ namespace VALR {
         std::string type;
         float baseValue, baseFee;
         float counterValue, counterFee;
+ 
+        std::string toString();
     };
-
-    template <class T> T& operator << (T& stream, Fee& fee);
-    template <class T> T& operator << (T& stream, UserOrder& order);
-    template <class T> T& operator << (T& stream, std::vector<UserOrder>& orders);
-    template <class T> T& operator << (T& stream, UserTrade& trade);
-    template <class T> T& operator << (T& stream, std::vector<UserTrade>& trades);
+    declarePrintable(UserTrade);
 
     /* Transfer Functions Types*/
     /*class Withdrawal {
@@ -167,25 +178,20 @@ namespace VALR {
         std::string currency;
         float amount;
         float fee;
+     
+        std::string toString();
     };
-    template <class T> T& operator << (T& stream, Withdrawal& fee);
-    template <class T> T& operator << (T& stream, std::vector<Withdrawal>& trades);*/
+     declarePrintable(Withdrawal);
+     */
 }
+declarePrintable(VALR::CurrencyInfo);
+declarePrintableList(VALR::CurrencyInfo);
+declarePrintable(VALR::CurrencyPairInfo);
+declarePrintableList(VALR::CurrencyPairInfo);
+declarePrintable(VALR::UserOrder);
+declarePrintable(VALR::OrderBook);
 
-#define declarePrintable(type) /*remove**/
 
-#define printableDefinition(type) \
-    template <class T> T& operator << (T& stream, type& variable) { \
-        stream.append(variable.toString().c_str()); \
-        return stream; \
-    }       \
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, type& variable); \
-            \
-    template <class T> T& operator << (T& stream, std::vector<type>& vars) {\
-        for (type& variable : vars) \
-            stream << variable; \
-        return stream; \
-    }       \
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream,  std::vector<type>& vars);
+#undef declarePrintable
 
 #endif /* valrTypes_h */

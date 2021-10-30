@@ -1,7 +1,9 @@
-#include "lunoclient.hpp"
-#include "valrclient.hpp"
+#include "client.hpp"
 #include "valrclient/hmac.hpp"
 #include <chrono>
+
+#include "textPanel.hpp"
+
 
 // to calculate time since epoch (seconds)
 decltype(std::chrono::seconds().count()) get_seconds_since_epoch()
@@ -92,4 +94,9 @@ std::string Client::request (const char* method, const char* uri, bool auth, int
 
     }
     return buffer.str();
+}
+
+
+bool abortStatus(){
+    return Client::abort;
 }

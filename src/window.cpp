@@ -2,14 +2,6 @@
 #include <QTimer>
 
 
-QTextEdit& operator<< (QTextEdit& stream, std::string str) {
-    stream.append(str.c_str());
-    return stream;
-}
-QTextBrowser& operator<< (QTextBrowser& stream, std::string str){
-    stream.append(str.c_str());
-    return stream;
-}
 
 HomeView::HomeView (QWidget *parent, int exchange) : QWidget(parent) {
     this->exchange = exchange;

@@ -30,11 +30,12 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
         Cleanup();
     });
     // begin job manager
+    
     manager.enqueue(new Job1WPArg(
                              home->livePanel->orderview,
                              &Luno::LunoClient::getOrderBook,
                              std::string("XBTZAR"),
-                             &Luno::OrderBook::FormatToShowUserOrders,
+                             &Luno::OrderBook::FormatHTMLWith,
                              &(home->workPanel->pendingOrders->openUserOrders)),
                     true);
 
@@ -46,8 +47,10 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                      true);*/
     
     //*home->workPanel->text << VALR::VALRClient::getOrderBook("BTCZAR").toString();
-    //for (auto currency : VALR::VALRClient::getCurrencyPairs())
-      //  home->workPanel->text->getQText() << currency;
+    *home->workPanel->text << VALR::VALRClient::getOrderBook("BTCZAR");
+    
+    for (auto currency : VALR::VALRClient::getCurrencyPairs())
+        *home->workPanel->text << currency;
     installEventFilter(this);
 }
 

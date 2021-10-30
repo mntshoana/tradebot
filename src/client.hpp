@@ -5,16 +5,16 @@
 #define LUNO_EXCHANGE 0
 #define VALR_EXCHANGE 1
 
-#include <QTextEdit>
 #include <curl/curl.h>
 #include <sstream>
-#include <iomanip>
+
 #include <vector>
-#include <filesystem>
+
 #include <QNetworkProxy>
 
 #include "exceptions.hpp"
 #include "objectivec.h"
+
 
 /* Internet client for accessing the REST API */
 class Client {
@@ -34,4 +34,6 @@ public:
     virtual std::string  request (const char* method, const char* uri,  bool auth = false, int exchange = LUNO_EXCHANGE, const char* payload = "");
     
 };
+
+bool abortStatus();
 #endif /* client_hpp */

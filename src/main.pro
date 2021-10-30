@@ -44,11 +44,11 @@ SOURCES += lunoclient/lunoTypes.cpp  \
 HEADERS += lunoclient/lunoTypes.hpp lunoclient.hpp
 SOURCES +=  valrclient/valrTypes.cpp \
             valrclient/marketFuncs.cpp \
-            valrclient/sha512.cpp
-HEADERS += valrclient/valrTypes.hpp valrclient.hpp \
-            valrclient/sha512.hpp
-SOURCES += client.cpp
-HEADERS += client.hpp
+HEADERS += valrclient/valrTypes.hpp valrclient.hpp
+SOURCES += client.cpp \
+            sha512.cpp
+HEADERS += client.hpp \
+            sha512.hpp hmac.hpp
 SOURCES += exceptions.cpp
 HEADERS += exceptions.hpp
 SOURCES += objectivec.mm
