@@ -14,14 +14,14 @@ namespace VALR {
         static std::vector<CurrencyPairInfo> getCurrencyPairs();
         /*static Ticker getTicker(std::string pair);
         static std::vector<Ticker> getTickers();
-        static std::vector<Trade> getTrades(std::string pair, unsigned long long since = 0);
+        static std::vector<Trade> getTrades(std::string pair, unsigned long long since = 0);*/
 
         /* Account Functions */
         // create account
         // update account
         // list pending transaction
         // list transaction
-        /*static std::vector<Balance> getBalances(std::string asset = "");
+        /*static std::vector<Balance> getBalances(std::string asset = "");*/
         
         /* Order Functions */
         /*static Fee getFeeInfo(std::string pair);
@@ -52,7 +52,7 @@ namespace VALR {
         /* Send and Receive Functions */
         /*static std::string getRecieveAddress(std::string asset);
         // Create receive address
-        
+        */
         /*prototype*/
         /* static std::string sendToAddress(std::string asset, std::string address, float amount);
         /* Danger: could lose asset*/

@@ -1,35 +1,6 @@
 #include "valrTypes.hpp"
 
-#define printableDefinition(type) \
-    TextPanel& operator << (TextPanel& stream,  const type& variable) { \
-    stream.getQText().append(variable.toString().c_str()); \
-        return stream; \
-    }\
-    QTextEdit& operator << (QTextEdit& stream, const type& variable) { \
-    stream.append(variable.toString().c_str()); \
-        return stream; \
-    }\
-    TextPanel* operator << (TextPanel* stream, const type& variable) { \
-        (*stream) << variable; \
-        return stream; \
-    } \
-    QTextEdit* operator << (QTextEdit* stream, const type& variable) { \
-        (*stream) << variable; \
-        return stream; \
-    }
-
-            
-#define printableList(type) \
-    template <class T> T& operator << (T& stream, std::vector<type>& vars) {\
-        for (type& variable : vars) \
-            stream << variable; \
-        return stream; \
-    }       \
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream,  std::vector<type>& vars);
-
 namespace VALR {
-    
-
     /* Account Functions Types*/
     std::string OrderBook::toString() const{
         std::stringstream ss;
@@ -213,6 +184,7 @@ namespace VALR {
     }
 }
 printableDefinition(VALR::OrderBook);
+printableList(VALR::OrderBook);
 printableDefinition(VALR::CurrencyInfo);
 printableList(VALR::CurrencyInfo);
 printableDefinition(VALR::CurrencyPairInfo);

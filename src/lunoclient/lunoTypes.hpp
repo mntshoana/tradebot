@@ -1,15 +1,6 @@
 #ifndef lunoTypes_h
 #define lunoTypes_h
 
-#define declarePrintableList(type) \
-    template <class T> T& operator << (T& stream, std::vector<type>& var);
-
-#define declarePrintable(type) \
-    TextPanel& operator << (TextPanel& stream, const type& variable); \
-    QTextEdit& operator << (QTextEdit& stream, const type& variable); \
-    TextPanel* operator << (TextPanel* stream, const type& variable); \
-    QTextEdit* operator << (QTextEdit* stream, const type& variable)
-
 
 #include "textPanel.hpp"
 #include <string>
@@ -145,6 +136,7 @@ namespace Luno {
 declarePrintable(Luno::Balance);
 declarePrintableList(Luno::Balance);
 declarePrintable(Luno::OrderBook);
+declarePrintableList(Luno::OrderBook);
 declarePrintable(Luno::Ticker);
 declarePrintableList(Luno::Ticker);
 declarePrintable(Luno::Trade);
@@ -157,8 +149,5 @@ declarePrintable(Luno::UserTrade);
 declarePrintableList(Luno::UserTrade);
 declarePrintable(Luno::Withdrawal);
 declarePrintableList(Luno::Withdrawal);
-
-#undef declarePrintable
-#undef declarePrintableList
 
 #endif /* lunoTypes_h */

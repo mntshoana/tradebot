@@ -1,15 +1,6 @@
 #ifndef valrTypes_h
 #define valrTypes_h
 
-#define declarePrintableList(type) \
-    template <class T> const T& operator << (const T& stream, const std::vector<type>& var);
-
-#define declarePrintable(type) \
-    TextPanel& operator << (TextPanel& stream, const type& variable); \
-    QTextEdit& operator << (QTextEdit& stream, const type& variable); \
-    TextPanel* operator << (TextPanel* stream, const type& variable); \
-    QTextEdit* operator << (QTextEdit* stream, const type& variable)
-
 #include "textPanel.hpp"
 #include <string>
 #include <iomanip>
@@ -30,7 +21,7 @@ namespace VALR {
     };
 
      declarePrintable(Balance);
-     declarePrintableList(Balance);
+     declarePrintableList(Balance);*/
 
     /* Market Functions Types */
     class Order {
@@ -104,7 +95,7 @@ namespace VALR {
     declarePrintable(Ticker);
     declarePrintableList(Ticker);
  
-/*
+
     class Trade {
     public:
         Trade() {}
@@ -120,7 +111,7 @@ namespace VALR {
     declarePrintableList(Trade);
 
      std::fstream& operator << (std::fstream& stream, std::vector<Trade>& trades);
-     std::fstream& operator >> (std::fstream& stream, std::vector<Trade>& trades);
+     std::fstream& operator >> (std::fstream& stream, std::vector<Trade>& trades);*/
 
     /* Order Functions Types*/
     /*class Fee {
@@ -165,7 +156,7 @@ namespace VALR {
  
         std::string toString();
     };
-    declarePrintable(UserTrade);
+    declarePrintable(UserTrade);*/
 
     /* Transfer Functions Types*/
     /*class Withdrawal {
@@ -184,14 +175,13 @@ namespace VALR {
      declarePrintable(Withdrawal);
      */
 }
+declarePrintable(VALR::UserOrder);
+declarePrintable(VALR::OrderBook);
+declarePrintableList(VALR::OrderBook);
 declarePrintable(VALR::CurrencyInfo);
 declarePrintableList(VALR::CurrencyInfo);
 declarePrintable(VALR::CurrencyPairInfo);
 declarePrintableList(VALR::CurrencyPairInfo);
-declarePrintable(VALR::UserOrder);
-declarePrintable(VALR::OrderBook);
 
-
-#undef declarePrintable
 
 #endif /* valrTypes_h */

@@ -1,32 +1,5 @@
 #include "lunoTypes.hpp"
 
-#define printableDefinition(type) \
-    TextPanel& operator << (TextPanel& stream,  const type& variable) { \
-    stream.getQText().append(variable.toString().c_str()); \
-        return stream; \
-    }\
-    QTextEdit& operator << (QTextEdit& stream, const type& variable) { \
-    stream.append(variable.toString().c_str()); \
-        return stream; \
-    }\
-    TextPanel* operator << (TextPanel* stream, const type& variable) { \
-        (*stream) << variable; \
-        return stream; \
-    } \
-    QTextEdit* operator << (QTextEdit* stream, const type& variable) { \
-        (*stream) << variable; \
-        return stream; \
-    }
-
-            
-#define printableList(type) \
-    template <class T> T& operator << (T& stream, std::vector<type>& vars) {\
-        for (type& variable : vars) \
-            stream << variable; \
-        return stream; \
-    }       \
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream,  std::vector<type>& vars);
-
 bool abortStatus();
 namespace Luno {
 
@@ -315,6 +288,7 @@ namespace Luno {
     
 }
 printableDefinition(Luno::OrderBook);
+printableList(Luno::OrderBook);
 printableDefinition(Luno::Ticker);
 printableList(Luno::Ticker);
 printableDefinition(Luno::Trade);

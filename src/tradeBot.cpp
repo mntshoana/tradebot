@@ -46,8 +46,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                               &VALR::OrderBook::Format),
                      true);*/
     
-    //*home->workPanel->text << VALR::VALRClient::getOrderBook("BTCZAR").toString();
-    *home->workPanel->text << VALR::VALRClient::getOrderBook("BTCZAR");
+    *home->workPanel->text << std::vector<VALR::OrderBook>{(VALR::VALRClient::getOrderBook("BTCZAR"))};
     
     for (auto currency : VALR::VALRClient::getCurrencyPairs())
         *home->workPanel->text << currency;
