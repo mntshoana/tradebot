@@ -27,7 +27,7 @@ namespace VALR {
     }
     
 
-    std::string OrderBook::FormatHTML() const{
+    std::string OrderBook::FormatHTML() {
         std::stringstream ss;
         ss << std::fixed;
         ss << R"(
@@ -182,6 +182,34 @@ namespace VALR {
         
         return ss.str();
     }
+
+    std::string OrderTypeInfo::toString()const{
+        std::stringstream ss;
+        ss << "Symbol: " << symbol << "\n";
+        ss << "Order Types: " << orderTypes << "\n";
+        
+        return ss.str();
+    }
+
+    /* Order Functions Types*/
+    std::string UserOrder::toString() const{
+        std::stringstream ss;
+        ss << "ID: : " << orderID << "\n";
+        ss << "Created: " << createdTime
+            << ", expired: " << expirationTime
+            << ", completed: " << completedTime << "\n";
+        ss << "Type: " << type << "\n";
+        ss << "State: " << state << "\n";
+        ss << "Price: " << price << "\n";
+        ss << "Volume: " << volume << "\n";
+        ss << "Base: " << baseValue
+        << ", fee: " << baseFee << "\n";
+        ss << "Counter: " << counterValue
+        << ", fee: " << counterFee << "\n";
+        ss << "Pair: " << pair << "\n";
+        return ss.str();
+    }
+
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -189,3 +217,8 @@ printableDefinition(VALR::CurrencyInfo);
 printableList(VALR::CurrencyInfo);
 printableDefinition(VALR::CurrencyPairInfo);
 printableList(VALR::CurrencyPairInfo);
+printableDefinition(VALR::OrderTypeInfo);
+printableList(VALR::OrderTypeInfo);
+
+printableDefinition(VALR::UserOrder);
+printableList(VALR::UserOrder);

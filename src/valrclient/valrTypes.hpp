@@ -43,7 +43,7 @@ namespace VALR {
         std::vector<Order> bids;
         std::string timestamp;
         std::string toString()const;
-        std::string FormatHTML()const;
+        std::string FormatHTML();
         std::string FormatHTMLWith(std::vector<UserOrder>*);
     };
 
@@ -74,6 +74,14 @@ namespace VALR {
         int tickSize;
         int baseDecimalCount;
         
+        std::string toString()const;
+    };
+
+    class OrderTypeInfo {
+    public:
+        std::string symbol;
+        std::string orderTypes;
+    
         std::string toString()const;
     };
 
@@ -142,7 +150,7 @@ namespace VALR {
         float counterFee;
         std::string pair;
         
-        std::string toString();
+        std::string toString() const;
     };
 /*
     class UserTrade : public Trade {
@@ -176,12 +184,14 @@ namespace VALR {
      */
 }
 declarePrintable(VALR::UserOrder);
+declarePrintableList(VALR::UserOrder);
 declarePrintable(VALR::OrderBook);
 declarePrintableList(VALR::OrderBook);
 declarePrintable(VALR::CurrencyInfo);
 declarePrintableList(VALR::CurrencyInfo);
 declarePrintable(VALR::CurrencyPairInfo);
 declarePrintableList(VALR::CurrencyPairInfo);
-
+declarePrintable(VALR::OrderTypeInfo);
+declarePrintableList(VALR::OrderTypeInfo);
 
 #endif /* valrTypes_h */

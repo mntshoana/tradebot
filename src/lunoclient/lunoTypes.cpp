@@ -22,7 +22,7 @@ namespace Luno {
     }
 
 
-    std::string OrderBook::FormatHTML() const{
+    std::string OrderBook::FormatHTML() {
         std::stringstream ss;
         ss << std::fixed;
         ss << R"(

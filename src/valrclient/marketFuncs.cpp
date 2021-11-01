@@ -295,7 +295,6 @@ namespace VALR {
         return list;
     }
 
-
     std::vector<CurrencyPairInfo> VALRClient::getCurrencyPairs(){
         std::string path = "/v1/public/pairs";
         std::string res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
@@ -395,6 +394,43 @@ namespace VALR {
         return list;
     }
 
+    std::vector<OrderTypeInfo> VALRClient::getOrderTypes(){
+        std::string path = "/v1/public/ordertypes";
+        std::string res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::vector<OrderTypeInfo> list;
+        size_t last = 0, next = 0;
+        
+        std::string token;
+
+        while ((last = res.find("{", last)) != std::string::npos) {
+            OrderTypeInfo info;
+            
+            // Symbol
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            info.symbol = token;
+            last = next + 1;
+            
+            // Base currency
+            last = res.find("[", last) + 1;
+            next = res.find("]", last);
+            token = res.substr(last, next-last);
+            /*remove all the " characters*/
+            token.erase(remove( token.begin(), token.end(), '\"' ),token.end());
+            info.orderTypes = token;
+            last = next + 1;
+            
+            list.push_back(info);
+        }
+        res.erase();
+        return list;
+    }
 /*
     // GET Ticker
     //

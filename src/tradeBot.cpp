@@ -39,17 +39,22 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                              &(home->workPanel->pendingOrders->openUserOrders)),
                     true);
 
-    /*manager.enqueue(new Job1(
+    /*manager.enqueue(new Job1WPArg(
                               home->livePanel->orderview,
                               &VALR::VALRClient::getFullOrderBook,
                               std::string("BTCZAR"),
-                              &VALR::OrderBook::Format),
+                              &VALR::OrderBook::FormatHTMLWith,
+                              &(home->workPanel->pendingOrders->openUserOrders)),
                      true);*/
+    /*manager.enqueue(new Job1(
+                             home->livePanel->orderview,
+                             &VALR::VALRClient::getOrderBook,
+                             std::string("BTCZAR"),
+                             &VALR::OrderBook::FormatHTML),
+                    true);*/
     
-    *home->workPanel->text << std::vector<VALR::OrderBook>{(VALR::VALRClient::getOrderBook("BTCZAR"))};
     
-    for (auto currency : VALR::VALRClient::getCurrencyPairs())
-        *home->workPanel->text << currency;
+    *home->workPanel->text << VALR::VALRClient::getOrderTypes();
     installEventFilter(this);
 }
 

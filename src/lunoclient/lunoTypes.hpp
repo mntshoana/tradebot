@@ -39,7 +39,7 @@ namespace Luno {
         std::vector<Order> bids;
         long long timestamp;
         std::string toString()const;
-        std::string FormatHTML()const;
+        std::string FormatHTML();
         std::string FormatHTMLWith(std::vector<UserOrder>*);
     };
     
