@@ -394,8 +394,11 @@ namespace VALR {
         return list;
     }
 
-    std::vector<OrderTypeInfo> VALRClient::getOrderTypes(){
-        std::string path = "/v1/public/ordertypes";
+    std::vector<OrderTypeInfo> VALRClient::getOrderTypes(std::string pair){
+        std::string path = "/v1/public/";
+        if (path.length() > 0)
+            path += pair + "/";
+        path += "ordertypes";
         std::string res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
         
         int httpCode = client.getHttpCode();
@@ -428,6 +431,23 @@ namespace VALR {
             
             list.push_back(info);
         }
+        if (pair.length() > 0){
+            OrderTypeInfo info;
+            info.symbol = pair;
+            
+            last = 0;
+            // Base currency
+            last = res.find("[", last) + 1;
+            next = res.find("]", last);
+            token = res.substr(last, next-last);
+            /*remove all the " characters*/
+            token.erase(remove( token.begin(), token.end(), '\"' ),token.end());
+            info.orderTypes = token;
+            last = next + 1;
+            
+            list.push_back(info);
+        }
+            
         res.erase();
         return list;
     }
