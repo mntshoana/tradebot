@@ -13,9 +13,8 @@ namespace VALR {
         static std::vector<CurrencyInfo> getCurrencies();
         static std::vector<CurrencyPairInfo> getCurrencyPairs();
         static std::vector<OrderTypeInfo> getOrderTypes(std::string pair = "");
-        /*static Ticker getTicker(std::string pair);
-        static std::vector<Ticker> getTickers();
-        static std::vector<Trade> getTrades(std::string pair, unsigned long long since = 0);*/
+        static std::vector<Ticker> getTickers(std::string pair = "");
+        /*static std::vector<Trade> getTrades(std::string pair, unsigned long long since = 0);*/
 
         /* Account Functions */
         // create account

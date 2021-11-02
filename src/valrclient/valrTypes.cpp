@@ -191,6 +191,20 @@ namespace VALR {
         return ss.str();
     }
 
+    std::string Ticker::toString() const {
+        std::stringstream ss;
+        ss << "Pair: " << pair << "\n";
+        ss << "Timestamp: " << timestamp << "\n";
+        ss << "Bid: " << bid << "\n";
+        ss << "Ask: " << ask << "\n";
+        ss << "Last trade: " << lastTrade << "\n";
+        ss << "Last closing price: " << lastClosed << "\n";
+        ss << "Last high price: " << high << "\n";
+        ss << "Last low price: " << low << "\n";
+        ss << "Base volume: " << baseVolume << "\n";
+        ss << "Change from previouse: " << changeFromPrevious << "\n";
+        return ss.str();
+    }
     /* Order Functions Types*/
     std::string UserOrder::toString() const{
         std::stringstream ss;
@@ -219,6 +233,8 @@ printableDefinition(VALR::CurrencyPairInfo);
 printableList(VALR::CurrencyPairInfo);
 printableDefinition(VALR::OrderTypeInfo);
 printableList(VALR::OrderTypeInfo);
+printableDefinition(VALR::Ticker);
+printableList(VALR::Ticker);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);

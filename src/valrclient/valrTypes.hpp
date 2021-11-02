@@ -41,7 +41,7 @@ namespace VALR {
         OrderBook() {};
         std::vector<Order> asks;
         std::vector<Order> bids;
-        std::string timestamp;
+        unsigned long long timestamp;
         std::string toString()const;
         std::string FormatHTML();
         std::string FormatHTMLWith(std::vector<UserOrder>*);
@@ -86,7 +86,6 @@ namespace VALR {
     };
 
    
-/*
     class Ticker {
     public:
         Ticker() {}
@@ -95,15 +94,15 @@ namespace VALR {
         float bid;
         float ask;
         float lastTrade;
-        float rollingVolume;
-        std::string status;
-        unsigned long long getTimestamp(){return timestamp;}
-        std::string toString();
+        float lastClosed;
+        float high;
+        float low;
+        float baseVolume;
+        float changeFromPrevious;
+        std::string toString() const;
     };
-    declarePrintable(Ticker);
-    declarePrintableList(Ticker);
  
-
+/*
     class Trade {
     public:
         Trade() {}
@@ -193,5 +192,7 @@ declarePrintable(VALR::CurrencyPairInfo);
 declarePrintableList(VALR::CurrencyPairInfo);
 declarePrintable(VALR::OrderTypeInfo);
 declarePrintableList(VALR::OrderTypeInfo);
+declarePrintable(VALR::Ticker);
+declarePrintableList(VALR::Ticker);
 
 #endif /* valrTypes_h */

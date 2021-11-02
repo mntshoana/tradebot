@@ -36,4 +36,5 @@ public:
 };
 
 bool abortStatus();
+long long get_seconds_since_epoch(std::string time);
 #endif /* client_hpp */

@@ -137,7 +137,7 @@ namespace VALR {
         last = res.find(":", last) + 2;
         next = res.find("\"", last);
         token = res.substr(last, next-last);
-        ob.timestamp = token;
+        ob.timestamp = get_seconds_since_epoch(token);
         last = next + 1;
         
         res.erase();
@@ -451,135 +451,33 @@ namespace VALR {
         res.erase();
         return list;
     }
-/*
-    // GET Ticker
-    //
-    //
-    Ticker LunoClient::getTicker(std::string pair){
-        std::string uri = "https://api.mybitx.com/api/1/ticker?pair=" + pair;
-        std::string res = client.request("GET", uri.c_str());
-        
-        int httpCode = client.getHttpCode();
-        if (httpCode != 200)
-            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
-        
-        Ticker ticker;
-        size_t last = 0, next = 0;
-        
-        // pair
-        last = res.find("pair", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        ticker.pair = res.substr(last, next-last);
-        last = next + 1;
-        
-        // timestamp
-        last = res.find("timestamp", last);
-        last = res.find(":", last) + 1;
-        next = res.find(",", last);
-        std::string token = res.substr(last, next-last);
-        ticker.timestamp = atoll(token.c_str());
-        last = next + 1;
-        
-        // bid
-        last = res.find("bid", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        token = res.substr(last, next-last);
-        ticker.bid = atof(token.c_str());
-        last = next + 1;
-        
-        // asks
-        last = res.find("ask", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        token = res.substr(last, next-last);
-        ticker.ask = atof(token.c_str());
-        last = next + 1;
-        
-        // last trade
-        last = res.find("last_trade", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        token = res.substr(last, next-last);
-        ticker.lastTrade = atof(token.c_str());
-        last = next + 1;
-        
-        // rolling 24 hour volume
-        last = res.find("rolling_24_hour_volume", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        token = res.substr(last, next-last);
-        ticker.rollingVolume = atof(token.c_str());
-        last = next + 1;
-        
-        // status
-        last = res.find("status", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        ticker.status = res.substr(last, next-last);
-        last = next + 1;
-        
-        return ticker;
-    }
-
-    std::string Ticker::toString(){
-        std::stringstream ss;
-        ss << "Pair: " << pair << "\n";
-        ss << "Timestamp: " << timestamp << "\n";
-        ss << "Bid: " << bid << "\n";
-        ss << "Ask: " << ask << "\n";
-        ss << "Last trade: " << lastTrade << "\n";
-        ss << "Rolling 24 hour volume: " << rollingVolume << "\n";
-        ss << "Status: " << status << "\n";
-        return ss.str();
-    }
-    template <class T> T& operator << (T& stream, Ticker& ticker) {
-        
-        stream.append(ticker.toString().c_str());
-        return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, Ticker& ticker);
 
     // GET TICKERS
     //
     //
-    std::vector<Ticker> LunoClient::getTickers(){
-        std::string uri = "https://api.mybitx.com/api/1/tickers";
-        std::string res = client.request("GET", uri.c_str());
+    std::vector<Ticker> VALRClient::getTickers(std::string pair){
+        std::string path = "/v1/public/";
+        if (path.length() > 0)
+            path += pair + "/";
+        path += "marketsummary";
+        std::string res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
         
         int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        std::vector<Ticker> tickers;
+        std::vector<Ticker> list;
         size_t last = 0, next = 0;
-        last = res.find("[", last) + 1;
+        
+        std::string token;
         
         while ((last = res.find("{", last)) != std::string::npos) {
-            tickers.push_back(Ticker());
+            list.push_back(Ticker());
         
             // pair
-            last = res.find("pair", last);
             last = res.find(":", last) + 2;
             next = res.find("\"", last);
-            tickers.back().pair = res.substr(last, next-last);
-            last = next + 1;
-            
-            // timestamp
-            last = res.find("timestamp", last);
-            last = res.find(":", last) + 1;
-            next = res.find(",", last);
-            std::string token = res.substr(last, next-last);
-            tickers.back().timestamp = atoll(token.c_str());
-            last = next + 1;
-            
-            // bid
-            last = res.find("bid", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
-            tickers.back().bid = atof(token.c_str());
+            list.back().pair = res.substr(last, next-last);
             last = next + 1;
             
             // asks
@@ -587,43 +485,71 @@ namespace VALR {
             last = res.find(":", last) + 2;
             next = res.find("\"", last);
             token = res.substr(last, next-last);
-            tickers.back().ask = atof(token.c_str());
+            list.back().ask = atof(token.c_str());
+            last = next + 1;
+            
+            // bid
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            list.back().bid = atof(token.c_str());
             last = next + 1;
             
             // last trade
-            last = res.find("last_trade", last);
             last = res.find(":", last) + 2;
             next = res.find("\"", last);
             token = res.substr(last, next-last);
-            tickers.back().lastTrade = atof(token.c_str());
+            list.back().lastTrade = atof(token.c_str());
             last = next + 1;
             
-            // rolling 24 hour volume
-            last = res.find("rolling_24_hour_volume", last);
+            // previous close
             last = res.find(":", last) + 2;
             next = res.find("\"", last);
             token = res.substr(last, next-last);
-            tickers.back().rollingVolume = atof(token.c_str());
+            list.back().lastClosed = atof(token.c_str());
             last = next + 1;
             
-            // status
-            last = res.find("status", last);
+            // Base volume
             last = res.find(":", last) + 2;
             next = res.find("\"", last);
-            tickers.back().status = res.substr(last, next-last);
+            token = res.substr(last, next-last);
+            list.back().baseVolume = atof(token.c_str());
+            last = next + 1;
+            
+            // high price
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            list.back().high = atof(token.c_str());
+            last = next + 1;
+            
+            // low price
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            list.back().low = atof(token.c_str());
+            last = next + 1;
+            
+            
+            // timestamp
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            std::string token = res.substr(last, next-last);
+            list.back().timestamp = get_seconds_since_epoch(token);
+            last = next + 1;
+            
+            
+            // Changed from previous
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            list.back().changeFromPrevious = atof(token.c_str());
             last = next + 1;
         }
-        return tickers;
+        return list;
     }
                                                                         
-    template <class T> T& operator << (T& stream,  std::vector<Ticker>& tickers) {
-        for (Ticker& ticker : tickers){
-            stream << ticker;
-        }
-        return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, std::vector<Ticker>& tickers);
-
+    /*
     // GET TRADES
     //
     // Returns 100 trades only (cannot be changed), from a default of since the last 24 hours

@@ -1,6 +1,8 @@
 #include "client.hpp"
 #include "hmac.hpp"
 #include <chrono>
+#include <locale>
+#include <iomanip>
 
 #include "textPanel.hpp"
 
@@ -15,6 +17,15 @@ decltype(std::chrono::seconds().count()) get_seconds_since_epoch()
     const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(epoch);
     // return the number of seconds
     return seconds.count();
+}
+
+// parse iso8601 string format into time since epoch (seconds)
+long long get_seconds_since_epoch(std::string time) {
+    std::tm t = {};
+    std::istringstream ss(time);
+
+    ss >> std::get_time(&t, "%Y-%m-%dT%H:%M:%S");
+    return std::mktime(&t);
 }
 
 

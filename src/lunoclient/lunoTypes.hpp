@@ -54,7 +54,6 @@ namespace Luno {
         float lastTrade;
         float rollingVolume;
         std::string status;
-        unsigned long long getTimestamp(){return timestamp;}
         std::string toString()const;
     };
    
