@@ -37,4 +37,5 @@ public:
 
 bool abortStatus();
 long long get_seconds_since_epoch(std::string time);
+std::string get_timestamp_iso8601_string(long seconds);
 #endif /* client_hpp */

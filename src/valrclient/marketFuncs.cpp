@@ -549,15 +549,34 @@ namespace VALR {
         return list;
     }
                                                                         
-    /*
+    
     // GET TRADES
     //
     // Returns 100 trades only (cannot be changed), from a default of since the last 24 hours
-    std::vector<Trade> LunoClient::getTrades(std::string pair, unsigned long long since ){
-        std::string uri = "https://api.mybitx.com/api/1/trades?pair=" + pair;
-        if (since != 0)
-            uri += "&since=" + std::to_string(since);
-        std::string res = client.request("GET", uri.c_str());
+    std::vector<Trade> VALR::VALRClient::getTrades(std::string pair, unsigned long long since, unsigned long long until, unsigned skip , unsigned limit, std::string beforeID ){
+        std::string path = "/v1/public/" + pair + "/trades";
+        int args = 0;
+        if (since != 0){
+            path += (args++ ? "&" : "?");
+            path += "startTime=" + get_timestamp_iso8601_string(since);// convert to ISO...
+        }
+        if (until != 0){
+            path += (args++ ? "&" : "?");
+            path += "endTime=" + get_timestamp_iso8601_string(until); // convert to ISO...
+        }
+        if (skip != 0){
+            path += (args++ ? "&" : "?");
+            path += "skip=" + std::to_string(skip);
+        }
+        if (limit != 0){
+            path += (args++ ? "&" : "?");
+            path += "limit=" + std::to_string(limit);
+        }
+        if (beforeID != "") {
+            path += (args++ ? "&" : "?");
+            path += "beforeId=" + beforeID;
+        }
+        std::string res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
         
         int httpCode = client.getHttpCode();
         if (httpCode != 200)
@@ -569,103 +588,63 @@ namespace VALR {
         
         while ((last = res.find("{", last)) != std::string::npos) {
             trades.push_back(Trade());
-           
-            // sequence
-            last = res.find("sequence", last);
-            last = res.find(":", last) + 1;
-            next = res.find(",", last);
-            std::string token = res.substr(last, next-last);
-            trades.back().sequence = atoll(token.c_str());
-            last = next + 1;
-               
-            // timestamp
-            last = res.find("timestamp", last);
-            last = res.find(":", last) + 1;
-            next = res.find(",", last);
-            token = res.substr(last, next-last);
-            trades.back().timestamp = atoll(token.c_str());
-            last = next + 1;
-            
             // price
-            last = res.find("price", last);
             last = res.find(":", last) + 2;
             next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            std::string token = res.substr(last, next-last);
             trades.back().price = atof(token.c_str());
             last = next + 1;
-               
-            // volume
-            last = res.find("volume", last);
+            
+            // volume (quantity)
             last = res.find(":", last) + 2;
             next = res.find("\"", last);
             token = res.substr(last, next-last);
-            trades.back().volume = atof(token.c_str());
+            trades.back().baseVolume = atof(token.c_str());
             last = next + 1;
-               
-            // isBuy
-            last = res.find("is_buy", last);
-            last = res.find(":", last) + 1;
-            next = res.find("}", last);
+            
+            // pair
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
             token = res.substr(last, next-last);
-            trades.back().isBuy = (token == "true") ? true : false;
+            trades.back().pair = token;
             last = next + 1;
+            
+            // timestamp
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            trades.back().timestamp = get_seconds_since_epoch(token);
+            last = next + 1;
+            
+            // isBuy
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            trades.back().isBuy = (token == "buy") ? true : false;
+            last = next + 1;
+            
+            // sequenceID
+            last = res.find(":", last) + 1;
+            next = res.find(",", last);
+            token = res.substr(last, next-last);
+            trades.back().sequence = atoll(token.c_str());
+            last = next + 1;
+            
+            // id
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            trades.back().id = token;
+            last = next + 1;
+            
+            // qupte volume
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            trades.back().quoteVolume = atof(token.c_str());
+            last = next + 1;               
         }
         
         return trades;
     }
-
-    template <class T> T& operator << (T& stream, Trade& trade){
-        std::stringstream ss;
-        ss << "Sequence: " << trade.sequence << "\n";
-        ss << "Timestamp: " << trade.timestamp << "\n";
-        ss << "Price: " << trade.price << "\n";
-        ss << "Volume: " << trade.volume << "\n";
-        ss << "Is buy: " << (trade.isBuy ? "true":"false") << "\n";
-        stream.append(ss.str().c_str());
-        return stream;
-    }
-    template <class T> T& operator << (T& stream, std::vector<Trade>& trades){
-        for (Trade& trade : trades){
-            stream << trade;
-        }
-        return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, Trade& trade);
-    template QTextEdit& operator << <QTextEdit>(QTextEdit& stream, std::vector<Trade>& trades);
-    std::fstream& operator << (std::fstream& stream, std::vector<Trade>& trades){
-        for (Trade& trade : trades)
-            stream << trade.sequence << ", "
-            << trade.timestamp << ", "
-            << trade.price << ", "
-            << trade.volume << ", "
-            << trade.isBuy
-               << "\n";
-        return stream;
-    }
-    std::fstream& operator >> (std::fstream& stream, std::vector<Trade>& trades){
-        std::string line, token;
-        size_t index = 0;
-        while (getline(stream, line)) {
-            if (Client::abort)
-                return stream;
-            index = 0;
-            std::stringstream s(line);
-            while (getline(s, token, ',')) {
-                if (index == 0){
-                    trades.push_back(Trade());
-                    trades.back().sequence = atoll(token.c_str());
-                }
-                if (index == 1)
-                    trades.back().timestamp = atoll(token.c_str());
-                if (index == 2)
-                    trades.back().price = atof(token.c_str());
-                if (index == 3)
-                    trades.back().volume = atof(token.c_str());
-                if (index == 4)
-                    trades.back().isBuy = atoi(token.c_str());
-                index++;
-            }
-        }
-        return stream;
-    }*/
 }

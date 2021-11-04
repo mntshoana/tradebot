@@ -1,5 +1,6 @@
 #include "valrTypes.hpp"
 
+bool abortStatus();
 namespace VALR {
     /* Account Functions Types*/
     std::string OrderBook::toString() const{
@@ -205,6 +206,60 @@ namespace VALR {
         ss << "Change from previouse: " << changeFromPrevious << "\n";
         return ss.str();
     }
+
+    std::string Trade::toString(std::string formatType) const {
+        std::stringstream ss;
+        if (formatType == "csv"){
+            ss << sequence << ", "
+            << timestamp << ", "
+            << price << ", "
+            << baseVolume << ", "
+            << isBuy
+               << "\n";
+        }
+        else {
+            ss << "Pair: " << pair << " - timesamp " << timestamp << "\n";
+            ss << "Price: " << price << "\n";
+            ss << "Volume: " << baseVolume << " (base)\n";
+            ss << "Volume: " << quoteVolume << " (quote)\n";
+            ss << "Sequence: " << sequence << "\n";
+            ss << "Trade ID: " << id << "\n";
+            ss << "Is buy: " << (isBuy ? "true":"false") << "\n";
+        }
+        return ss.str();
+    }
+
+    std::fstream& operator << (std::fstream& stream, std::vector<Trade>& trades){
+        for (Trade& trade : trades)
+            stream << trade.toString("csv");
+        return stream;
+    }
+    std::fstream& operator >> (std::fstream& stream, std::vector<Trade>& trades){
+        std::string line, token;
+        size_t index = 0;
+        while (getline(stream, line)) {
+            if (abortStatus())
+                return stream;
+            index = 0;
+            std::stringstream s(line);
+            while (getline(s, token, ',')) {
+                if (index == 0){
+                    trades.push_back(Trade());
+                    trades.back().sequence = atoll(token.c_str());
+                }
+                if (index == 1)
+                    trades.back().timestamp = atoll(token.c_str());
+                if (index == 2)
+                    trades.back().price = atof(token.c_str());
+                if (index == 3)
+                    trades.back().baseVolume = atof(token.c_str());
+                if (index == 4)
+                    trades.back().isBuy = atoi(token.c_str());
+                index++;
+            }
+        }
+        return stream;
+    }
     /* Order Functions Types*/
     std::string UserOrder::toString() const{
         std::stringstream ss;
@@ -235,6 +290,8 @@ printableDefinition(VALR::OrderTypeInfo);
 printableList(VALR::OrderTypeInfo);
 printableDefinition(VALR::Ticker);
 printableList(VALR::Ticker);
+printableDefinition(VALR::Trade);
+printableList(VALR::Trade);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);

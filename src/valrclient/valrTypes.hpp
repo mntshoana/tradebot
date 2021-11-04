@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <vector>
 #include <sstream>
+#include <fstream>
 
 namespace VALR {
     /* Account Functions Types*/
@@ -102,24 +103,24 @@ namespace VALR {
         std::string toString() const;
     };
  
-/*
+
     class Trade {
     public:
         Trade() {}
         unsigned long long sequence;
         unsigned long long timestamp;
         float price;
-        float volume;
+        float baseVolume;
+        float quoteVolume;
+        std::string pair;
+        std::string id;
         bool isBuy;
-    std::string toString(std::string formatType = "");
+    std::string toString(std::string formatType = "") const;
     };
 
-     declarePrintable(Trade);
-    declarePrintableList(Trade);
-
      std::fstream& operator << (std::fstream& stream, std::vector<Trade>& trades);
-     std::fstream& operator >> (std::fstream& stream, std::vector<Trade>& trades);*/
-
+     std::fstream& operator >> (std::fstream& stream, std::vector<Trade>& trades);
+//
     /* Order Functions Types*/
     /*class Fee {
     public:
@@ -194,5 +195,6 @@ declarePrintable(VALR::OrderTypeInfo);
 declarePrintableList(VALR::OrderTypeInfo);
 declarePrintable(VALR::Ticker);
 declarePrintableList(VALR::Ticker);
-
+declarePrintable(VALR::Trade);
+declarePrintableList(VALR::Trade);
 #endif /* valrTypes_h */
