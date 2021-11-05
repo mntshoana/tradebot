@@ -25,14 +25,14 @@ long long get_seconds_since_epoch(std::string time) {
     std::tm t = {};
     std::istringstream ss(time);
 
-    ss >> std::get_time(&t, "%Y-%m-%dT%H:%M:%S");
+    ss >> std::get_time(&t, "%Y-%m-%dT%H:%M:%S"); // note! this is not very precise, but it will do
     return std::mktime(&t);
 }
 
 // parse iso8601 string format into time since epoch (seconds)
 std::string get_timestamp_iso8601_string(long seconds) {
     time_t now {seconds}; // limited to long by time_t
-    char buf[sizeof "2011-10-08T07:07:09Z"];
+    char buf[sizeof "2021-12-02T21:47:42.717496Z"];
     strftime(buf, sizeof buf, "%FT%TZ", gmtime(&now));
     return buf;
 }

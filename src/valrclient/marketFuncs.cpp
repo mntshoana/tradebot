@@ -1,5 +1,6 @@
 #include "valrclient.hpp"
 #include <iostream>
+#include <sstream>
 extern Client client;
 
 namespace VALR {
@@ -553,7 +554,7 @@ namespace VALR {
     // GET TRADES
     //
     // Returns 100 trades only (cannot be changed), from a default of since the last 24 hours
-    std::vector<Trade> VALR::VALRClient::getTrades(std::string pair, unsigned long long since, unsigned long long until, unsigned skip , unsigned limit, std::string beforeID ){
+    std::vector<Trade> VALR::VALRClient::getTrades(std::string pair, unsigned long long since, unsigned long long until, unsigned skip, unsigned limit, std::string beforeID ){
         std::string path = "/v1/public/" + pair + "/trades";
         int args = 0;
         if (since != 0){
@@ -646,5 +647,32 @@ namespace VALR {
         }
         
         return trades;
+    }
+
+    std::string VALR::VALRClient::getServerTime(){
+        std::string path = "/v1/public/time";
+        std::string res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+            
+        std::stringstream ss;
+        size_t last = 0, next = 0;
+        
+        last = res.find(":", last) + 1;
+        next = res.find(",", last);
+        ss << "epoch: " <<  res.substr(last, next-last) << std::endl;
+        last = next + 1;
+    
+        last = res.find(":", last) + 2;
+        next = res.find("\"", last);
+        ss << "string: "
+            << res.substr(last, next-last)
+            << std::endl;
+
+        last = next + 1;
+        
+        return ss.str();
     }
 }

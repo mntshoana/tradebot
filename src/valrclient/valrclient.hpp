@@ -15,6 +15,7 @@ namespace VALR {
         static std::vector<OrderTypeInfo> getOrderTypes(std::string pair = "");
         static std::vector<Ticker> getTickers(std::string pair = "");
         static std::vector<Trade> getTrades(std::string pair, unsigned long long since = 0, unsigned long long until = 0, unsigned skip = 0, unsigned limit = 0, std::string beforeID = "");
+        static std::string getServerTime();
 
         /* Account Functions */
         // create account
