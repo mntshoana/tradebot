@@ -120,8 +120,23 @@ namespace VALR {
 
      std::fstream& operator << (std::fstream& stream, std::vector<Trade>& trades);
      std::fstream& operator >> (std::fstream& stream, std::vector<Trade>& trades);
-//
-    /* Order Functions Types*/
+
+
+    /* Account Function Types*/
+    class KeyInfo {
+    public:
+        KeyInfo(){}
+        std::string label;
+        std::string permission;
+        std::string createdAt;
+        bool isSubAccount;
+        std::string allowedIP;
+        std::string allowedWithdraw;
+        
+        std::string toString() const;
+    };
+
+    /* Order Function Types*/
     /*class Fee {
     public:
         Fee(){}
@@ -197,4 +212,9 @@ declarePrintable(VALR::Ticker);
 declarePrintableList(VALR::Ticker);
 declarePrintable(VALR::Trade);
 declarePrintableList(VALR::Trade);
+
+/* Account Functions */
+declarePrintable(VALR::KeyInfo);
+declarePrintableList(VALR::KeyInfo);
+
 #endif /* valrTypes_h */

@@ -31,7 +31,7 @@ public:
     Client();
     ~Client();
     int getHttpCode();
-    virtual std::string  request (const char* method, const char* uri,  bool auth = false, int exchange = LUNO_EXCHANGE, const char* payload = "");
+    virtual std::string  request (const char* method, const char* uri,  bool auth = false, int exchange = LUNO_EXCHANGE, const char* payload = "", const char* body = "");
     
 };
 

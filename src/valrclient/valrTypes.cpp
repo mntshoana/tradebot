@@ -260,7 +260,19 @@ namespace VALR {
         }
         return stream;
     }
-    /* Order Functions Types*/
+
+    /* Account Function Types*/
+    std::string KeyInfo::toString() const {
+        std::stringstream ss;
+        ss << "Label: " << label << std::endl;
+        ss << "Permissions: " << permission << std::endl;
+        ss << "Added at: " << createdAt << std::endl;
+        ss << "Is sub account: " << (isSubAccount ? "True" : "False") << std::endl;
+        ss << "Allowed IP Address" << allowedIP << std::endl;
+        ss << "Allowed Withdraw" << allowedWithdraw << std::endl;
+        return ss.str();
+    }
+    /* Order Function Types*/
     std::string UserOrder::toString() const{
         std::stringstream ss;
         ss << "ID: : " << orderID << "\n";
@@ -292,6 +304,10 @@ printableDefinition(VALR::Ticker);
 printableList(VALR::Ticker);
 printableDefinition(VALR::Trade);
 printableList(VALR::Trade);
+
+/* Account Functions */
+printableDefinition(VALR::KeyInfo);
+printableList(VALR::KeyInfo);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);

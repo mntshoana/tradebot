@@ -19,6 +19,7 @@ namespace VALR {
         static std::string getServerStatus();
 
         /* Account Functions */
+        static KeyInfo getCurrentKeyInfo();
         // create account
         // update account
         // list pending transaction

@@ -8,16 +8,16 @@
 #include "textPanel.hpp"
 
 
-// to calculate time since epoch (seconds)
-decltype(std::chrono::seconds().count()) get_seconds_since_epoch()
+// to calculate time since epoch (milliseconds)
+decltype(std::chrono::milliseconds().count()) get_seconds_since_epoch()
 {
     const auto now = std::chrono::system_clock::now();
     // duration since the epoch
     const auto epoch = now.time_since_epoch();
     // casted into seconds
-    const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(epoch);
+    const auto mseconds = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
     // return the number of seconds
-    return seconds.count();
+    return mseconds.count();
 }
 
 // parse iso8601 string format into time since epoch (seconds)
@@ -66,7 +66,7 @@ int Client::getHttpCode(){
 
 
 
-std::string Client::request (const char* method, const char* uri, bool auth, int exchange, const char* payload) {
+std::string Client::request (const char* method, const char* uri, bool auth, int exchange, const char* payload, const char* body) {
     buffer.str(""); // clear stream
     if(curl) {
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method);
@@ -92,10 +92,12 @@ std::string Client::request (const char* method, const char* uri, bool auth, int
             if (exchange == VALR_EXCHANGE){
                 // HMAC SHA512
                 std::string timestamp = std::to_string( get_seconds_since_epoch());
-                std::string signature = hmac::get_hmac(VALR_PASSWORD, timestamp + payload);
+                std::string signature = hmac::get_hmac(VALR_PASSWORD, timestamp + method + payload + body);
                 headers = curl_slist_append(headers, "X-VALR-API-KEY: " VALR_USERNAME);
                 headers = curl_slist_append(headers, ("X-VALR-SIGNATURE: " + signature).c_str());
                 headers = curl_slist_append(headers, ("X-VALR-TIMESTAMP: " + timestamp).c_str());
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
             }
             #undef LUNO_USERNAME // security issue (need to find a better way)
             #undef LUNO_PASSWORD // security issue (need to find a better way)
