@@ -109,6 +109,53 @@ namespace VALR {
         
         return keyInfo;
     }
+
+    /**
+     Can only be called by a primary account API key.
+     */
+
+    // GET CURRENT KEY INFO
+    //
+    // Returns API Key's information and permissions from the server
+    // Will never reveal API KEYS and PASSWORD
+    std::vector<SubAccount> VALRClient::getSubAccounts(){
+        std::string path = "/v1/account/subaccounts";
+        
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::vector<SubAccount> subAccounts;
+        size_t last = 0, next = 0;
+        
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+        std::string token;
+        while ((last = res.find("{", last)) != std::string::npos) {
+            SubAccount acc;
+        
+            // volume
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            acc.label = token;
+            last = next + 1;
+            
+            // price
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            token = res.substr(last, next-last);
+            acc.id = atoll(token.c_str());
+            last = next + 1;
+            
+            subAccounts.push_back(acc);
+        }
+        
+        return subAccounts;
+    }
+
 /*
     // create account
     // update account

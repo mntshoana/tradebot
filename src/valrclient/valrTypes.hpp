@@ -135,7 +135,15 @@ namespace VALR {
         
         std::string toString() const;
     };
-
+    
+    class SubAccount {
+    public:
+        SubAccount(){}
+        std::string label;
+        unsigned long long id;
+        
+        std::string toString() const;
+    };
     /* Order Function Types*/
     /*class Fee {
     public:
@@ -216,5 +224,7 @@ declarePrintableList(VALR::Trade);
 /* Account Functions */
 declarePrintable(VALR::KeyInfo);
 declarePrintableList(VALR::KeyInfo);
+declarePrintable(VALR::SubAccount);
+declarePrintableList(VALR::SubAccount);
 
 #endif /* valrTypes_h */

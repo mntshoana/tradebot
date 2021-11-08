@@ -272,6 +272,14 @@ namespace VALR {
         ss << "Allowed Withdraw" << allowedWithdraw << std::endl;
         return ss.str();
     }
+
+    std::string SubAccount::toString() const {
+        std::stringstream ss;
+        ss << "Label: " << label << std::endl;
+        ss << "Id: : " << id << std::endl;
+        return ss.str();
+    }
+
     /* Order Function Types*/
     std::string UserOrder::toString() const{
         std::stringstream ss;
@@ -308,6 +316,8 @@ printableList(VALR::Trade);
 /* Account Functions */
 printableDefinition(VALR::KeyInfo);
 printableList(VALR::KeyInfo);
+printableDefinition(VALR::SubAccount);
+printableList(VALR::SubAccount);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);
