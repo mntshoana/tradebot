@@ -273,10 +273,34 @@ namespace VALR {
         return ss.str();
     }
 
-    std::string SubAccount::toString() const {
+    std::string Account::toString() const {
         std::stringstream ss;
         ss << "Label: " << label << std::endl;
         ss << "Id: : " << id << std::endl;
+        return ss.str();
+    }
+
+    std::string Balance::toString() const {
+        std::stringstream ss;
+        ss << "Asset: " << asset << "\n";
+        ss << "Balance: " << balance << "\n";
+        ss << "Reserved: " << reserved << "\n";
+        ss << "Available: " << available << "\n";
+        ss << "Last confirmed: " << lastUpdated << "\n";
+        return ss.str();
+    }
+
+    std::string AccountSummary::toString() const{
+        std::stringstream ss;
+        ss << "Account Info... " << "\n";
+        ss << account.toString() << "\n";
+        
+        for (const Balance& bal : balances){
+            ss << bal.toString() << "\n";
+        }
+        if (balances.empty())
+            ss << "Balances: [no non-zero assets]\n";
+        
         return ss.str();
     }
 
@@ -316,8 +340,12 @@ printableList(VALR::Trade);
 /* Account Functions */
 printableDefinition(VALR::KeyInfo);
 printableList(VALR::KeyInfo);
-printableDefinition(VALR::SubAccount);
-printableList(VALR::SubAccount);
+printableDefinition(VALR::Account);
+printableList(VALR::Account);
+printableDefinition(VALR::Balance);
+printableList(VALR::Balance);
+printableDefinition(VALR::AccountSummary);
+printableList(VALR::AccountSummary);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);

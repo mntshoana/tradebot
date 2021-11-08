@@ -110,15 +110,10 @@ namespace VALR {
         return keyInfo;
     }
 
-    /**
-     Can only be called by a primary account API key.
-     */
-
-    // GET CURRENT KEY INFO
+    // GET SUBACCOUNT  INFO
     //
-    // Returns API Key's information and permissions from the server
-    // Will never reveal API KEYS and PASSWORD
-    std::vector<SubAccount> VALRClient::getSubAccounts(){
+    // Can only be called by a primary account API key.
+    std::vector<Account> VALRClient::getSubAccounts(){
         std::string path = "/v1/account/subaccounts";
         
         std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
@@ -127,14 +122,14 @@ namespace VALR {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        std::vector<SubAccount> subAccounts;
+        std::vector<Account> subAccounts;
         size_t last = 0, next = 0;
         
         // erase spaces
         res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         std::string token;
         while ((last = res.find("{", last)) != std::string::npos) {
-            SubAccount acc;
+            Account acc;
         
             // volume
             last = res.find(":", last) + 2;
@@ -156,16 +151,101 @@ namespace VALR {
         return subAccounts;
     }
 
-/*
-    // create account
-    // update account
-    // list pending transaction
-    // list transaction
 
+    // GET NON-ZERO BALANCES
+    //
+    //
+    std::vector<AccountSummary> VALRClient::getNonZeroBalances(){
+        std::string path = "/v1/account/balances/all";
+        
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::vector<AccountSummary> accounts;
+        size_t last = 0, next = 0;
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+       
+        last = res.find("[", last) + 1;
+        
+        while ((last = res.find("{", last)) != std::string::npos) {
+            AccountSummary summary;
+            
+            // Accounts
+            last = res.find(":", last) + 2; // get to colon "accounts:"
+            //account:label
+            last = res.find(":", last) + 2; // get to colon "label:"
+            next = res.find("\"", last);
+            summary.account.label = res.substr(last, next-last);
+            last = next + 1;
+            //account:id
+            last = res.find(":", last) + 2;
+            next = res.find("\"", last);
+            std::string token = res.substr(last, next-last);
+            summary.account.id = atoll(token.c_str());
+            last = next + 1;
+            
+            //balance
+            last = res.find("balance", last);
+            last = res.find("[", last) + 1;
+            next = res.find("]", last);
+            
+            std::string balanceList = res.substr(last, next-last);
+            size_t tempLast = 0, tempNext = 0;
+            while ((tempLast = balanceList.find("{", tempLast)) != std::string::npos) {
+                Balance balance;
+                
+                //balance:currency
+                tempLast = balanceList.find(":", tempLast) + 2;
+                tempNext = balanceList.find("\"", tempLast);
+                token = balanceList.substr(tempLast, tempNext-tempLast);
+                balance.asset = token;
+                tempLast = next + 1;
+                
+                // skip available
+                tempLast = balanceList.find(":", tempLast) + 2;
+                tempNext = balanceList.find("\"", tempLast);
+                token = balanceList.substr(tempLast, tempNext-tempLast);
+                balance.available = atof(token.c_str());
+                tempLast = next + 1;
+                
+                //balance:reserved
+                tempLast = balanceList.find(":", tempLast) + 2;
+                tempNext = balanceList.find("\"", tempLast);
+                token = balanceList.substr(tempLast, tempNext-tempLast);
+                balance.reserved = atof(token.c_str());
+                tempLast = next + 1;
+                
+                //balance:balance
+                tempLast = balanceList.find(":", tempLast) + 2;
+                tempNext = balanceList.find("\"", tempLast);
+                token = balanceList.substr(tempLast, tempNext-tempLast);
+                balance.balance = atof(token.c_str());
+                tempLast = next + 1;
+                
+                //balance:last Updated
+                tempLast = balanceList.find(":", tempLast) + 2;
+                tempNext = balanceList.find("\"", tempLast);
+                token = balanceList.substr(tempLast, tempNext-tempLast);
+                balance.lastUpdated = get_seconds_since_epoch(token);
+                balanceList = tempNext + 1;
+                
+                summary.balances.push_back(balance);
+            }
+            last = next + 1;
+
+            accounts.push_back(summary);
+        }
+        return accounts;
+    }
+/*
     // GET BALANCE
     //
     // assets can list multiple comma separated assets
-    std::vector<Balance> LunoClient::getBalances(std::string assets){
+    std::vector<Balance> VALRClient::getBalances(std::string assets){
         std::string uri = "https://api.mybitx.com/api/1/balance";
         if (assets != "")
             uri += "?assets=" + assets;
@@ -233,13 +313,12 @@ namespace VALR {
         stream.append(ss.str().c_str());
         return stream;
     }
-    template <class T> T& operator << (T& stream, std::vector<Balance>& balances){
-        for (Balance& balance : balances){
-            stream << balance;
-        }
-        return stream;
-    }
-    template QTextEdit& operator << <QTextEdit>(QTextEdit&, Balance& balance);
-    template QTextEdit& operator << <QTextEdit>(QTextEdit&, std::vector<Balance>& balances);
+
+    
+ 
+ // create account
+ // update account
+ // list pending transaction
+ // list transaction
 */
 }

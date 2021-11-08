@@ -9,21 +9,6 @@
 #include <fstream>
 
 namespace VALR {
-    /* Account Functions Types*/
-    /*class Balance {
-    public:
-        Balance(){}
-        std::string accountID;
-        std::string asset;
-        float balance;
-        float reserved;
-        float uncomfirmed;
-        std::string toString();
-    };
-
-     declarePrintable(Balance);
-     declarePrintableList(Balance);*/
-
     /* Market Functions Types */
     class Order {
     public:
@@ -136,12 +121,31 @@ namespace VALR {
         std::string toString() const;
     };
     
-    class SubAccount {
+    class Account {
     public:
-        SubAccount(){}
+        Account(){}
         std::string label;
         unsigned long long id;
         
+        std::string toString() const;
+    };
+
+    class Balance {
+    public:
+        Balance(){}
+        std::string asset;
+        float available;
+        float balance;
+        float reserved;
+        unsigned long long lastUpdated; // timestamp
+        std::string toString() const;
+    };
+    
+    class AccountSummary {
+    public:
+        AccountSummary(){}
+        Account account;
+        std::vector<Balance> balances;
         std::string toString() const;
     };
     /* Order Function Types*/
@@ -224,7 +228,11 @@ declarePrintableList(VALR::Trade);
 /* Account Functions */
 declarePrintable(VALR::KeyInfo);
 declarePrintableList(VALR::KeyInfo);
-declarePrintable(VALR::SubAccount);
-declarePrintableList(VALR::SubAccount);
+declarePrintable(VALR::Account);
+declarePrintableList(VALR::Account);
+declarePrintable(VALR::Balance);
+declarePrintableList(VALR::Balance);
+declarePrintable(VALR::AccountSummary);
+declarePrintableList(VALR::AccountSummary);
 
 #endif /* valrTypes_h */
