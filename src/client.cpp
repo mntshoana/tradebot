@@ -37,6 +37,51 @@ std::string get_timestamp_iso8601_string(long seconds) {
     return buf;
 }
 
+// only returns portion of string immediately following a colon
+//   this string will be within opening ["] and ending ["] delimiters
+std::string extractNextString(std::string source, size_t start, size_t& jumpTo) {
+    size_t posStart = source.find(":", start);
+    if (posStart != std::string::npos){
+        posStart += 2;
+        size_t posEnd = source.find("\"", posStart);
+        jumpTo = posEnd + 1;
+        return source.substr(posStart, posEnd-posStart);
+    }
+    jumpTo = std::string::npos;
+    return "";
+}
+
+// only returns portion of string immediately following a colon
+//   this string is not surrounded by any quotations marks.
+//   the ending position is marked by a delimiter
+std::string extractNextString(std::string source, size_t start, const char* readUntil, size_t& jumpTo) {
+    size_t posStart = source.find(":", start);
+    if (posStart != std::string::npos) {
+        posStart += 1;
+        size_t posEnd = source.find(readUntil, posStart);
+        jumpTo = posEnd + 1;
+        return source.substr(posStart, posEnd-posStart);
+    }
+    jumpTo = std::string::npos;
+    return "";
+}
+
+//  returns portion of string immediately following a delimiter
+//   and ending by a delimiter
+std::string extractNextStringBlock(std::string source, size_t start,
+                                   const char* startDelim, const char* stopDelim, size_t& jumpTo) {
+        size_t posStart = source.find(startDelim, start);
+    if (posStart != std::string::npos) {
+        posStart += 1;
+        size_t posEnd = source.find(stopDelim, posStart);
+        jumpTo = posEnd + 1;
+        return source.substr(posStart, posEnd-posStart);
+    }
+    jumpTo = std::string::npos;
+    return "";
+}
+
+
 
 Client client;
 

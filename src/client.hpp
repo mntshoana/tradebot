@@ -38,4 +38,10 @@ public:
 bool abortStatus();
 long long get_seconds_since_epoch(std::string time);
 std::string get_timestamp_iso8601_string(long seconds);
+
+// unmarshalling helpers
+std::string extractNextString(std::string source, size_t start, size_t& jumpTo);
+std::string extractNextString(std::string source, size_t start, const char* readUntil, size_t& jumpTo);
+std::string extractNextStringBlock(std::string source, size_t start,
+                                   const char* startDelim, const char* stopDelim, size_t& jumpTo);
 #endif /* client_hpp */

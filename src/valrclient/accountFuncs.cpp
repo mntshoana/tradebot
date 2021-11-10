@@ -25,62 +25,34 @@ namespace VALR {
         res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         
         // label
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        std::string token = res.substr(last, next-last);
-        keyInfo.label = token;
-        last = next + 1;
+        keyInfo.label =  extractNextString(res, last, last);;
         
         // permissions
         last = res.find("permissions", last);
-        last = res.find("[", last) + 1;
-        next = res.find("]", last);
-        std::string permissions = res.substr(last, next-last);
-        last = next + 1;
+        std::string permissions = extractNextStringBlock(res, last, "[", "]", last);
         
         // addedAt
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        token = res.substr(last, next-last);
-        keyInfo.createdAt = token;
-        last = next + 1;
+        keyInfo.createdAt = extractNextString(res, last, last);
         
         // is sub account
-        last = res.find(":", last) + 1;
-        next = res.find("}", last);
-        token = res.substr(last, next-last);
-        keyInfo.isSubAccount = (token == "true") ? true : false;;
-        last = next + 1;
+        std::string token = extractNextString(res, last, "}", last);
+        keyInfo.isSubAccount = (token == "true") ? true : false;
         
         // allowed Ip AddressCidr
-        last = res.find(":", last);
-        if (last != std::string::npos){
-            last += 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
-            keyInfo.allowedIP = token;
-            last = next + 1;
-        }
+        keyInfo.allowedIP = extractNextString(res, last, last);
         
         // allowed Withdraw Address List
         std::string allowedWithdrawlist;
         last = res.find("allowedWithdrawAddressList", last);
-        if (last != std::string::npos){
-            
-            last = res.find("[", last) + 1;
-            next = res.find("]", last);
-            allowedWithdrawlist = res.substr(last, next-last);
-            last = next + 1;
-        }
+        if (last != std::string::npos)
+            allowedWithdrawlist = extractNextStringBlock(res, last, "[", "]", last);
         
         last = 0;
         int count = 0;
         while ((last = permissions.find("\"", last)) != std::string::npos) {
-            last += 1; // ignore " character
-            next = permissions.find("\"", last+1);
-            keyInfo.permission += ((count++) ? ", ": "")
-                                +  permissions.substr(last, next-last);
-            last = next + 1;
+            token = extractNextStringBlock(permissions, last, "\"", "\"", last);
+            
+            keyInfo.permission += ((count++) ? ", ": "") +  token;
             
             if (last == permissions.length() || last == std::string::npos )
                 break;
@@ -91,19 +63,12 @@ namespace VALR {
         count = 0;
         while ((last = allowedWithdrawlist.find("{", last)) != std::string::npos) {
             keyInfo.allowedWithdraw += ((count++) ? "\n": "");
-            // currency
-            last = allowedWithdrawlist.find(":", last);
-            next = allowedWithdrawlist.find("\"", last);
-            token = res.substr(last, next-last);
-            keyInfo.allowedIP = token;
-            last = next + 1;
+            // currency (preffered word is asset)
+            keyInfo.allowedIP = extractNextString(res, last, last);
             
             // address
-            last = allowedWithdrawlist.find(":", last);
-            next = allowedWithdrawlist.find("\"", last);
-            token += ": " + res.substr(last, next-last);
-            keyInfo.allowedWithdraw += token;
-            last = next + 1;
+            token = extractNextString(res, last, last);
+            keyInfo.allowedWithdraw += ": " + token;
         }
         allowedWithdrawlist.erase();
         
@@ -175,67 +140,42 @@ namespace VALR {
             AccountSummary summary;
             
             // Accounts
-            last = res.find(":", last) + 2; // get to colon "accounts:"
+            last = res.find(":", last) + 2; // get to colon marking "accounts:"
             //account:label
-            last = res.find(":", last) + 2; // get to colon "label:"
-            next = res.find("\"", last);
-            summary.account.label = res.substr(last, next-last);
-            last = next + 1;
+            summary.account.label = extractNextString(res, last, last);
             //account:id
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            std::string token = res.substr(last, next-last);
+            std::string token = extractNextString(res, last, last);
             summary.account.id = atoll(token.c_str());
-            last = next + 1;
             
             //balance
             last = res.find("balance", last);
-            last = res.find("[", last) + 1;
-            next = res.find("]", last);
+            std::string balanceList = extractNextStringBlock(res, last, "[", "]", last);
             
-            std::string balanceList = res.substr(last, next-last);
-            size_t tempLast = 0, tempNext = 0;
+            size_t tempLast = 0;
             while ((tempLast = balanceList.find("{", tempLast)) != std::string::npos) {
                 Balance balance;
                 
                 //balance:currency
-                tempLast = balanceList.find(":", tempLast) + 2;
-                tempNext = balanceList.find("\"", tempLast);
-                token = balanceList.substr(tempLast, tempNext-tempLast);
-                balance.asset = token;
-                tempLast = next + 1;
+                balance.asset  =  extractNextString(balanceList, tempLast, tempLast);
                 
-                // skip available
-                tempLast = balanceList.find(":", tempLast) + 2;
-                tempNext = balanceList.find("\"", tempLast);
-                token = balanceList.substr(tempLast, tempNext-tempLast);
+                //balance:available
+                token = extractNextString(balanceList, tempLast, tempLast);
                 balance.available = atof(token.c_str());
-                tempLast = next + 1;
                 
                 //balance:reserved
-                tempLast = balanceList.find(":", tempLast) + 2;
-                tempNext = balanceList.find("\"", tempLast);
-                token = balanceList.substr(tempLast, tempNext-tempLast);
+                token = extractNextString(balanceList, tempLast, tempLast);
                 balance.reserved = atof(token.c_str());
-                tempLast = next + 1;
                 
                 //balance:balance
-                tempLast = balanceList.find(":", tempLast) + 2;
-                tempNext = balanceList.find("\"", tempLast);
-                token = balanceList.substr(tempLast, tempNext-tempLast);
+                token = extractNextString(balanceList, tempLast, tempLast);
                 balance.balance = atof(token.c_str());
-                tempLast = next + 1;
                 
                 //balance:last Updated
-                tempLast = balanceList.find(":", tempLast) + 2;
-                tempNext = balanceList.find("\"", tempLast);
-                token = balanceList.substr(tempLast, tempNext-tempLast);
+                token = extractNextString(balanceList, tempLast, tempLast);
                 balance.lastUpdated = get_seconds_since_epoch(token);
-                balanceList = tempNext + 1;
                 
                 summary.balances.push_back(balance);
             }
-            last = next + 1;
 
             accounts.push_back(summary);
         }
