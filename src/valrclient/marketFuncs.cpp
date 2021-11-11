@@ -17,26 +17,20 @@ namespace VALR {
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         OrderBook ob;
-        size_t last = 0, next = 0;
+        size_t last = 0;
         
         // erase spaces
         res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         
-        std::string token;
         // asks and bids
         last = res.find("Asks", last);
-        last = res.find("[", last) + 1;
-        next = res.find("]", last);
-        std::string asks = res.substr(last, next-last);
-        last = next + 1;
+        std::string asks = extractNextStringBlock(res, last, "[", "]", last);
         
         last = res.find("Bids", last);
-        last = res.find("[", last) + 1;
-        next = res.find("]", last);
-        std::string bids = res.substr(last, next-last);
-        res.erase();
+        std::string bids = extractNextStringBlock(res, last, "[", "]", last);
         
-        last = next = 0;
+        last = 0;
+        std::string token;
         while ((last = asks.find("{", last)) != std::string::npos) {
             Order order;
             
@@ -44,34 +38,25 @@ namespace VALR {
             last = asks.find(":", last) + 2;
             
             // volume
-            last = asks.find(":", last) + 2;
-            next = asks.find("\"", last);
-            token = asks.substr(last, next-last);
+            token = extractNextString(asks, last, last);
             order.volume = atof(token.c_str());
-            last = next + 1;
             
             // price
-            last = asks.find(":", last) + 2;
-            next = asks.find("\"", last);
-            token = asks.substr(last, next-last);
+            token = extractNextString(asks, last, last);
             order.price = atof(token.c_str());
-            last = next + 1;
             
             // ignore currencPair
             last = asks.find(":", last) + 2;
             
             // orderCount
-            last = asks.find(":", last) + 1;
-            next = asks.find("}", last);
-            token = asks.substr(last, next-last);
+            token = extractNextString(asks, last, "}", last);
             order.count = atoi(token.c_str());
-            last = next + 1;
             
             ob.asks.push_back(order);
         }
         asks.erase();
         
-        last = next = 0;
+        last = 0;
         while ((last = bids.find("{", last)) != std::string::npos) {
             Order order;
             
@@ -79,28 +64,19 @@ namespace VALR {
             last = bids.find(":", last) + 2;
             
             // volume
-            last = bids.find(":", last) + 2;
-            next = bids.find("\"", last);
-            token = bids.substr(last, next-last);
+            token = extractNextString(bids, last, last);
             order.volume = atof(token.c_str());
-            last = next + 1;
             
             // price
-            last = bids.find(":", last) + 2;
-            next = bids.find("\"", last);
-            token = bids.substr(last, next-last);
+            token = extractNextString(bids, last, last);
             order.price = atof(token.c_str());
-            last = next + 1;
             
             // ignore currencPair
             last = bids.find(":", last) + 2;
             
             // orderCount
-            last = bids.find(":", last) + 1;
-            next = bids.find("}", last);
-            token = bids.substr(last, next-last);
+            token = extractNextString(bids, last, "}", last);
             order.count = atoi(token.c_str());
-            last = next + 1;
             
             ob.bids.push_back(order);
         }
@@ -128,27 +104,19 @@ namespace VALR {
         
         // asks and bids
         last = res.find("Asks", last);
-        last = res.find("[", last) + 1;
-        next = res.find("]", last);
-        std::string asks = res.substr(last, next-last);
-        last = next + 1;
+        std::string asks = extractNextStringBlock(res, last, "[", "]", last);
         
         last = res.find("Bids", last);
-        last = res.find("[", last) + 1;
-        next = res.find("]", last);
-        std::string bids = res.substr(last, next-last);
+        std::string bids = extractNextStringBlock(res, last, "[", "]", last);
         
         // timestamp
         last = res.find("LastChange", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        token = res.substr(last, next-last);
+        token = extractNextString(res, last, last);
         ob.timestamp = get_seconds_since_epoch(token);
-        last = next + 1;
         
         res.erase();
         
-        last = next = 0;
+        last = 0;
         while ((last = asks.find("{", last)) != std::string::npos) {
             Order order;
             
@@ -156,41 +124,28 @@ namespace VALR {
             last = asks.find(":", last) + 2;
             
             // volume
-            last = asks.find(":", last) + 2;
-            next = asks.find("\"", last);
-            token = asks.substr(last, next-last);
+            token = extractNextString(asks, last, last);
             order.volume = atof(token.c_str());
-            last = next + 1;
             
             // price
-            last = asks.find(":", last) + 2;
-            next = asks.find("\"", last);
-            token = asks.substr(last, next-last);
+            token = extractNextString(asks, last, last);
             order.price = atof(token.c_str());
-            last = next + 1;
             
             // ignore currencPair
             last = asks.find(":", last) + 2;
             
             // id
-            last = asks.find(":", last) + 2;
-            next = asks.find("\"", last);
-            token = asks.substr(last, next-last);
-            order.id = token;
-            last = next + 1;
+            order.id = extractNextString(asks, last, last);
             
             // orderCount
-            last = asks.find(":", last) + 1;
-            next = asks.find("}", last);
-            token = asks.substr(last, next-last);
+            token = extractNextString(asks, last, "}", last);
             order.count = atoi(token.c_str());
-            last = next + 1;
             
             ob.asks.push_back(order);
         }
         asks.erase();
         
-        last = next = 0;
+        last = 0;
         while ((last = bids.find("{", last)) != std::string::npos) {
             Order order;
             
@@ -198,16 +153,11 @@ namespace VALR {
             last = bids.find(":", last) + 2;
             
             // volume
-            last = bids.find(":", last) + 2;
-            next = bids.find("\"", last);
-            token = bids.substr(last, next-last);
+            token = extractNextString(bids, last, last);
             order.volume = atof(token.c_str());
-            last = next + 1;
             
             // price
-            last = bids.find(":", last) + 2;
-            next = bids.find("\"", last);
-            token = bids.substr(last, next-last);
+            token = extractNextString(bids, last, last);
             order.price = atof(token.c_str());
             last = next + 1;
             
@@ -215,18 +165,11 @@ namespace VALR {
             last = bids.find(":", last) + 2;
             
             // id
-            last = bids.find(":", last) + 2;
-            next = bids.find("\"", last);
-            token = bids.substr(last, next-last);
-            order.id = token;
-            last = next + 1;
+            order.id = extractNextString(bids, last, last);
             
             // orderCount
-            last = bids.find(":", last) + 1;
-            next = bids.find("}", last);
-            token = bids.substr(last, next-last);
+            token = extractNextString(bids, last, "}", last);
             order.count = atoi(token.c_str());
-            last = next + 1;
             
             ob.bids.push_back(order);
         }

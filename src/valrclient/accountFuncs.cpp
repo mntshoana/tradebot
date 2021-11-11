@@ -38,7 +38,7 @@ namespace VALR {
         std::string token = extractNextString(res, last, "}", last);
         keyInfo.isSubAccount = (token == "true") ? true : false;
         
-        // allowed Ip AddressCidr
+        // allowed Ip Address
         keyInfo.allowedIP = extractNextString(res, last, last);
         
         // allowed Withdraw Address List
@@ -62,13 +62,15 @@ namespace VALR {
         last = 0;
         count = 0;
         while ((last = allowedWithdrawlist.find("{", last)) != std::string::npos) {
-            keyInfo.allowedWithdraw += ((count++) ? "\n": "");
-            // currency (preffered word is asset)
-            keyInfo.allowedIP = extractNextString(res, last, last);
+            // form "currency: address\n..."
+            keyInfo.allowedWithdraw += ((count++) ? "\n" : "");
+            
+            // currency (but preffer asset)
+            std::string asset = extractNextString(res, last, last);
             
             // address
             token = extractNextString(res, last, last);
-            keyInfo.allowedWithdraw += ": " + token;
+            keyInfo.allowedWithdraw += asset + ": " + token;
         }
         allowedWithdrawlist.erase();
         
