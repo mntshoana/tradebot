@@ -265,7 +265,6 @@ namespace VALR {
             info.baseMinTradable = atof(token.c_str());
             
             // max base amount
-            
             token = extractNextString(res, last, last);
             info.baseMaxTradable = atof(token.c_str());
             
@@ -496,20 +495,10 @@ namespace VALR {
         res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         
         std::stringstream ss;
-        size_t last = 0, next = 0;
+        size_t last = 0;
         
-        last = res.find(":", last) + 1;
-        next = res.find(",", last);
-        ss << "epoch: " <<  res.substr(last, next-last) << std::endl;
-        last = next + 1;
-
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        ss << "string: "
-            << res.substr(last, next-last)
-            << std::endl;
-
-        last = next + 1;
+        ss << "epoch: " <<  extractNextString(res, last, ",", last) << std::endl;
+        ss << "string: " << extractNextString(res, last, last)       << std::endl;
         
         return ss.str();
     }
@@ -528,13 +517,10 @@ namespace VALR {
         res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
 
         std::stringstream ss;
-        size_t last = 0, next = 0;
+        size_t last = 0;
     
-        last = res.find(":") + 2;
-        next = res.find("\"", last); //  json format unneccessary
-        std::string token = res.substr(last, next-last);
-        ss << "status: " << token
-            << std::endl;
+        std::string token = extractNextString(res, last, last);
+        ss << "status: " << token << std::endl;
 
         
         return ss.str();
