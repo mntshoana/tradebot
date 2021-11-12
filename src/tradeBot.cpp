@@ -55,7 +55,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
     
     
     //*home->workPanel->text << VALR::VALRClient::getNonZeroBalances();
-    //*home->workPanel->text << VALR::VALRClient::getServerTime();
+    //*home->workPanel->text << Luno::LunoClient::getTrades("XBTZAR");
     installEventFilter(this);
 }
 
