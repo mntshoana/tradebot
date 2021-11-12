@@ -55,6 +55,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
     
     
     //*home->workPanel->text << VALR::VALRClient::getNonZeroBalances();
+    //*home->workPanel->text << VALR::VALRClient::getTrades("BTCZAR");
     installEventFilter(this);
 }
 

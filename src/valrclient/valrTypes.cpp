@@ -203,7 +203,7 @@ namespace VALR {
         ss << "Last high price: " << high << "\n";
         ss << "Last low price: " << low << "\n";
         ss << "Base volume: " << baseVolume << "\n";
-        ss << "Change from previouse: " << changeFromPrevious << "\n";
+        ss << "Change from previous: " << changeFromPrevious << "\n";
         return ss.str();
     }
 
