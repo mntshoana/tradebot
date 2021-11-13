@@ -16,31 +16,23 @@ namespace Luno {
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         Fee fee;
-        size_t last = 0, next = 0;
+        size_t last = 0;
         
         // 30 day volume
         last = res.find("thirty_day_volume", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        std::string token = res.substr(last, next-last);
+        std::string token = extractNextString(res, last, last);
         fee.thirtyDayVolume = atof(token.c_str());
-        last = next + 1;
         
         // maker fee
         last = res.find("maker_fee", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        token = res.substr(last, next-last);
+        token = extractNextString(res, last, last);
         fee.maker = atof(token.c_str());
-        last = next + 1;
         
         // taker fee
         last = res.find("taker_fee", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        token = res.substr(last, next-last);
+        token = extractNextString(res, last, last);
         fee.taker = atof(token.c_str());
-        last = next + 1;
+        
         return fee;
     }
 
@@ -80,7 +72,7 @@ namespace Luno {
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         std::vector<UserOrder> orders;
-        size_t last = 0, next = 0;
+        size_t last = 0;
         last = res.find("[", last) + 1;
         
         while ((last = res.find("{", last)) != std::string::npos) {
@@ -88,103 +80,64 @@ namespace Luno {
      
             // Order ID
             last = res.find("order_id", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            orders.back().orderID = res.substr(last, next-last);
-            last = next + 1;
+            orders.back().orderID = extractNextString(res, last, last);
             
             // Creation Timestamp
             last = res.find("creation_", last);
-            last = res.find(":", last) + 1;
-            next = res.find(",", last);
-            std::string token = res.substr(last, next-last);
+            std::string token = extractNextString(res, last, ",", last);
             orders.back().createdTime = atoll(token.c_str());
-            last = next + 1;
             
             // Expiration Timestamp
             last = res.find("expiration_", last);
-            last = res.find(":", last) + 1;
-            next = res.find(",", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, ",", last);
             orders.back().expirationTime = atoll(token.c_str());
-            last = next + 1;
             
             // Completion Timestamp
             last = res.find("completed_", last);
-            last = res.find(":", last) + 1;
-            next = res.find(",", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, ",", last);
             orders.back().completedTime = atoll(token.c_str());
-            last = next + 1;
             
             // Type
             last = res.find("type", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            orders.back().type = res.substr(last, next-last);
-            last = next + 1;
+            orders.back().type = extractNextString(res, last, last);
             
             // State
             last = res.find("state", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            orders.back().state = res.substr(last, next-last);
-            last = next + 1;
+            orders.back().state = extractNextString(res, last, last);
             
             // Price
             last = res.find("limit_price", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, last);
             orders.back().price = atof(token.c_str());
-            last = next + 1;
             
             // Volume
             last = res.find("limit_volume", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, last);
             orders.back().volume = atof(token.c_str());
-            last = next + 1;
             
             // Base
             last = res.find("base", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, last);
             orders.back().baseValue = atof(token.c_str());
-            last = next + 1;
             
             // Counter
             last = res.find("counter", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, last);
             orders.back().counterValue = atof(token.c_str());
-            last = next + 1;
             
             // Base Fee
             last = res.find("fee_base", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, last);
             orders.back().baseFee = atof(token.c_str());
-            last = next + 1;
             
             // Counter Fee
             last = res.find("fee_counter", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, last);
             orders.back().counterFee = atof(token.c_str());
-            last = next + 1;
             
             // Pair
             last = res.find("pair", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            orders.back().pair = res.substr(last, next-last);
-            last = next + 1;
+            orders.back().pair = extractNextString(res, last, last);
             
             if (orders.back().state != "PENDING" && orders.back().baseValue == 0.0f
                 && orders.back().counterValue == 0.0f)
@@ -228,7 +181,7 @@ namespace Luno {
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         std::vector<UserTrade> trades;
-           size_t last = 0, next = 0;
+           size_t last = 0;
            last = res.find("[", last) + 1;
            
            while ((last = res.find("{", last)) != std::string::npos) {
@@ -236,96 +189,60 @@ namespace Luno {
         
                // pair
                last = res.find("pair", last);
-               last = res.find(":", last) + 2;
-               next = res.find("\"", last);
-               trades.back().pair = res.substr(last, next-last);
-               last = next + 1;
+               trades.back().pair = extractNextString(res, last, last);
                
                // sequence
                last = res.find("sequ", last);
-               last = res.find(":", last) + 1;
-               next = res.find(",", last);
-               std::string token = res.substr(last, next-last);
+               std::string token = extractNextString(res, last, ",", last);
                trades.back().sequence = atoll(token.c_str());
-               last = next + 1;
                
                // Order ID
                last = res.find("order_id", last);
-               last = res.find(":", last) + 2;
-               next = res.find("\"", last);
-               trades.back().orderID = res.substr(last, next-last);
-               last = next + 1;
+               trades.back().orderID = extractNextString(res, last, last);
                
                // Type
                last = res.find("type", last);
-               last = res.find(":", last) + 2;
-               next = res.find("\"", last);
-               trades.back().type = res.substr(last, next-last);
-               last = next + 1;
+               trades.back().type = extractNextString(res, last, last);
                
                // timestamp
                last = res.find("timestamp", last);
-               last = res.find(":", last) + 1;
-               next = res.find(",", last);
-               token = res.substr(last, next-last);
+               token = extractNextString(res, last, ",", last);
                trades.back().timestamp = atoll(token.c_str());
-               last = next + 1;
                
                // price
                last = res.find("price", last);
-               last = res.find(":", last) + 2;
-               next = res.find("\"", last);
-               token = res.substr(last, next-last);
+               token = extractNextString(res, last, last);
                trades.back().price = atof(token.c_str());
-               last = next + 1;
                
                // volume
                last = res.find("volume", last);
-               last = res.find(":", last) + 2;
-               next = res.find("\"", last);
-               token = res.substr(last, next-last);
+               token = extractNextString(res, last, last);
                trades.back().volume = atof(token.c_str());
-               last = next + 1;
                
                // base
                last = res.find("base", last);
-               last = res.find(":", last) + 2;
-               next = res.find("\"", last);
-               token = res.substr(last, next-last);
+               token = extractNextString(res, last, last);
                trades.back().baseValue = atof(token.c_str());
-               last = next + 1;
                
                // counter
                last = res.find("counter", last);
-               last = res.find(":", last) + 2;
-               next = res.find("\"", last);
-               token = res.substr(last, next-last);
+               token = extractNextString(res, last, last);
                trades.back().counterValue = atof(token.c_str());
-               last = next + 1;
                
                // base fee
                last = res.find("fee_base", last);
-               last = res.find(":", last) + 2;
-               next = res.find("\"", last);
-               token = res.substr(last, next-last);
+               token = extractNextString(res, last, last);
                trades.back().baseFee = atof(token.c_str());
-               last = next + 1;
                
                // counter fee
                last = res.find("fee_counter", last);
-               last = res.find(":", last) + 2;
-               next = res.find("\"", last);
-               token = res.substr(last, next-last);
+               token = extractNextString(res, last, last);
                trades.back().counterFee = atof(token.c_str());
-               last = next + 1;
                
                // is buy
                last = res.find("is_buy", last);
-               last = res.find(":", last) + 1;
-               next = res.find("}", last);
-               token = res.substr(last, next-last);
+               token = extractNextString(res, last, "}", last);
                trades.back().isBuy = (token == "true") ? true : false;
-               last = next + 1;
            }
         return trades;
     }
