@@ -16,7 +16,7 @@ namespace Luno {
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         std::vector<Withdrawal> withdrawals;
-        size_t last = 0, next = 0;
+        size_t last = 0;
         last = res.find("[", last) + 1;
         
         while ((last = res.find("{", last)) != std::string::npos) {
@@ -24,59 +24,38 @@ namespace Luno {
             
             // id
             last = res.find("id", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            std::string token = res.substr(last, next-last);
+            std::string token = extractNextString(res, last, last);
             withdrawals.back().id = atoll(token.c_str());
-            last = next + 1;
                
             // status
             last = res.find("status", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, last);
             withdrawals.back().status = token.c_str();
-            last = next + 1;
             
             // created_at
             last = res.find("created_at", last);
-            last = res.find(":", last) + 1;
-            next = res.find(",", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, ",", last);
             withdrawals.back().createdTime = atoll(token.c_str());
-            last = next + 1;
 
             // type
             last = res.find("type", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, last);
             withdrawals.back().type = token.c_str();
-            last = next + 1;
             
             // currency
             last = res.find("currency", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, last);
             withdrawals.back().currency = token.c_str();
-            last = next + 1;
             
             // amount
             last = res.find("amount", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, last);
             withdrawals.back().amount = atof(token.c_str());
-            last = next + 1;
                
             // fee
             last = res.find("fee", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, last);
             withdrawals.back().fee = atof(token.c_str());
-            last = next + 1;
         }
         
         return withdrawals;
@@ -105,65 +84,43 @@ namespace Luno {
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         Withdrawal withdrawal;
-        size_t last = 0, next = 0;
+        size_t last = 0;
         
 
         // id
         last = res.find("id", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        std::string token = res.substr(last, next-last);
+        std::string token = extractNextString(res, last, last);
         withdrawal.id = atoll(token.c_str());
-        last = next + 1;
            
         // status
         last = res.find("status", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        token = res.substr(last, next-last);
+        token = extractNextString(res, last, last);
         withdrawal.status = token.c_str();
-        last = next + 1;
         
         // created_at
         last = res.find("created_at", last);
-        last = res.find(":", last) + 1;
-        next = res.find(",", last);
-        token = res.substr(last, next-last);
+        token = extractNextString(res, last, ",", last);
         withdrawal.createdTime = atoll(token.c_str());
-        last = next + 1;
 
         // type
         last = res.find("type", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        token = res.substr(last, next-last);
+        token = extractNextString(res, last, last);
         withdrawal.type = token.c_str();
-        last = next + 1;
         
         // currency
         last = res.find("currency", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        token = res.substr(last, next-last);
+        token = extractNextString(res, last, last);
         withdrawal.currency = token.c_str();
-        last = next + 1;
         
         // amount
         last = res.find("amount", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        token = res.substr(last, next-last);
+        token = extractNextString(res, last, last);
         withdrawal.amount = atof(token.c_str());
-        last = next + 1;
            
         // fee
         last = res.find("fee", last);
-        last = res.find(":", last) + 2;
-        next = res.find("\"", last);
-        token = res.substr(last, next-last);
+        token = extractNextString(res, last, last);
         withdrawal.fee = atof(token.c_str());
-        last = next + 1;
-        
         
         return withdrawal;
     }
