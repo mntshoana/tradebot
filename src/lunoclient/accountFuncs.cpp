@@ -23,7 +23,7 @@ namespace Luno {
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         std::vector<Balance> balances;
-        size_t last = 0, next = 0;
+        size_t last = 0;
         last = res.find("[", last) + 1;
         
         while ((last = res.find("{", last)) != std::string::npos) {
@@ -31,45 +31,29 @@ namespace Luno {
             
             //account_id
             last = res.find("account_id", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            balances.back().accountID = res.substr(last, next-last);
-            last = next + 1;
+            balances.back().accountID = extractNextString(res, last, last);
+
             
             //asset
             last = res.find("asset", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            balances.back().asset = res.substr(last, next-last);
-            last = next + 1;
+            balances.back().asset = extractNextString(res, last, last);
             
             //balance
             last = res.find("balance", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            std::string token = res.substr(last, next-last);
+            std::string token = extractNextString(res, last, last);
             balances.back().balance = atof(token.c_str());
-            last = next + 1;
             
             //reserved
             last = res.find("reserved", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, last);
             balances.back().reserved = atof(token.c_str());
-            last = next + 1;
             
             //unconfirmed
             last = res.find("unconfirmed", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
+            token = extractNextString(res, last, last);
             balances.back().uncomfirmed = atof(token.c_str());
-            last = next + 1;
         }
         return balances;
     }
-
-    
 
 }

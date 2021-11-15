@@ -55,7 +55,6 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
     
     
     //*home->workPanel->text << VALR::VALRClient::getNonZeroBalances();
-    //*home->workPanel->text << Luno::LunoClient::getWithdrawalList();
     installEventFilter(this);
 }
 
