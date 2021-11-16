@@ -276,7 +276,7 @@ namespace VALR {
     std::string Account::toString() const {
         std::stringstream ss;
         ss << "Label: " << label << std::endl;
-        ss << "Id: : " << id << std::endl;
+        ss << "Id: " << id << std::endl;
         return ss.str();
     }
 

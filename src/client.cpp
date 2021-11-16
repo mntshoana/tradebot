@@ -51,6 +51,10 @@ std::string extractNextString(std::string source, size_t start, size_t& jumpTo) 
     return "";
 }
 
+std::string extractNextString(std::string source, size_t start) {
+    return extractNextString(source, start, start);
+}
+
 // only returns portion of string immediately following a colon
 //   this string is not surrounded by any quotations marks.
 //   the ending position is marked by a delimiter
@@ -66,6 +70,10 @@ std::string extractNextString(std::string source, size_t start, const char* read
     return "";
 }
 
+std::string extractNextString(std::string source, size_t start, const char* readUntil){
+    return extractNextString(source, start, readUntil, start);
+}
+
 //  returns portion of string immediately following a delimiter
 //   and ending by a delimiter
 std::string extractNextStringBlock(std::string source, size_t start,
@@ -79,6 +87,10 @@ std::string extractNextStringBlock(std::string source, size_t start,
     }
     jumpTo = std::string::npos;
     return "";
+}
+std::string extractNextStringBlock(std::string source, size_t start,
+                                   const char* startDelim, const char* stopDelim ) {
+    return extractNextStringBlock(source, start, startDelim, stopDelim, start);
 }
 
 
@@ -142,6 +154,10 @@ std::string Client::request (const char* method, const char* uri, bool auth, int
                 headers = curl_slist_append(headers, ("X-VALR-SIGNATURE: " + signature).c_str());
                 headers = curl_slist_append(headers, ("X-VALR-TIMESTAMP: " + timestamp).c_str());
                 curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+                
+                if (strcmp(method, "POST") == 0 && strlen(body) > 0){
+                    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body);
+                }
 
             }
             #undef LUNO_USERNAME // security issue (need to find a better way)

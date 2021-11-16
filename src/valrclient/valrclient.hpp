@@ -21,6 +21,7 @@ namespace VALR {
         /* Account Functions */
         static KeyInfo getCurrentKeyInfo();
         static std::vector<Account> getSubAccounts();
+        static std::string createSubAccount(std::string label);
         static std::vector<AccountSummary> getNonZeroBalances();
         // create account
         // update account
