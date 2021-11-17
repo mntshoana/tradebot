@@ -19,7 +19,7 @@ namespace VALR {
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         KeyInfo keyInfo;
-        size_t last = 0, next = 0;
+        size_t last = 0;
         
         // erase spaces
         res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
@@ -117,14 +117,12 @@ namespace VALR {
     // Requires valid charactors only, ie, no periods .
     std::string VALRClient::createSubAccount(std::string label){
         std::string path = "/v1/account/subaccount";
-        std::string marshalledHeader =
-R"json({
-    "label": )json";
-        marshalledHeader += "\"" + label + "\"\n"
-R"json(})json";
+        std::string body = "{";
+        body += "\n\t" + createJSONlabel("label", label);
+        body += "\n" "}";
         
         std::string res = client.request("POST", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str(),
-            marshalledHeader.c_str()
+            body.c_str()
         );
         
         int httpCode = client.getHttpCode();
@@ -138,6 +136,7 @@ R"json(})json";
 
         return subAccID;
     }
+
     // GET NON-ZERO BALANCES
     //
     //
@@ -151,7 +150,7 @@ R"json(})json";
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         std::vector<AccountSummary> accounts;
-        size_t last = 0, next = 0;
+        size_t last = 0;
         // erase spaces
         res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
        
@@ -201,6 +200,30 @@ R"json(})json";
             accounts.push_back(summary);
         }
         return accounts;
+    }
+
+
+    // INTERNAL TRANSFER
+    //
+    // Transfers an amount of one asset from one subaccount to another
+    // primary key can transfer to/from any subaccount.
+    // subaccount key can transfer only from itself.
+    void VALRClient::internalTransfer(std::string fromID, std::string toID, std::string asset, float amount){
+        std::string path = "/v1/account/subaccounts/transfer";
+        std::string marshalledBody = "{";
+        marshalledBody += "\n\t" + createJSONlabel("fromId", fromID) + ",";
+        marshalledBody += "\n\t" + createJSONlabel("toId", toID) + ",";
+        marshalledBody += "\n\t" + createJSONlabel("currencyCode", asset) + ",";
+        marshalledBody += "\n\t" + createJSONlabel("amount", std::to_string(amount)) + "\n";
+        marshalledBody +=  "\n" "}";
+
+        std::string res = client.request("POST", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str(), marshalledBody.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        return;
     }
 /*
     // GET BALANCE

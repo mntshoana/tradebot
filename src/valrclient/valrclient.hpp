@@ -23,6 +23,8 @@ namespace VALR {
         static std::vector<Account> getSubAccounts();
         static std::string createSubAccount(std::string label);
         static std::vector<AccountSummary> getNonZeroBalances();
+        static void internalTransfer(std::string fromID, std::string toID,
+                                     std::string asset, float amount);
         // create account
         // update account
         // list pending transaction

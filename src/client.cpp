@@ -37,6 +37,12 @@ std::string get_timestamp_iso8601_string(long seconds) {
     return buf;
 }
 
+// Creates a single line string for JSON marshalling
+// ex: "value":"key"
+std::string createJSONlabel(std::string label, std::string key){
+    return R"(")" + label + R"(":")" + key + R"(")" ;
+}
+
 // only returns portion of string immediately following a colon
 //   this string will be within opening ["] and ending ["] delimiters
 std::string extractNextString(std::string source, size_t start, size_t& jumpTo) {
