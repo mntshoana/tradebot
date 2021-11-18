@@ -304,6 +304,31 @@ namespace VALR {
         return ss.str();
     }
 
+std::string TransactionInfo::toString() const{
+    std::stringstream ss;
+    ss << "Transaction Info... " << "\n";
+    ss << "Type: " << type << "\n";
+    ss << "Description: " << description << "\n";
+    ss << "ID: " << id << "\n";
+    
+    if (creditAsset != ""){
+        ss << "Credited "  << creditValue <<  " (" <<  creditAsset << ")\n";
+    }
+    if (debitAsset != ""){
+        ss << "Debited "  << debitValue <<  " (" <<  debitAsset << ")\n";
+    }
+    if (feeAsset != ""){
+        ss << "Charged "  << feeValue <<  " (" <<  feeAsset << ")\n";
+    }
+    ss << " Timestamp " << timestamp << "\n";
+    
+    if (additionalInfo != ""){
+        ss << " Additional Info: " << additionalInfo;
+    }
+    
+    return ss.str();
+}
+
     /* Order Function Types*/
     std::string UserOrder::toString() const{
         std::stringstream ss;
@@ -346,6 +371,9 @@ printableDefinition(VALR::Balance);
 printableList(VALR::Balance);
 printableDefinition(VALR::AccountSummary);
 printableList(VALR::AccountSummary);
+printableDefinition(VALR::TransactionInfo);
+printableList(VALR::TransactionInfo);
+
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);

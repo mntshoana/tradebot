@@ -26,6 +26,7 @@ namespace VALR {
         static void internalTransfer(std::string fromID, std::string toID,
                                      std::string asset, float amount);
         static std::vector<Balance> getBalances();
+        static std::vector<TransactionInfo> getTransactionHistory(int skip = 0, int limit = 10);
         // create account
         // update account
         // list pending transaction

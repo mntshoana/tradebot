@@ -275,11 +275,110 @@ namespace VALR {
         return balances;
     }
 
-    
+    // TRANSACTION HISTORY
+    //
+    // Returns 10 trades (max 200). Able to skip a number of trades from list
+    std::vector<TransactionInfo> VALR::VALRClient::getTransactionHistory(int skip, int limit){
+        std::string path = "/v1/account/transactionhistory";
+        int args = 0;
+        if (skip != 0){
+            path += (args++ ? "&" : "?");
+            path += "skip=" + std::to_string(skip);
+        }
+        if (limit != 0){
+            path += (args++ ? "&" : "?");
+            path += "limit=" + std::to_string(limit);
+        }
+
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::vector<TransactionInfo> history;
+        size_t last = 0;
+        
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+        
+        
+        while ((last = res.find("{", last)) != std::string::npos) {
+            // Seperate the json data first
+            
+            last = res.find("transactionType", last) + 1;
+            std::string type = extractNextStringBlock(res, last, "{", "}", last);
+
+            std::string theRest, additionalInfo, transaID;
+            
+            for (size_t index = last; index < res.size(); index++){
+                if (res[index] == '{'){
+                    // means it contains more additional info.
+                    // NOTE: "additionalInfo" == 16 characters
+                    
+                    // first take everything between transaction type and aditional info
+                    theRest = res.substr(last, index - last-1 - 16);
+                    // then, separate Additional Info
+                    additionalInfo = extractNextStringBlock(res, index, "{", "}", last);
+                    // Lastly, take the ID too
+                    transaID = extractNextString(res, last, "}", last);
+                    break;
+                }
+                else if (res[index] == '}'){
+                    // means no additional info, just take everything as is
+                    theRest = res.substr(last, index - last -1);
+                    last += index + 1;
+                    break;
+                }
+                else continue;
+            }
+            // now sort through the current data (unmarshal as normal)
+            std::string token;
+            TransactionInfo transaction;
+            size_t tempPos = 0;
+
+            transaction.type = extractNextString(type, tempPos, tempPos);
+            transaction.description = extractNextString(type, tempPos, tempPos);
+            
+            tempPos = theRest.find("debitCurrency", 0);
+            if (tempPos != std::string::npos){
+                transaction.debitAsset = extractNextString(theRest, tempPos, tempPos);
+                token = extractNextString(theRest, tempPos, tempPos);
+                transaction.debitValue = atof(token.c_str());
+            }
+            
+            tempPos = theRest.find("creditCurrency", 0);
+            if (tempPos != std::string::npos){
+                transaction.creditAsset = extractNextString(theRest, tempPos, tempPos);
+                token = extractNextString(theRest, tempPos, tempPos);
+                transaction.creditValue = atof(token.c_str());
+            }
+            
+            tempPos = theRest.find("feeCurrency", 0);
+            if (tempPos != std::string::npos){
+                transaction.feeAsset = extractNextString(theRest, tempPos, tempPos);
+                token = extractNextString(theRest, tempPos, tempPos);
+                transaction.feeValue = atof(token.c_str());
+            }
+            
+            tempPos = theRest.find("eventAt", 0);
+            token = extractNextString(theRest, tempPos, tempPos);
+            transaction.timestamp = get_seconds_since_epoch(token);
+            
+            transaction.additionalInfo = additionalInfo;
+            
+            if (transaID != "")
+                transaction.id = transaID;
+            else
+                transaction.id = extractNextString(theRest, tempPos, tempPos);
+            
+            history.push_back(transaction);
+        }
+        
+        return history;
+    }
  /*
  // create account
  // update account
  // list pending transaction
- // list transaction
 */
 }

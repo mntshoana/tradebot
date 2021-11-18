@@ -148,6 +148,23 @@ namespace VALR {
         std::vector<Balance> balances;
         std::string toString() const;
     };
+
+    class TransactionInfo {
+    public:
+        TransactionInfo(){}
+        std::string type;
+        std::string description;
+        std::string creditAsset;
+        std::string debitAsset;
+        std::string feeAsset;
+        float creditValue;
+        float debitValue;
+        float feeValue;
+        unsigned long long timestamp;
+        std::string id;
+        std::string additionalInfo;
+        std::string toString() const;
+    };
     /* Order Function Types*/
     /*class Fee {
     public:
@@ -234,5 +251,8 @@ declarePrintable(VALR::Balance);
 declarePrintableList(VALR::Balance);
 declarePrintable(VALR::AccountSummary);
 declarePrintableList(VALR::AccountSummary);
+declarePrintable(VALR::TransactionInfo);
+declarePrintableList(VALR::TransactionInfo);
+
 
 #endif /* valrTypes_h */
