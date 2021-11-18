@@ -25,11 +25,12 @@ namespace VALR {
         static std::vector<AccountSummary> getNonZeroBalances();
         static void internalTransfer(std::string fromID, std::string toID,
                                      std::string asset, float amount);
+        static std::vector<Balance> getBalances();
         // create account
         // update account
         // list pending transaction
         // list transaction
-        /*static std::vector<Balance> getBalances(std::string asset = "");*/
+        
         
         /* Order Functions */
         /*static Fee getFeeInfo(std::string pair);

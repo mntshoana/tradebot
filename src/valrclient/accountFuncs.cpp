@@ -223,83 +223,60 @@ namespace VALR {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
+        // expecting no response message on success
         return;
     }
-/*
+
     // GET BALANCE
     //
-    // assets can list multiple comma separated assets
-    std::vector<Balance> VALRClient::getBalances(std::string assets){
-        std::string uri = "https://api.mybitx.com/api/1/balance";
-        if (assets != "")
-            uri += "?assets=" + assets;
-        std::string res = client.request("GET", uri.c_str(), true);
+    // returns entire list of balances
+    std::vector<Balance> VALRClient::getBalances(){
+        std::string path = "/v1/account/balances";
+        
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
         
         int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         std::vector<Balance> balances;
-        size_t last = 0, next = 0;
+        size_t last = 0;
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+       
         last = res.find("[", last) + 1;
         
         while ((last = res.find("{", last)) != std::string::npos) {
-            balances.push_back(Balance());
             
-            //account_id
-            last = res.find("account_id", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            balances.back().accountID = res.substr(last, next-last);
-            last = next + 1;
+            Balance balance;
             
-            //asset
-            last = res.find("asset", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            balances.back().asset = res.substr(last, next-last);
-            last = next + 1;
+            //balance:currency
+            balance.asset  =  extractNextString(res, last, last);
             
-            //balance
-            last = res.find("balance", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            std::string token = res.substr(last, next-last);
-            balances.back().balance = atof(token.c_str());
-            last = next + 1;
+            //balance:available
+            std::string token = extractNextString(res, last, last);
+            balance.available = atof(token.c_str());
             
-            //reserved
-            last = res.find("reserved", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
-            balances.back().reserved = atof(token.c_str());
-            last = next + 1;
+            //balance:reserved
+            token = extractNextString(res, last, last);
+            balance.reserved = atof(token.c_str());
             
-            //unconfirmed
-            last = res.find("unconfirmed", last);
-            last = res.find(":", last) + 2;
-            next = res.find("\"", last);
-            token = res.substr(last, next-last);
-            balances.back().uncomfirmed = atof(token.c_str());
-            last = next + 1;
+            //balance:balance
+            token = extractNextString(res, last, last);
+            balance.balance = atof(token.c_str());
+            
+            //balance:last Updated
+            token = extractNextString(res, last, last);
+            balance.lastUpdated = get_seconds_since_epoch(token);
+            
+            balances.push_back(balance);
         }
+        
         return balances;
     }
 
-    template <class T> T& operator << (T& stream, Balance& balance) {
-        std::stringstream ss;
-        ss << "ID: : " << balance.accountID << "\n";
-        ss << "Asset: " << balance.asset << "\n";
-        ss << "Balance: " << balance.balance << "\n";
-        ss << "Reserved: " << balance.reserved << "\n";
-        ss << "Unconfirmed: " << balance.uncomfirmed << "\n";
-        stream.append(ss.str().c_str());
-        return stream;
-    }
-
     
- 
+ /*
  // create account
  // update account
  // list pending transaction
