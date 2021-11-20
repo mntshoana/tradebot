@@ -275,12 +275,24 @@ namespace VALR {
         return balances;
     }
 
-    // TRANSACTION HISTORY
+    // TRANSACTION HISTORY (for your account)
     //
-    // Returns 10 trades (max 200). Able to skip a number of trades from list
-    std::vector<TransactionInfo> VALR::VALRClient::getTransactionHistory(int skip, int limit){
+    // Returns 10 trades (max 200). Able to skip a number of trades from list or restrict history to show those which were made before a given tradeId
+    // Able to filter using:
+    // transactionType LIMIT_BUY,LIMIT_SELL,MARKET_BUY,MARKET_SELL,SIMPLE_BUY,SIMPLE_SELL,AUTO_BUY,MAKER_REWARD,BLOCKCHAIN_RECEIVE,BLOCKCHAIN_SEND,FIAT_DEPOSIT,FIAT_WITHDRAWAL,REFERRAL_REBATE,REFERRAL_REWARD,PROMOTIONAL_REBATE,INTERNAL_TRANSFER,FIAT_WITHDRAWAL_REVERSAL,PAYMENT_SENT,PAYMENT_RECEIVED,PAYMENT_REVERSED,PAYMENT_REWARD,OFF_CHAIN_BLOCKCHAIN_WITHDRAW,OFF_CHAIN_BLOCKCHAIN_DEPOSIT,AUTO_BUY,SIMPLE_SWAP_BUY,SIMPLE_SWAP_SELL,SIMPLE_SWAP_FAILURE_REVERSAL
+    // currency (the creditCurrency or the debitCurrency matches this parameter)
+    // startTime and startTime (ISO 8601 strings)
+    std::vector<TransactionInfo> VALR::VALRClient::getTransactionHistory(std::string asset, std::string transactionType, int skip, int limit, std::string startT, std::string endT, std::string beforeID){
         std::string path = "/v1/account/transactionhistory";
         int args = 0;
+        if (asset != ""){
+            path += (args++ ? "&" : "?");
+            path += "currency=" + asset;
+        }
+        if (transactionType != ""){
+            path += (args++ ? "&" : "?");
+            path += "transactionTypes=" + transactionType;
+        }
         if (skip != 0){
             path += (args++ ? "&" : "?");
             path += "skip=" + std::to_string(skip);
@@ -288,6 +300,18 @@ namespace VALR {
         if (limit != 0){
             path += (args++ ? "&" : "?");
             path += "limit=" + std::to_string(limit);
+        }
+        if (startT != ""){
+            path += (args++ ? "&" : "?");
+            path += "startTime=" + startT;
+        }
+        if (endT != ""){
+            path += (args++ ? "&" : "?");
+            path += "endTime=" + endT;
+        }
+        if (endT != ""){
+            path += (args++ ? "&" : "?");
+            path += "beforeId=" + beforeID;
         }
 
         std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
