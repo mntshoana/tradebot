@@ -304,30 +304,30 @@ namespace VALR {
         return ss.str();
     }
 
-std::string TransactionInfo::toString() const{
-    std::stringstream ss;
-    ss << "Transaction Info... " << "\n";
-    ss << "Type: " << type << "\n";
-    ss << "Description: " << description << "\n";
-    ss << "ID: " << id << "\n";
-    
-    if (creditAsset != ""){
-        ss << "Credited "  << creditValue <<  " (" <<  creditAsset << ")\n";
+    std::string TransactionInfo::toString() const{
+        std::stringstream ss;
+        ss << "Transaction Info... " << "\n";
+        ss << "Type: " << type << "\n";
+        ss << "Description: " << description << "\n";
+        ss << "ID: " << id << "\n";
+        
+        if (creditAsset != ""){
+            ss << "Credited "  << creditValue <<  " (" <<  creditAsset << ")\n";
+        }
+        if (debitAsset != ""){
+            ss << "Debited "  << debitValue <<  " (" <<  debitAsset << ")\n";
+        }
+        if (feeAsset != ""){
+            ss << "Charged "  << feeValue <<  " (" <<  feeAsset << ")\n";
+        }
+        ss << " Timestamp " << timestamp << "\n";
+        
+        if (additionalInfo != ""){
+            ss << " Additional Info: " << additionalInfo;
+        }
+        
+        return ss.str();
     }
-    if (debitAsset != ""){
-        ss << "Debited "  << debitValue <<  " (" <<  debitAsset << ")\n";
-    }
-    if (feeAsset != ""){
-        ss << "Charged "  << feeValue <<  " (" <<  feeAsset << ")\n";
-    }
-    ss << " Timestamp " << timestamp << "\n";
-    
-    if (additionalInfo != ""){
-        ss << " Additional Info: " << additionalInfo;
-    }
-    
-    return ss.str();
-}
 
     /* Order Function Types*/
     std::string UserOrder::toString() const{
@@ -348,6 +348,13 @@ std::string TransactionInfo::toString() const{
         return ss.str();
     }
 
+    std::string UserTrade::toString() const{
+        std::stringstream ss;
+        ss << Trade::toString();
+        ss << "Order ID: " << orderID << "\n";
+
+        return ss.str();
+    }
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -373,7 +380,8 @@ printableDefinition(VALR::AccountSummary);
 printableList(VALR::AccountSummary);
 printableDefinition(VALR::TransactionInfo);
 printableList(VALR::TransactionInfo);
-
+printableDefinition(VALR::UserTrade);
+printableList(VALR::UserTrade);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);

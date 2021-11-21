@@ -400,6 +400,69 @@ namespace VALR {
         
         return history;
     }
+
+    std::vector<UserTrade> VALR::VALRClient::getUserTrades(std::string pair,  int limit){
+        std::string path = "/v1/account/" + pair + "/tradehistory";
+        if (limit != 0){
+            path += "?limit=" + std::to_string(limit);
+        }
+        
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::vector<UserTrade> trades;
+        size_t last = 0;
+        last = res.find("[", last) + 1;
+        
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+        
+        while ((last = res.find("{", last)) != std::string::npos) {
+            UserTrade trade;
+
+            // price
+            std::string token = extractNextString(res, last, last);
+            trade.price = atof(token.c_str());
+            
+            // volume (quantity)
+            token = extractNextString(res, last, last);
+            trade.baseVolume = atof(token.c_str());
+            
+            // pair
+            token = extractNextString(res, last, last);
+            trade.pair = token;
+            
+            // timestamp
+            token = extractNextString(res, last, last);
+            trade.timestamp = get_seconds_since_epoch(token);
+            
+            // isBuy
+            token = extractNextString(res, last, last);
+            trade.isBuy = (token == "buy") ? true : false;
+            
+            // sequenceID
+            token = extractNextString(res, last, ",", last);
+            trade.sequence = atoll(token.c_str());
+            
+            // id
+            trade.id = extractNextString(res, last, last);
+            
+            // orderId
+            trade.orderID = extractNextString(res, last, last);
+            
+            // qupte volume
+            trade.quoteVolume = trade.baseVolume * trade.price;
+            
+            trades.push_back(trade);
+        }
+        
+        return trades;
+    }
+
+
  /*
  // create account
  // update account

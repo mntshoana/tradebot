@@ -196,19 +196,16 @@ namespace VALR {
         
         std::string toString() const;
     };
-/*
+
     class UserTrade : public Trade {
     public:
         UserTrade() : Trade() {}
-        std::string pair;
         std::string orderID;
-        std::string type;
-        float baseValue, baseFee;
-        float counterValue, counterFee;
- 
-        std::string toString();
+        
+        
+        
+        std::string toString() const;
     };
-    declarePrintable(UserTrade);*/
 
     /* Transfer Functions Types*/
     /*class Withdrawal {
@@ -253,6 +250,7 @@ declarePrintable(VALR::AccountSummary);
 declarePrintableList(VALR::AccountSummary);
 declarePrintable(VALR::TransactionInfo);
 declarePrintableList(VALR::TransactionInfo);
-
+declarePrintable(VALR::UserTrade);
+declarePrintableList(VALR::UserTrade);
 
 #endif /* valrTypes_h */
