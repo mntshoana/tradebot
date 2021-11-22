@@ -461,11 +461,4 @@ namespace VALR {
         
         return trades;
     }
-
-
- /*
- // create account
- // update account
- // list pending transaction
-*/
 }

@@ -27,7 +27,10 @@ namespace VALR {
                                      std::string asset, float amount);
         static std::vector<Balance> getBalances();
         static std::vector<TransactionInfo> getTransactionHistory(std::string asset = "", std::string transactionType = "", int skip = 0, int limit = 10,  std::string startT = "", std::string endT = "", std::string beforeID = "");
-        static std::vector<UserTrade> getUserTrades(std::string pair,  int limit = 0); 
+        static std::vector<UserTrade> getUserTrades(std::string pair,  int limit = 0);
+        
+        /* Wallet Functions */
+        static std::string getAddress(std::string asset);
         // create account
         // update account
         // list pending transaction
