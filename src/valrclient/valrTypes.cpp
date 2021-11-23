@@ -355,6 +355,17 @@ namespace VALR {
 
         return ss.str();
     }
+
+    /* Wallet Function Types */
+    std::string AddressEntry::toString() const{
+        std::stringstream ss;
+        ss << "Label: " << label << "\n";
+        ss << "Asset: " << asset << "\n";
+        ss << "Address: " << address << "\n";
+        ss << "Timestamp: " <<  timestamp << "\n";
+        return ss.str();
+    }
+
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -382,6 +393,10 @@ printableDefinition(VALR::TransactionInfo);
 printableList(VALR::TransactionInfo);
 printableDefinition(VALR::UserTrade);
 printableList(VALR::UserTrade);
+
+/* Wallet Functions */
+printableDefinition(VALR::AddressEntry);
+printableList(VALR::AddressEntry);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);

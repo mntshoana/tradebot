@@ -31,6 +31,9 @@ namespace VALR {
         
         /* Wallet Functions */
         static std::string getAddress(std::string asset);
+        static std::vector<AddressEntry> getWithdrawalAddressEntries(std::string asset = "");
+        
+        
         // create account
         // update account
         // list pending transaction

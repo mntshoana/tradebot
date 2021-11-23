@@ -4,7 +4,8 @@
 extern Client client;
 
 namespace VALR {
-    std::string host = "https://api.valr.com";
+    std::string host = "https://api.valr.com"; // variable used in other cpp files as well
+
     // GET ORDERBOOK
     //
     //

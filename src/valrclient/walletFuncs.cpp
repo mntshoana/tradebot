@@ -28,6 +28,49 @@ namespace VALR {
         
         return address;
     }
+    
+    // GET WITHDRAWAL ADDRESS ENTRIES
+    // Returns all the withdrawal addresses whitelisted for the account
+    // Able to filter for a particular asset/currency
+    std::vector<AddressEntry> VALRClient::getWithdrawalAddressEntries(std::string asset){
+        std::string path = "/v1/wallet/crypto/address-book";
+        if (asset != ""){
+            path += "/" + asset;
+        }
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::vector<AddressEntry> whitelistedAddresses;
+        size_t last = 0;
+        
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+        std::string token;
+        while ((last = res.find("{", last)) != std::string::npos) {
+            AddressEntry entry;
+        
+            // id
+            entry.id = extractNextString(res, last, last);
+            
+            // label
+            entry.label = extractNextString(res, last, last);
+            
+            // currency
+            entry.asset = extractNextString(res, last, last);
+            
+            // address
+            entry.address    = extractNextString(res, last, last);
+            
+            // createdAt
+            entry.timestamp = extractNextString(res, last, last);
+            whitelistedAddresses.push_back(entry);
+        }
+        
+        return whitelistedAddresses;
+    }
 }
 /*
 // create account

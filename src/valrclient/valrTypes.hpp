@@ -201,12 +201,22 @@ namespace VALR {
     public:
         UserTrade() : Trade() {}
         std::string orderID;
-        
-        
-        
+          
         std::string toString() const;
     };
 
+    /* Wallet Function Types */
+    class AddressEntry {
+    public:
+        AddressEntry() {}
+        std::string id;
+        std::string label;
+        std::string asset;
+        std::string address;
+        std::string timestamp;
+           
+        std::string toString() const;
+    };
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:
@@ -252,5 +262,9 @@ declarePrintable(VALR::TransactionInfo);
 declarePrintableList(VALR::TransactionInfo);
 declarePrintable(VALR::UserTrade);
 declarePrintableList(VALR::UserTrade);
+
+/* Wallet Functions */
+declarePrintable(VALR::AddressEntry);
+declarePrintableList(VALR::AddressEntry);
 
 #endif /* valrTypes_h */
