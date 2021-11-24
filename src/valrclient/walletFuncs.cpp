@@ -71,6 +71,54 @@ namespace VALR {
         
         return whitelistedAddresses;
     }
+
+    // GET WITHDRAWAL INFO
+    // Information about withdrawing a given currency from your account.
+    //
+    WithdrawalDetail VALRClient::getWithdrawalInfo(std::string asset){
+        std::string path = "/v1/wallet/crypto/"+ asset +"/withdraw";
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        size_t last = 0;
+        
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+        std::string token;
+        WithdrawalDetail info;
+    
+        // currency
+        info.asset = extractNextString(res, last, last);
+        
+        // minimumWithdrawAmount
+        token = extractNextString(res, last, last);
+        info.min = atof(token.c_str());
+        
+        // withdrawalDecimalPlaces
+        token = extractNextString(res, last, last);
+        info.decimals = atoi(token.c_str());
+        
+        // isActive
+        token = extractNextString(res, last, last);
+        info.isActive = (token == "true" ? true : false);
+
+        /*
+         "withdrawCost": "0.00013",
+         "supportsPaymentReference": false*/
+        
+        // withdrawCost
+        token = extractNextString(res, last, last);
+        info.fee = atof(token.c_str());
+        
+        // supportsPaymentReference
+        token = extractNextString(res, last, last);
+        info.supportsReference = (token == "true" ? true : false);
+    
+        return info;
+    }
 }
 /*
 // create account

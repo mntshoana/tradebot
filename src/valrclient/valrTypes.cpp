@@ -366,6 +366,17 @@ namespace VALR {
         return ss.str();
     }
 
+    std::string WithdrawalDetail::toString() const{
+        std::stringstream ss;
+        ss << "Asset: " << asset << "\n";
+        ss << "Minimum withdrawal allowed: " << min << "\n";
+        ss << "Withdrawal decimal places: " << decimals << "\n";
+        ss << "Is active? : " <<  (isActive ? "YES" : "NO") << "\n";
+        ss << "Withdrawal fee : " <<  fee << "\n";
+        ss << "Supports payment reference? : " <<  (supportsReference ? "YES" : "NO") << "\n";
+        return ss.str();
+    }
+
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -397,6 +408,8 @@ printableList(VALR::UserTrade);
 /* Wallet Functions */
 printableDefinition(VALR::AddressEntry);
 printableList(VALR::AddressEntry);
+printableDefinition(VALR::WithdrawalDetail);
+printableList(VALR::WithdrawalDetail);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);

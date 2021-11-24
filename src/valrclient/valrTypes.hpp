@@ -217,6 +217,19 @@ namespace VALR {
            
         std::string toString() const;
     };
+    
+    class WithdrawalDetail {
+    public:
+        WithdrawalDetail() {}
+
+        std::string asset;
+        float min;
+        int decimals;
+        bool isActive;
+        float fee;
+        bool supportsReference;
+        std::string toString() const;
+    };
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:
@@ -266,5 +279,7 @@ declarePrintableList(VALR::UserTrade);
 /* Wallet Functions */
 declarePrintable(VALR::AddressEntry);
 declarePrintableList(VALR::AddressEntry);
+declarePrintable(VALR::WithdrawalDetail);
+declarePrintableList(VALR::WithdrawalDetail);
 
 #endif /* valrTypes_h */
