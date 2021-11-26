@@ -377,6 +377,22 @@ namespace VALR {
         return ss.str();
     }
 
+    std::string WithdrawalInfo::toString() const{
+        std::stringstream ss;
+        ss << "Asset: " << asset << "\n";
+        ss << "Address: " << address << "\n";
+        ss << "Amount: " << amount << "\n";
+        ss << "Fee: " << fee << "\n";
+        ss << "Transaction hash: " << transactionHash << "\n";
+        ss << "Confirmations: " << confirmations << "\n";
+        ss << "Last confirmation at: " << lastConfrimationAt << "\n";
+        ss << "ID: " << id << "\n";
+        ss << "Created at: " << timestamp << "\n";
+        ss << "Is Verified? : " << (isVerified ? "Yes" : "No") << "\n";
+        ss << "Status: " << status << "\n";
+        
+        return ss.str();
+    }
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -410,6 +426,9 @@ printableDefinition(VALR::AddressEntry);
 printableList(VALR::AddressEntry);
 printableDefinition(VALR::WithdrawalDetail);
 printableList(VALR::WithdrawalDetail);
+printableDefinition(VALR::WithdrawalInfo);
+printableList(VALR::WithdrawalInfo);
+
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);

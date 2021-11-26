@@ -34,6 +34,7 @@ namespace VALR {
         static std::vector<AddressEntry> getWithdrawalAddressEntries(std::string asset = "");
         static WithdrawalDetail getWithdrawalInfo(std::string asset);
         static std::string withdraw (std::string asset, float amount, std::string address);
+        static WithdrawalInfo getWithdrawalByID(std::string asset, std::string id);
         
         // create account
         // update account

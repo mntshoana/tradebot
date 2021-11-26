@@ -230,6 +230,24 @@ namespace VALR {
         bool supportsReference;
         std::string toString() const;
     };
+
+    class WithdrawalInfo {
+    public:
+        WithdrawalInfo() {}
+        std::string asset;
+        std::string address;
+        float amount;
+        float fee;
+        std::string transactionHash;
+        int confirmations;
+        std::string lastConfrimationAt;
+        std::string id;
+        std::string timestamp;
+        bool isVerified;
+        std::string status;
+        
+        std::string toString() const;
+    };
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:
@@ -281,5 +299,7 @@ declarePrintable(VALR::AddressEntry);
 declarePrintableList(VALR::AddressEntry);
 declarePrintable(VALR::WithdrawalDetail);
 declarePrintableList(VALR::WithdrawalDetail);
+declarePrintable(VALR::WithdrawalInfo);
+declarePrintableList(VALR::WithdrawalInfo);
 
 #endif /* valrTypes_h */

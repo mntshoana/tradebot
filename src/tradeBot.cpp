@@ -54,7 +54,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                     true);*/
     
     //VALR::VALRClient::internalTransfer("918968653024043008", "918950975726170112", "ZAR", 20.0f);
-    *home->workPanel->text << VALR::VALRClient::withdraw("BTC", 0.0002, "1JbLcdfREHaTA76e8k85BprtoJSmHqqZXo" );
+    *home->workPanel->text << VALR::VALRClient::getWithdrawalByID("BTC", "1JbLcdfREHaTA76e8k85BprtoJSmHqqZXo" );
     
     
     installEventFilter(this);
