@@ -248,6 +248,8 @@ namespace VALR {
         
         std::string toString() const;
     };
+
+    typedef WithdrawalInfo DepositInfo;
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:

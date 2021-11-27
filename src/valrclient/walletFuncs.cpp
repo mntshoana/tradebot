@@ -29,7 +29,7 @@ namespace VALR {
         return address;
     }
     
-    // GET WITHDRAWAL ADDRESS ENTRIES
+    // GET WITHDRAWAL ADDRESS ENTRIES (Crypto)
     // Returns all the withdrawal addresses whitelisted for the account
     // Able to filter for a particular asset/currency
     std::vector<AddressEntry> VALRClient::getWithdrawalAddressEntries(std::string asset){
@@ -72,7 +72,7 @@ namespace VALR {
         return whitelistedAddresses;
     }
 
-    // GET WITHDRAWAL INFO
+    // GET WITHDRAWAL INFO (Crypto)
     // Information about withdrawing a given currency from your account.
     //
     WithdrawalDetail VALRClient::getWithdrawalInfo(std::string asset){
@@ -102,7 +102,7 @@ namespace VALR {
         info.decimals = atoi(token.c_str());
         
         // isActive
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, ",", last);
         info.isActive = (token == "true" ? true : false);
         
         // withdrawCost
@@ -110,13 +110,13 @@ namespace VALR {
         info.fee = atof(token.c_str());
         
         // supportsPaymentReference
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, ",", last);
         info.supportsReference = (token == "true" ? true : false);
     
         return info;
     }
     
-    // Withdraw (crypto)
+    // Withdraw (Crypto)
     // This will withdraw a cryptocurrency amount to an address.
     std::string VALRClient::withdraw( std::string asset, float amount, std::string address){
         std::string path = "/v1/wallet/crypto/" + asset + "/withdraw";
@@ -136,11 +136,11 @@ namespace VALR {
         return id;
     }
 
-    // GET WITHDRAWAL BY ID
+    // GET WITHDRAWAL BY ID (Crypto)
     // Information about a given currency withdrawal from your account using a known ID.
     //
     WithdrawalInfo VALRClient::getWithdrawalByID(std::string asset, std::string id){
-        std::string path = "/v1/crypto/" + asset + "/withdraw/" + id;
+        std::string path = "/v1/wallet/crypto/" + asset + "/withdraw/" + id;
         std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
         
         int httpCode = client.getHttpCode();
@@ -172,7 +172,7 @@ namespace VALR {
         info.transactionHash = extractNextString(res, last, last);
         
         // confirmations
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, ",", last);
         info.confirmations = atoi(token.c_str());
         
         // lastConfirmationAt
@@ -192,6 +192,77 @@ namespace VALR {
         info.status = extractNextString(res, last, last);
 
         return info;
+    }
+
+    // DEPOSIT HISTORY (Crypto)
+    // the deposit history records for a given crypto currency
+    //
+    std::vector<DepositInfo> VALRClient::getDepositHistory(std::string asset, int skip, int limit){
+        std::string path = "/v1/wallet/crypto/" + asset + "/deposit/history";
+        int args = 0;
+        if (skip != 0){
+            path += (args++ ? "&" : "?");
+            path += "skip=" + std::to_string(skip);
+        }
+        if (limit != 0){
+            path += (args++ ? "&" : "?");
+            path += "limit=" + std::to_string(limit);
+        }
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        size_t last = 0;
+        
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+        std::string token;
+        std::vector<DepositInfo> list;
+        
+        while ((last = res.find("{", last)) != std::string::npos) {
+            DepositInfo info;
+
+            // currencyCode
+            info.asset = extractNextString(res, last, last);
+            
+            // receiveAddress
+            info.address = extractNextString(res, last, last);
+            
+            // transactionHash
+            info.transactionHash = extractNextString(res, last, last);
+            
+            // amount
+            token = extractNextString(res, last, last);
+            info.amount = atof(token.c_str());
+            
+            // No fee
+            info.fee = 0.0f;
+            
+            // createdAt
+            info.timestamp = extractNextString(res, last, last);
+            
+            // confirmations
+            token = extractNextString(res, last, last);
+            info.confirmations = atoi(token.c_str());
+           
+            // confirmed
+            token = extractNextString(res, last, ",",  last);
+            info.isVerified = (token == "true" ? true : false);
+            
+            // lastConfirmationAt
+            info.lastConfrimationAt = extractNextString(res, last, last);
+            
+            // no ID
+            info.id = "";
+            
+            // no status
+            info.status = "";
+            
+            list.push_back(info);
+        }
+        return list;
     }
 }
 /*
