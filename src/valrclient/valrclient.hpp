@@ -36,6 +36,7 @@ namespace VALR {
         static std::string withdraw (std::string asset, float amount, std::string address);
         static WithdrawalInfo getWithdrawalByID(std::string asset, std::string id);
         static std::vector<DepositInfo> getDepositHistory(std::string asset, int skip = 0, int limit = 20);
+        static std::vector<WithdrawalInfo> getWithdrawalHistory(std::string asset, int skip = 0, int limit = 20);
         
         // create account
         // update account

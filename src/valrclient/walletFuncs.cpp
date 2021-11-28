@@ -264,6 +264,79 @@ namespace VALR {
         }
         return list;
     }
+
+    // WITHDRAW HISTORY (Crypto)
+    // the withdrawaL history records for a given crypto currency
+    //
+    std::vector<WithdrawalInfo> VALRClient::getWithdrawalHistory(std::string asset, int skip, int limit){
+        std::string path = "/v1/wallet/crypto/" + asset + "/withdraw/history";
+        int args = 0;
+        if (skip != 0){
+            path += (args++ ? "&" : "?");
+            path += "skip=" + std::to_string(skip);
+        }
+        if (limit != 0){
+            path += (args++ ? "&" : "?");
+            path += "limit=" + std::to_string(limit);
+        }
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        size_t last = 0;
+        
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+        std::string token;
+        std::vector<WithdrawalInfo> list;
+        
+        while ((last = res.find("{", last)) != std::string::npos) {
+            WithdrawalInfo info;
+            
+            // currency
+            info.asset = extractNextString(res, last, last);
+            
+            // address
+            info.address = extractNextString(res, last, last);
+            
+            // amount
+            token = extractNextString(res, last, last);
+            info.amount = atof(token.c_str());
+            
+            // feeAmount
+            token = extractNextString(res, last, last);
+            info.fee = atof(token.c_str());
+            
+            // transactionHash
+            info.transactionHash = extractNextString(res, last, last);
+            
+            // confirmations
+            token = extractNextString(res, last, ",", last);
+            info.confirmations = atoi(token.c_str());
+            
+            // lastConfirmationAt
+            info.lastConfrimationAt = extractNextString(res, last, last);
+            
+            // uniqueId
+            info.id = extractNextString(res, last, last);
+            
+            // createdAt
+            info.timestamp = extractNextString(res, last, last);
+            
+            // verified
+            token = extractNextString(res, last, last);
+            info.isVerified = (token == "true" ? true : false);
+            
+            // status
+            info.status = extractNextString(res, last, last);
+            
+            list.push_back(info);
+        }
+        return list;
+    }
+
 }
 /*
 // create account
