@@ -337,6 +337,53 @@ namespace VALR {
         return list;
     }
 
+    // WITHDRAWAL BANK (FIAT)
+    // lists bank accounts linked to your account.
+    //
+    std::vector<BankInfo> VALRClient::getBankAccounts(std::string asset){
+        std::string path = "/v1/wallet/fiat/" + asset + "/accounts";
+        
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        size_t last = 0;
+        
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+        std::string token;
+        std::vector<BankInfo> list;
+        
+        while ((last = res.find("{", last)) != std::string::npos) {
+            BankInfo account;
+            
+            // id
+            account.id = extractNextString(res, last, last);
+            
+            // bank
+            account.bank = extractNextString(res, last, last);
+            
+            // accountHolder
+            account.accountHolder = extractNextString(res, last, last);
+
+            // accountNumber
+            account.accountNumber = extractNextString(res, last, last);
+            
+            // branchCode
+            account.branchCode = extractNextString(res, last, last);
+            
+            // accountType
+            account.accountType = extractNextString(res, last, last);
+           
+            // createdAt
+            account.timestamp = extractNextString(res, last, last);
+
+            list.push_back(account);
+        }
+        return list;
+    }
 }
 /*
 // create account

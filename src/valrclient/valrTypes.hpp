@@ -250,6 +250,19 @@ namespace VALR {
     };
 
     typedef WithdrawalInfo DepositInfo;
+
+    class BankInfo {
+    public:
+        std::string id;
+        std::string bank;
+        std::string accountHolder;
+        std::string accountNumber;
+        std::string branchCode;
+        std::string accountType;
+        std::string timestamp;
+        
+        std::string toString() const;
+    };
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:
@@ -303,5 +316,7 @@ declarePrintable(VALR::WithdrawalDetail);
 declarePrintableList(VALR::WithdrawalDetail);
 declarePrintable(VALR::WithdrawalInfo);
 declarePrintableList(VALR::WithdrawalInfo);
+declarePrintable(VALR::BankInfo);
+declarePrintableList(VALR::BankInfo);
 
 #endif /* valrTypes_h */

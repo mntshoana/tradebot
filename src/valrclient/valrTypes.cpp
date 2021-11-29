@@ -393,6 +393,19 @@ namespace VALR {
         
         return ss.str();
     }
+
+    std::string BankInfo::toString() const {
+        std::stringstream ss;
+        ss << "ID: " << id << "\n";
+        ss << "Bank: " << bank << "\n";
+        ss << "Account holder: " << accountHolder << "\n";
+        ss << "Account number: " << accountNumber << "\n";
+        ss << "Branch code: " << branchCode << "\n";
+        ss << "Account type" << accountType << "\n";
+        ss << "Created at: " << timestamp << "\n";
+        
+        return ss.str();
+    }
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -428,7 +441,8 @@ printableDefinition(VALR::WithdrawalDetail);
 printableList(VALR::WithdrawalDetail);
 printableDefinition(VALR::WithdrawalInfo);
 printableList(VALR::WithdrawalInfo);
-
+printableDefinition(VALR::BankInfo);
+printableList(VALR::BankInfo);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);
