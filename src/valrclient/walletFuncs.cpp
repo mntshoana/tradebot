@@ -268,7 +268,7 @@ namespace VALR {
     // WITHDRAW HISTORY (Crypto)
     // the withdrawaL history records for a given crypto currency
     //
-    std::vector<WithdrawalInfo> VALRClient::getWithdrawalHistory(std::string asset, int skip, int limit){
+    std::vector<WithdrawalInfo> VALRClient::getCryptoWithdrawalHistory(std::string asset, int skip, int limit){
         std::string path = "/v1/wallet/crypto/" + asset + "/withdraw/history";
         int args = 0;
         if (skip != 0){
@@ -383,6 +383,59 @@ namespace VALR {
             list.push_back(account);
         }
         return list;
+    }
+
+    // DEPOSIT REFERENCE
+    // If you would like to deposit into your VALR account (from your bank via an EFT), you would need this reference for it to be smoothly recorded into your account
+
+    std::string VALRClient::getFiatDepositReference(std::string asset){
+        std::string path = "/v1/wallet/fiat/" + asset + "/deposit/reference";
+        
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        size_t last = 0;
+        
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+        
+        std::string reference = extractNextString(res, last, last);
+           
+        return reference;
+    }
+
+    // REQUEST WITHDRAW
+    //
+    //
+    std::string VALRClient::fiatWithdraw(float amount, bool isFast, std::string accountID, std::string asset){
+        std::string path = "/v1/wallet/fiat/" + asset + "/withdraw";
+        
+        std::ostringstream strAmount;
+        strAmount.precision(2);
+        strAmount << std::fixed << amount;
+        
+        std::string strIsFast = (isFast ? "true":"false");
+        
+        std::string payload = "{";
+        payload += "\n\t" + createJSONlabel("linkedBankAccountId", accountID) + ",";
+        payload += "\n\t" + createJSONlabel("amount", strAmount.str()) + ",";
+        payload += "\n\t" + createJSONlabelUnquoted("fast", strIsFast);
+        payload +=  "\n" "}";
+        
+        std::string res = client.request("POST", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str(),
+            payload.c_str()
+        );
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::string id = extractNextString(res, 0);
+        
+        return id;
     }
 }
 /*

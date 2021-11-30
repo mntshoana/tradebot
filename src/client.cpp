@@ -43,6 +43,12 @@ std::string createJSONlabel(std::string label, std::string key){
     return R"(")" + label + R"(":")" + key + R"(")" ;
 }
 
+// Creates a single line string for JSON marshalling
+// ex: "value":"key"
+std::string createJSONlabelUnquoted(std::string label, std::string key){
+    return R"(")" + label + R"(":)" + key ;
+}
+
 // only returns portion of string immediately following a colon
 //   this string will be within opening ["] and ending ["] delimiters
 std::string extractNextString(std::string source, size_t start, size_t& jumpTo) {
@@ -146,6 +152,9 @@ std::string Client::request (const char* method, const char* uri, bool auth, int
         struct curl_slist *headers = NULL; // Required for VALR
 
         if (auth){
+            // Please note the following file is not included. ADD IT YOURSELF. It is a header file within in the src folder and it defines the following string literals
+            //      LUNO_USERNAME, LUNO_PASSWORD, VALR_PASSWORD, VALR_USERNAME, LKEY (localbitcoin) and LSECRET.
+            //      If you intend not to them, define them in ur file to be empty strings ""
             #include "credentials.hpp"
             if (exchange == LUNO_EXCHANGE){
                 // HTTP basic authentication

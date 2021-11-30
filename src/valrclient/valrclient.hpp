@@ -36,8 +36,12 @@ namespace VALR {
         static std::string withdraw (std::string asset, float amount, std::string address);
         static WithdrawalInfo getWithdrawalByID(std::string asset, std::string id);
         static std::vector<DepositInfo> getDepositHistory(std::string asset, int skip = 0, int limit = 20);
-        static std::vector<WithdrawalInfo> getWithdrawalHistory(std::string asset, int skip = 0, int limit = 20);
+        static std::vector<WithdrawalInfo> getCryptoWithdrawalHistory(std::string asset, int skip = 0, int limit = 20);
         static std::vector<BankInfo> getBankAccounts(std::string asset);
+        static std::string getFiatDepositReference(std::string asset);
+
+        #define VALR_DEFAULT_BANK_ID "8731a73f-4171-4c8a-a78d-d76c61f44d55"
+        static std::string fiatWithdraw(float amount, bool isFast, std::string accountID = VALR_DEFAULT_BANK_ID, std::string asset = "ZAR");
         // create account
         // update account
         // list pending transaction

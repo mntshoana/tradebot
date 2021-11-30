@@ -401,6 +401,9 @@ namespace VALR {
         return history;
     }
 
+    // USER TRADES
+    // Lists the trade history executed by the user
+    //
     std::vector<UserTrade> VALR::VALRClient::getUserTrades(std::string pair,  int limit){
         std::string path = "/v1/account/" + pair + "/tradehistory";
         if (limit != 0){
