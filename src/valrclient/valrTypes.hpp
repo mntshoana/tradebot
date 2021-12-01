@@ -263,6 +263,22 @@ namespace VALR {
         
         std::string toString() const;
     };
+
+    class InternationalBankInfo {
+    public:
+        std::string id;
+        std::string accountNumber;
+        std::string routingNumber;
+        // NB, the following variable will contain a string that is left unmarshalled
+        std::string billingDetails;
+        // NB, the following variable will contain a string that is left unmarshalled
+        std::string bankAddress;
+        std::string status;
+        std::string type;
+        std::string timestamp;
+        
+        std::string toString() const;
+    };
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:
@@ -318,5 +334,8 @@ declarePrintable(VALR::WithdrawalInfo);
 declarePrintableList(VALR::WithdrawalInfo);
 declarePrintable(VALR::BankInfo);
 declarePrintableList(VALR::BankInfo);
+declarePrintable(VALR::InternationalBankInfo);
+declarePrintableList(VALR::InternationalBankInfo);
+
 
 #endif /* valrTypes_h */

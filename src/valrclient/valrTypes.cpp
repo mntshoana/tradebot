@@ -406,6 +406,20 @@ namespace VALR {
         
         return ss.str();
     }
+
+    std::string InternationalBankInfo::toString() const {
+        std::stringstream ss;
+        ss << "ID: " << id << "\n";
+        ss << "Account number: " << accountNumber << "\n";
+        if (routingNumber != "")
+            ss << "Routing number: " << routingNumber << "\n";
+        ss << "Billing details: " << billingDetails << "\n";
+        ss << "Status: " << status << "\n";
+        ss << "Type: " << type << "\n";
+        ss << "Created at: " << timestamp << "\n";
+        
+        return ss.str();
+    }
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -443,6 +457,8 @@ printableDefinition(VALR::WithdrawalInfo);
 printableList(VALR::WithdrawalInfo);
 printableDefinition(VALR::BankInfo);
 printableList(VALR::BankInfo);
+printableDefinition(VALR::InternationalBankInfo);
+printableList(VALR::InternationalBankInfo);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);

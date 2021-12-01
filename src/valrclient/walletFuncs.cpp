@@ -385,7 +385,7 @@ namespace VALR {
         return list;
     }
 
-    // DEPOSIT REFERENCE
+    // DEPOSIT REFERENCE (FIAT)
     // If you would like to deposit into your VALR account (from your bank via an EFT), you would need this reference for it to be smoothly recorded into your account
 
     std::string VALRClient::getFiatDepositReference(std::string asset){
@@ -407,8 +407,8 @@ namespace VALR {
         return reference;
     }
 
-    // REQUEST WITHDRAW
-    //
+    // REQUEST WITHDRAW (FIAT)
+    //    initiates a new withdrawal to the given bank account ID
     //
     std::string VALRClient::fiatWithdraw(float amount, bool isFast, std::string accountID, std::string asset){
         std::string path = "/v1/wallet/fiat/" + asset + "/withdraw";
@@ -436,6 +436,60 @@ namespace VALR {
         std::string id = extractNextString(res, 0);
         
         return id;
+    }
+
+    // WITHDRAWAL BANK (INTERNATIONALLY)
+    // lists bank accounts linked to your account. May contain US, IBAN and SWIFT type accounts.
+    //
+    std::vector<InternationalBankInfo> VALRClient::getInternationalBankAccounts(){
+        std::string path = "/v1/wire/accounts";
+        
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        size_t last = 0;
+        
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+        std::string token;
+        std::vector<InternationalBankInfo> list;
+        
+        while ((last = res.find("{", last)) != std::string::npos) {
+            InternationalBankInfo account;
+            
+            // id
+            account.id = extractNextString(res, last, last);
+            
+            // accountNumber
+            account.accountNumber = extractNextString(res, last, last);
+            
+            // peek next label
+            token = extractNextStringBlock(res, last, "\"", "\"");
+            if (token == "routingNumber")
+                account.routingNumber = extractNextString(res, last, last);
+            else
+                account.routingNumber = "";
+            
+            // NB, the following variable contains a string that is left unmarshalled
+            account.billingDetails = extractNextStringBlock(res, last, "{", "}");
+            // NB, the following variable contains a string that is left unmarshalled
+            account.bankAddress = extractNextStringBlock(res, last, "{", "}");
+
+            // status
+            account.status = extractNextString(res, last, last);
+            
+            // type
+            account.type = extractNextString(res, last, last);
+           
+            // createdAt
+            account.timestamp = extractNextString(res, last, last);
+
+            list.push_back(account);
+        }
+        return list;
     }
 }
 /*
