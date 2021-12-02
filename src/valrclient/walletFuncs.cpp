@@ -387,7 +387,7 @@ namespace VALR {
 
     // DEPOSIT REFERENCE (FIAT)
     // If you would like to deposit into your VALR account (from your bank via an EFT), you would need this reference for it to be smoothly recorded into your account
-
+    //
     std::string VALRClient::getFiatDepositReference(std::string asset){
         std::string path = "/v1/wallet/fiat/" + asset + "/deposit/reference";
         
@@ -490,6 +490,35 @@ namespace VALR {
             list.push_back(account);
         }
         return list;
+    }
+
+    // INTERNATIONAL DEPOSIT INSTRUCTIONS
+    // Fetches the wire deposit instructions for the international account specified by the given ID
+    //
+    InternationalBankInstructions VALRClient::getInternationalDepositInstructions(std::string id){
+        std::string path = "/v1/wire/accounts/" + id + "/instructions";
+        
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        size_t last = 0;
+        
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+        
+        InternationalBankInstructions instructions;
+        // Note, from here, everything is untested!!!
+        // unmarshalling could be incorrect here, as I am not sure what to expect from server
+        // make sure to print the result and compare with variables
+        // print res
+        instructions.reference = extractNextString(res, last, last);
+        instructions.beneficiary = extractNextStringBlock(res, last, "{","}", last);
+        instructions.beneficiaryBank = extractNextStringBlock(res, last, "{","}",  last);
+        
+        return instructions;
     }
 }
 /*

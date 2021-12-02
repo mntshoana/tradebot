@@ -420,6 +420,15 @@ namespace VALR {
         
         return ss.str();
     }
+
+    std::string InternationalBankInstructions::toString() const {
+        std::stringstream ss;
+        ss << "Tracking reference: " << reference << "\n";
+        ss << "Beneficiary: \n " << beneficiary << "\n";
+        ss << "Beneficiary bank: \n " << beneficiaryBank << "\n";
+        
+        return ss.str();
+    }
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -459,6 +468,8 @@ printableDefinition(VALR::BankInfo);
 printableList(VALR::BankInfo);
 printableDefinition(VALR::InternationalBankInfo);
 printableList(VALR::InternationalBankInfo);
+printableDefinition(VALR::InternationalBankInstructions);
+printableList(VALR::InternationalBankInstructions);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);

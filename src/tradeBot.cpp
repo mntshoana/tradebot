@@ -54,7 +54,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                     true);*/
     
     //VALR::VALRClient::internalTransfer("918968653024043008", "918950975726170112", "ZAR", 20.0f);
-    //*home->workPanel->text  << VALR::VALRClient::getInternationalBankAccounts();
+    *home->workPanel->text  << VALR::VALRClient::getInternationalDepositInstructions("e044484f-cda6-4da1-9d8c-54c7d6ccf773");
     
     installEventFilter(this);
 }

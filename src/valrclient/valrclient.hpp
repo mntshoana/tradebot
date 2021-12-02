@@ -43,6 +43,7 @@ namespace VALR {
         #define VALR_DEFAULT_BANK_ID "8731a73f-4171-4c8a-a78d-d76c61f44d55"
         static std::string fiatWithdraw(float amount, bool isFast, std::string accountID = VALR_DEFAULT_BANK_ID, std::string asset = "ZAR");
         static std::vector<InternationalBankInfo> getInternationalBankAccounts();
+        static InternationalBankInstructions getInternationalDepositInstructions(std::string id);
         // create account
         // update account
         // list pending transaction
