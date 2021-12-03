@@ -30,14 +30,14 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
         Cleanup();
     });
     // begin job manager
-    
-    manager.enqueue(new Job1WPArg(
-                             home->livePanel->orderview,
-                             &Luno::LunoClient::getOrderBook,
-                             std::string("XBTZAR"),
-                             &Luno::OrderBook::FormatHTMLWith,
-                             &(home->workPanel->pendingOrders->openUserOrders)),
-                    true);
+    JobBase* updateOrderBook = new Job1WPArg(
+                                          home->livePanel->orderview,
+                                          &Luno::LunoClient::getOrderBook,
+                                          std::string("XBTZAR"),
+                                          &Luno::OrderBook::FormatHTMLWith,
+                                          &(home->workPanel->pendingOrders->openUserOrders));
+    updateOrderBook->updateWaitTime(2);
+    manager.enqueue(updateOrderBook, true);
 
     /*manager.enqueue(new Job1WPArg(
                               home->livePanel->orderview,
@@ -53,8 +53,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                              &VALR::OrderBook::FormatHTML),
                     true);*/
     
-    //VALR::VALRClient::internalTransfer("918968653024043008", "918950975726170112", "ZAR", 20.0f);
-    *home->workPanel->text  << VALR::VALRClient::getInternationalDepositInstructions("e044484f-cda6-4da1-9d8c-54c7d6ccf773");
+    //*home->workPanel->text  << VALR::VALRClient::getInternationalDepositInstructions("2bd47da9-1071-486b-adca-46655e973966");
     
     installEventFilter(this);
 }

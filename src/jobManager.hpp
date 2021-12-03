@@ -17,8 +17,12 @@ protected:
     void* (*request)();
     void* (*preprocessor)();
 public:
-    virtual void performJob() {} // nothing to perform
+    virtual void performJob() { repeat = wait = recommendedWait = 1;}
     bool repeat;
+    int wait;
+    int recommendedWait;
+    virtual ~JobBase(){}
+    void updateWaitTime(int time) { wait = recommendedWait = time; }
 };
 
 //
@@ -186,7 +190,7 @@ private:
     int timeElapsed;
     bool abort, busy;
     QTimer* timer;
-    std::queue<JobBase*> marketQueue, fasterQueue;
+    std::queue<JobBase*> marketQueue, fasterQueue, temporaryQueue;
     
     void onUpdate();
 public:
