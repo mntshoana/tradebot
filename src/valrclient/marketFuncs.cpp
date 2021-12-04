@@ -9,9 +9,17 @@ namespace VALR {
     // GET ORDERBOOK
     //
     //
-    OrderBook VALRClient::getOrderBook(std::string pair){
-        std::string path = "/v1/public/" + pair + "/orderbook";
-        std::string res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
+    OrderBook VALRClient::getOrderBook(std::string pair, bool useAuthenticatedAPI){
+        std::string res;
+        if (useAuthenticatedAPI == false){
+            // Slower (allows only 1 call every 10 seconds)
+            std::string path = "/v1/public/" + pair + "/orderbook";
+            res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
+        } else {
+            // Faster (may be called 3 times per second)
+            std::string path = "/v1/marketdata/" + pair + "/orderbook";
+            res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        }
         
         int httpCode = client.getHttpCode();
         if (httpCode != 200)
@@ -88,9 +96,17 @@ namespace VALR {
     // GET FULL ORDERBOOK
     //
     //
-    OrderBook VALRClient::getFullOrderBook(std::string pair){
-        std::string path = "/v1/public/" + pair + "/orderbook/full";
-        std::string res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
+    OrderBook VALRClient::getFullOrderBook(std::string pair, bool useAuthenticatedAPI){
+        std::string res;
+        if (useAuthenticatedAPI == false){
+            // Slower (allows only 1 call every 10 seconds)
+            std::string path = "/v1/public/" + pair + "/orderbook/full";
+            res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
+        } else {
+            // Faster (may be called 3 times per second)
+            std::string path = "/v1/marketdata/" + pair + "/orderbook/full";
+            res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        }
         
         int httpCode = client.getHttpCode();
         if (httpCode != 200)

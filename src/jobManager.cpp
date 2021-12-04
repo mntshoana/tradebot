@@ -87,7 +87,7 @@ void JobManager::onUpdate(){
         job->performJob();
         if (job->repeat){
             job->wait = job->recommendedWait;
-            fasterQueue.push(job);
+            backOfTheQueue.push(job);
         }
         else
             delete job;
@@ -98,7 +98,10 @@ void JobManager::onUpdate(){
         fasterQueue.pop();
     }
     temporaryQueue.swap(fasterQueue);
-    
+    while (!backOfTheQueue.empty()){
+        fasterQueue.push(backOfTheQueue.front());
+        backOfTheQueue.pop();
+    }
     
     busy = false;
     timeElapsed++; // update timeElapsed afterwards, not before!!

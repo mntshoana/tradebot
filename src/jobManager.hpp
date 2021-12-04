@@ -17,7 +17,7 @@ protected:
     void* (*request)();
     void* (*preprocessor)();
 public:
-    virtual void performJob() { repeat = wait = recommendedWait = 1;}
+    virtual void performJob() { updateWaitTime(1);}
     bool repeat;
     int wait;
     int recommendedWait;
@@ -133,6 +133,62 @@ void Job1<stream, res, param, error,proc>::performJob(){
         }
 }
 
+
+
+template <class stream,
+            class res, class param1, class param2, class error = void, class proc = std::string>
+class Job2 : public JobBase{
+    stream* outputStream;
+    error* errorStream;
+    param1 arg1;
+    param2 arg2;
+    res (*request)(param1, param2);
+    proc (res::*preprocessor)();
+public:
+    virtual void performJob() override;
+    
+    inline Job2(stream* outputStream, res (*request)(param1, param2), param1 arg1, param2 arg2, proc (res::*preprocessor )() = nullptr, error* errorStream = nullptr, bool repeat = true) {
+        this->outputStream = outputStream;
+        this->arg1 = arg1;
+        this->arg2 = arg2;
+        this->request = request;
+        this->preprocessor = preprocessor;
+        this->repeat = repeat;
+        this->errorStream = errorStream;
+    }
+    
+};
+
+template <class stream, class res, class param1, class param2, class error, class proc>
+void Job2<stream, res, param1, param2, error,proc>::performJob(){
+    if constexpr (!std::is_same_v<stream, unsigned long long>)
+        try{
+            res result = (*request)(arg1, arg2);
+            if (preprocessor){
+                proc processedResults = (result.*preprocessor)();
+                (*outputStream) << processedResults;
+            }
+            else {
+                    (*outputStream) << result;
+            }
+        } catch (ResponseEx ex){
+                (*outputStream) << ex.String(); // To do:: should be an error stream here
+        }
+    
+    if constexpr (std::is_same_v<stream, unsigned long long>)
+        try{
+            if (preprocessor){
+                res result = (*request)(arg1, arg2);
+                proc processedResults = (result.*preprocessor)();
+                (*outputStream) = processedResults;
+            }
+        } catch (ResponseEx ex){
+            if (errorStream)
+                (*errorStream) << ex.String(); // To do:: should be an error stream here
+        }
+}
+
+
 template <class stream,
             class res, class param, class prc_param, class error = void, class proc = std::string>
 class Job1WPArg : public JobBase{ // with preprocessor arguemtn
@@ -190,7 +246,8 @@ private:
     int timeElapsed;
     bool abort, busy;
     QTimer* timer;
-    std::queue<JobBase*> marketQueue, fasterQueue, temporaryQueue;
+    std::queue<JobBase*> marketQueue, fasterQueue;
+    std::queue<JobBase*> temporaryQueue, backOfTheQueue;
     
     void onUpdate();
 public:

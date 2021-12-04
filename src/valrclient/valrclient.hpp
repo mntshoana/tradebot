@@ -8,8 +8,8 @@ namespace VALR {
     class VALRClient : public Client {
     public:
         /* Market Functions */
-        static OrderBook getOrderBook(std::string pair);
-        static OrderBook getFullOrderBook(std::string pair);
+        static OrderBook getOrderBook(std::string pair, bool useAuthenticatedAPI);
+        static OrderBook getFullOrderBook(std::string pair, bool useAuthenticatedAPI);
         static std::vector<CurrencyInfo> getCurrencies();
         static std::vector<CurrencyPairInfo> getCurrencyPairs();
         static std::vector<OrderTypeInfo> getOrderTypes(std::string pair = "");
