@@ -107,8 +107,8 @@ void JobManager::onUpdate(){
     timeElapsed++; // update timeElapsed afterwards, not before!!
 }
 
-void JobManager::enqueue(JobBase* job, bool isMarket){
-    if (isMarket)
+void JobManager::enqueue(JobBase* job, bool addIntoSlowQueue){
+    if (addIntoSlowerQueue)
         marketQueue.push(job);
     else
         fasterQueue.push(job);

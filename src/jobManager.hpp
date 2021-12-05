@@ -251,7 +251,7 @@ private:
     
     void onUpdate();
 public:
-    void enqueue(JobBase* job, bool isMarket);
+    void enqueue(JobBase* job, bool addIntoSlowerQueue);
     void stop();
     
 };

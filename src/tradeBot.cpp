@@ -1,8 +1,8 @@
 #include "tradeBot.hpp"
 
 // Constructor
-TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, VALR_EXCHANGE) {
-    current = home = new HomeView(this, VALR_EXCHANGE); // active home screen window
+TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EXCHANGE) {
+    current = home = new HomeView(this, LUNO_EXCHANGE); // active home screen window
     
     // on update event
     connect(this, &TradeBot::finishedUpdate,
@@ -30,19 +30,22 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, VALR_EX
         Cleanup();
     });
     // begin job manager
-    /*JobBase* updateOrderBook = new Job1WPArg(
+    JobBase* updateOrderBook = new Job1WPArg(
                                           home->livePanel->orderview,
                                           &Luno::LunoClient::getOrderBook,
                                           std::string("XBTZAR"),
                                           &Luno::OrderBook::FormatHTMLWith,
-                                          &(home->workPanel->pendingOrders->openUserOrders));*/
-    JobBase* updateOrderBook = new Job2(
+                                          &(home->workPanel->pendingOrders->openUserOrders));
+    updateOrderBook->updateWaitTime(2);
+    manager.enqueue(updateOrderBook, true);
+    
+    /*JobBase* updateOrderBook = new Job2(
                                           home->livePanel->orderview,
                                           &VALR::VALRClient::getOrderBook,
                                           std::string("BTCZAR"), bool(true),
                                           &VALR::OrderBook::FormatHTML);
     updateOrderBook->updateWaitTime(2);
-    manager.enqueue(updateOrderBook, false);
+    manager.enqueue(updateOrderBook, false);*/
     
     /*manager.enqueue(new Job1WPArg(
                               home->livePanel->orderview,

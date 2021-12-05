@@ -427,8 +427,16 @@ namespace VALR {
     // GET TRADES
     //
     // Returns 100 trades only (cannot be changed), from a default of since the last 24 hours
-    std::vector<Trade> VALR::VALRClient::getTrades(std::string pair, unsigned long long since, unsigned long long until, unsigned skip, unsigned limit, std::string beforeID ){
-        std::string path = "/v1/public/" + pair + "/trades";
+    std::vector<Trade> VALR::VALRClient::getTrades(std::string pair, bool useAuthenticatedAPI, unsigned long long since, unsigned long long until, unsigned skip, unsigned limit, std::string beforeID ){
+        std::string path;
+        if (useAuthenticatedAPI == false){
+            // Slower (allows only 1 call every 10 seconds)
+            path = "/v1/public/" + pair + "/trades";
+        } else {
+            // Faster (may be called 3 times per second)
+            path = "/v1/marketdata/" + pair + "/tradehistory";
+        }
+        
         int args = 0;
         if (since != 0){
             path += (args++ ? "&" : "?");
@@ -450,7 +458,16 @@ namespace VALR {
             path += (args++ ? "&" : "?");
             path += "beforeId=" + beforeID;
         }
-        std::string res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
+        
+        std::string res;
+        if (useAuthenticatedAPI == false){
+            // Slower (allows only 1 call every 10 seconds)
+            res = client.request("GET", (host+path).c_str(), false, VALR_EXCHANGE);
+        } else {
+            // Faster (may be called 3 times per second)
+            res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        }
+        
         
         int httpCode = client.getHttpCode();
         if (httpCode != 200)
