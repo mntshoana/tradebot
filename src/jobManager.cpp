@@ -108,7 +108,7 @@ void JobManager::onUpdate(){
 }
 
 void JobManager::enqueue(JobBase* job, bool addIntoSlowQueue){
-    if (addIntoSlowerQueue)
+    if (addIntoSlowQueue)
         marketQueue.push(job);
     else
         fasterQueue.push(job);

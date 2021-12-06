@@ -263,9 +263,9 @@ namespace Luno {
     // POST LIMIT ORDER
     //
     //
-    std::string LunoClient::postLimitOrder(std::string pair, std::string type, float volume, float price){
+    std::string LunoClient::postLimitOrder(std::string pair, std::string action, float volume, float price){
         std::string uri = "https://api.mybitx.com/api/1/postorder?pair=" + pair;
-        uri += "&type=" + type;
+        uri += "&type=" + action; // BID or ASK
         uri += "&post_only=true";
         
         volume = std::trunc(1000 * 1000 * volume) / (1000 * 1000);

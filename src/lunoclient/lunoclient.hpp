@@ -36,7 +36,7 @@ namespace Luno {
                                              int limit = 0);
         // Post market order (mission funciton)
         static std::string getOrderDetails(std::string id);
-        static std::string postLimitOrder(std::string pair, std::string type, float volume, float price);
+        static std::string postLimitOrder(std::string pair, std::string action, float volume, float price);
             // returns order id
         static std::string stopOrder(std::string orderId);
             // returns boolean true or false

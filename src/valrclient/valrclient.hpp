@@ -44,13 +44,10 @@ namespace VALR {
         static std::string fiatWithdraw(float amount, bool isFast, std::string accountID = VALR_DEFAULT_BANK_ID, std::string asset = "ZAR");
         static std::vector<InternationalBankInfo> getInternationalBankAccounts();
         static InternationalBankInstructions getInternationalDepositInstructions(std::string id);
-        // create account
-        // update account
-        // list pending transaction
-        // list transaction
-        
         
         /* Order Functions */
+        static std::string getOrderQuote(std::string pair, std::string action, float volume);
+        
         /*static Fee getFeeInfo(std::string pair);
         static std::vector<UserOrder> getUserOrders(std::string pair = "",
                                      std::string state = "",
