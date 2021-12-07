@@ -46,7 +46,7 @@ namespace VALR {
         static InternationalBankInstructions getInternationalDepositInstructions(std::string id);
         
         /* Order Functions */
-        static std::string getOrderQuote(std::string pair, std::string action, float volume);
+        static SimpleQuote getOrderQuote(std::string pair, std::string action, float volume);
         
         /*static Fee getFeeInfo(std::string pair);
         static std::vector<UserOrder> getUserOrders(std::string pair = "",

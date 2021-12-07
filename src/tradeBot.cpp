@@ -62,7 +62,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                     true);*/
     
     *home->workPanel->text  << VALR::VALRClient::getOrderQuote("BTCZAR", "BID", 1000.20);
-    
+
     installEventFilter(this);
 }
 

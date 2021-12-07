@@ -280,19 +280,46 @@ namespace VALR {
         std::string toString() const;
     };
 
-class InternationalBankInstructions {
-public:
-    // Incomplete type
-    // because not sure what to expect from server
-    std::string reference;
-    // NB, the following variable will contain a string that is left unmarshalled
-    std::string beneficiary;
-    // NB, the following variable will contain a string that is left unmarshalled
-    std::string beneficiaryBank;
-      
-    std::string toString() const;
-    
-};
+    class InternationalBankInstructions {
+    public:
+        // Incomplete type
+        // because not sure what to expect from server
+        std::string reference;
+        // NB, the following variable will contain a string that is left unmarshalled
+        std::string beneficiary;
+        // NB, the following variable will contain a string that is left unmarshalled
+        std::string beneficiaryBank;
+          
+        std::string toString() const;
+        
+    };
+
+    /* Order Function Types */
+    class OrderMatched {
+    public:
+        double price;
+        double volume;
+        
+        std::string toString() const;
+    };
+
+    class SimpleQuote {
+    public:
+        // Incomplete type
+        // because not sure what to expect from server
+        std::string pair;
+        double amount;
+        double willRecieve;
+        double fee;
+        std::string feeAsset;
+        std::string timestamp;
+        std::string id;
+        std::vector<OrderMatched> ordersMatched;
+          
+        std::string toString() const;
+        
+    };
+
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:
@@ -352,5 +379,11 @@ declarePrintable(VALR::InternationalBankInfo);
 declarePrintableList(VALR::InternationalBankInfo);
 declarePrintable(VALR::InternationalBankInstructions);
 declarePrintableList(VALR::InternationalBankInstructions);
+
+/* Order Functions */
+declarePrintable(VALR::OrderMatched);
+declarePrintableList(VALR::OrderMatched);
+declarePrintable(VALR::SimpleQuote);
+declarePrintableList(VALR::SimpleQuote);
 
 #endif /* valrTypes_h */

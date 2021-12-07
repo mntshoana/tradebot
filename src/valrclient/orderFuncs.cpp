@@ -11,7 +11,7 @@ namespace VALR {
     // Request a quote for an instant buy or sell order
     //     action   expects string {  "BID" or "ASK" }
     //
-    std::string VALRClient::getOrderQuote(std::string pair, std::string action, float volume){
+    SimpleQuote VALRClient::getOrderQuote(std::string pair, std::string action, float volume){
         std::string path = "/v1/simple/" + pair + "/quote";
         
         if (!(action == "BID" || action == "ASK"))
@@ -46,7 +46,54 @@ namespace VALR {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        //size_t last = 0;
-        return res;
+        size_t last = 0;
+        
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+        
+        SimpleQuote quote;
+        
+        // currencyPair
+        quote.pair = extractNextString(res, last, last);
+        
+        // payAmount
+        std::string token = extractNextString(res, last, last);
+        quote.amount = std::atof(token.c_str());
+        
+        // receiveAmount
+        token = extractNextString(res, last, last);
+        quote.willRecieve = std::atof(token.c_str());
+        
+        // fee
+        token = extractNextString(res, last, last);
+        quote.fee = std::atof(token.c_str());
+        
+        // feeCurrency
+        quote.feeAsset = extractNextString(res, last, last);
+        
+        // createdAt
+        quote.timestamp  = extractNextString(res, last, last);
+        
+        // id
+        quote.id  = extractNextString(res, last, last);
+        
+        std::string matched = extractNextStringBlock(res, last, "[", "]", last);
+        
+        last = 0;
+        while ((last = matched.find("{", last)) != std::string::npos) {
+            OrderMatched order;
+            
+            // price
+            token = extractNextString(matched, last, last);
+            order.price = std::atof(token.c_str());
+            
+            // quantity
+            token = extractNextString(matched, last, last);
+            order.volume = std::atof(token.c_str());
+            
+            quote.ordersMatched.push_back(order);
+        }
+        
+        return quote;
     }
 }

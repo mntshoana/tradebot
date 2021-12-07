@@ -429,6 +429,31 @@ namespace VALR {
         
         return ss.str();
     }
+
+    /* Order Functions */
+    std::string OrderMatched::toString() const {
+            std::stringstream ss;
+            ss << "Volume: " << volume  <<"\t";
+            ss << "at price: " << price <<  "\n";
+            return ss.str();
+    }
+
+    std::string SimpleQuote::toString() const {
+        std::stringstream ss;
+        ss << "Pair: " << pair  <<"\n";
+        ss << "You exchange: " << amount <<  "\n";
+        ss << "You will recieve: " << willRecieve <<  "\n";
+        ss << "You will be charged: " << fee <<  " " << feeAsset << "\n";
+        ss << "Timestamp: " << timestamp << "\n";
+        ss << "Quote ID: " << id << "\n";
+        ss << "Will be matching: \n";
+        for (const OrderMatched& order : ordersMatched)
+            ss << order.toString();
+        ss << std::endl;
+        
+        return ss.str();
+    }
+
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -470,6 +495,12 @@ printableDefinition(VALR::InternationalBankInfo);
 printableList(VALR::InternationalBankInfo);
 printableDefinition(VALR::InternationalBankInstructions);
 printableList(VALR::InternationalBankInstructions);
+
+/* Order Functions */
+printableDefinition(VALR::OrderMatched);
+printableList(VALR::OrderMatched);
+printableDefinition(VALR::SimpleQuote);
+printableList(VALR::SimpleQuote);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);
