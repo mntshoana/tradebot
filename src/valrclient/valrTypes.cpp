@@ -453,7 +453,10 @@ namespace VALR {
         
         return ss.str();
     }
-
+    
+    std::string ExcercisedQuote::toString() const{
+        return std::to_string(code) + ": " + message;
+    }
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -501,6 +504,8 @@ printableDefinition(VALR::OrderMatched);
 printableList(VALR::OrderMatched);
 printableDefinition(VALR::SimpleQuote);
 printableList(VALR::SimpleQuote);
+printableDefinition(VALR::ExcercisedQuote);
+printableList(VALR::ExcercisedQuote);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);

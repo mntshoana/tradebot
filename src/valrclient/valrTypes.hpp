@@ -320,6 +320,14 @@ namespace VALR {
         
     };
 
+    class ExcercisedQuote {
+    public:
+        int code;
+        std::string message;
+        
+        std::string toString() const;
+    };
+
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:
@@ -385,5 +393,7 @@ declarePrintable(VALR::OrderMatched);
 declarePrintableList(VALR::OrderMatched);
 declarePrintable(VALR::SimpleQuote);
 declarePrintableList(VALR::SimpleQuote);
+declarePrintable(VALR::ExcercisedQuote);
+declarePrintableList(VALR::ExcercisedQuote);
 
 #endif /* valrTypes_h */
