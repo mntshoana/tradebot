@@ -151,4 +151,61 @@ namespace VALR {
         
         return execution;
     }
+
+    // SIMPLE ORDER STATUS
+    // get the status of an executed order (simple order)
+    //
+    SimpleOrderStatus VALRClient::getSimpleOrderStatus(std::string pair, std::string id){
+        std::string path = "/v1/simple/" + pair + "/order/" + id;
+
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        size_t last = 0;
+        
+        // erase spaces
+        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
+                
+        SimpleOrderStatus orderStatus;
+        
+        // orderId
+        orderStatus.id = extractNextString(res, last, last);
+        
+        // success
+        std::string token = extractNextString(res, last, ",", last);
+        orderStatus.success = (token == "true" ? true : false);
+        
+        // processing
+        token = extractNextString(res, last, ",", last);
+        orderStatus.processing = (token == "true" ? true : false);
+        
+        // paidAmount
+        token = extractNextString(res, last, last);
+        orderStatus.paidAmount = atof(token.c_str());
+        
+        // paidCurrency
+        orderStatus.paidAsset = extractNextString(res, last, last);
+        
+        // receivedAmount
+        token = extractNextString(res, last, last);
+        orderStatus.receivedAmount = atof(token.c_str());
+        
+        // receivedCurrency
+        orderStatus.receivedAsset = extractNextString(res, last, last);
+        
+        // feeAmount
+        token = extractNextString(res, last, last);
+        orderStatus.fee = atof(token.c_str());
+        
+        // feeCurrency
+        orderStatus.feeAsset = extractNextString(res, last, last);
+        
+        // feeCurrency
+        orderStatus.timestamp = extractNextString(res, last, last);
+        
+        return orderStatus;
+    }
 }

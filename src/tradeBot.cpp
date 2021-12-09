@@ -61,8 +61,8 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                              &VALR::OrderBook::FormatHTML),
                     true);*/
     
-    *home->workPanel->text  << VALR::VALRClient::getOrderQuote("BTCZAR", "BID", 1000.20);
-    /*      {"currencyPair":"BTCZAR","payAmount":"1000.2","receiveAmount":"0.00125966","fee":"0.00000951885","feeCurrency":"BTC","createdAt":"2021-12-21T15:10:28.232055","id":"c4ebf493-c650-4a54-a300-72bc2e2931bf","ordersToMatch":[{"price":"788066","quantity":"0.00126918"}]} 0      */
+    *home->workPanel->text  << VALR::VALRClient::getSimpleOrderStatus("BTCZAR", "c4ebf493-c650-4a54-a300-72bc2e2931bf");
+    
     installEventFilter(this);
 }
 

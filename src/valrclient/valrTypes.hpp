@@ -328,6 +328,22 @@ namespace VALR {
         std::string toString() const;
     };
 
+    class SimpleOrderStatus {
+    public:
+        std::string id;
+        bool success;
+        bool processing;
+        double paidAmount;
+        std::string paidAsset;
+        double receivedAmount;
+        std::string receivedAsset;
+        double fee;
+        std::string feeAsset;
+        std::string timestamp;
+        
+        std::string toString() const;
+    };
+
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:
@@ -395,5 +411,7 @@ declarePrintable(VALR::SimpleQuote);
 declarePrintableList(VALR::SimpleQuote);
 declarePrintable(VALR::ExcercisedQuote);
 declarePrintableList(VALR::ExcercisedQuote);
+declarePrintable(VALR::SimpleOrderStatus);
+declarePrintableList(VALR::SimpleOrderStatus);
 
 #endif /* valrTypes_h */

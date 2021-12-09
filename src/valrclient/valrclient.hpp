@@ -48,6 +48,7 @@ namespace VALR {
         /* Order Functions */
         static SimpleQuote getOrderQuote(std::string pair, std::string action, float volume);
         static ExcercisedQuote excerciseOrderQuote(std::string pair, std::string action, float volume);
+        static SimpleOrderStatus getSimpleOrderStatus(std::string pair, std::string id);
         /*static Fee getFeeInfo(std::string pair);
         static std::vector<UserOrder> getUserOrders(std::string pair = "",
                                      std::string state = "",

@@ -457,6 +457,20 @@ namespace VALR {
     std::string ExcercisedQuote::toString() const{
         return std::to_string(code) + ": " + message;
     }
+
+    std::string SimpleOrderStatus::toString() const {
+        std::stringstream ss;
+        ss << "ID: " << id  <<"\n";
+        ss << "Is complete: "<<  success << "\n";
+        ss << "Is processing: "<<  processing << "\n";
+        ss << "Amount paid: " <<  paidAmount << " " << paidAsset << "\n";
+        ss << "Amount received: "<<  receivedAmount << " " << receivedAsset<< "\n";
+        ss << "Fee charged: " <<  fee << " " << feeAsset << "\n";
+        ss << "Timestamp: "<<  timestamp << "\n";
+        ss << std::endl;
+        
+        return ss.str();
+    }
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -506,6 +520,8 @@ printableDefinition(VALR::SimpleQuote);
 printableList(VALR::SimpleQuote);
 printableDefinition(VALR::ExcercisedQuote);
 printableList(VALR::ExcercisedQuote);
+printableDefinition(VALR::SimpleOrderStatus);
+printableList(VALR::SimpleOrderStatus);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);
