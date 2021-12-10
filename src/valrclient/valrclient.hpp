@@ -4,6 +4,12 @@
 #include "valrTypes.hpp"
 #include "client.hpp"
 
+enum class VALR_PAY_NOTIFICATION {
+    ID = 0,
+    EMAIL,
+    CELL_NUMBER
+};
+
 namespace VALR {
     class VALRClient : public Client {
     public:
@@ -49,6 +55,10 @@ namespace VALR {
         static SimpleQuote getOrderQuote(std::string pair, std::string action, float volume);
         static ExcercisedQuote excerciseOrderQuote(std::string pair, std::string action, float volume);
         static SimpleOrderStatus getSimpleOrderStatus(std::string pair, std::string id);
+        
+        /* Pay Service Functions */
+        static VALR_PAY_Result postNewPayment(float amount, VALR_PAY_NOTIFICATION notificationMethod, std::string notificationString, std::string beneficiaryReference = "",    std::string myReference = "", bool isAnonymous = false);
+        
         /*static Fee getFeeInfo(std::string pair);
         static std::vector<UserOrder> getUserOrders(std::string pair = "",
                                      std::string state = "",

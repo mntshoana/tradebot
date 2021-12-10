@@ -61,7 +61,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                              &VALR::OrderBook::FormatHTML),
                     true);*/
     
-    *home->workPanel->text  << VALR::VALRClient::getSimpleOrderStatus("BTCZAR", "c4ebf493-c650-4a54-a300-72bc2e2931bf");
+    *home->workPanel->text  << VALR::VALRClient::postNewPayment(200, VALR_PAY_NOTIFICATION::EMAIL, "mntshoana@icloud.com");
     
     installEventFilter(this);
 }

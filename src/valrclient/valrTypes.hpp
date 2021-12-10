@@ -344,6 +344,14 @@ namespace VALR {
         std::string toString() const;
     };
 
+    class VALR_PAY_Result {
+    public:
+        std::string id;
+        std::string transactionID;
+        
+        std::string toString() const;
+    };
+
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:
@@ -413,5 +421,9 @@ declarePrintable(VALR::ExcercisedQuote);
 declarePrintableList(VALR::ExcercisedQuote);
 declarePrintable(VALR::SimpleOrderStatus);
 declarePrintableList(VALR::SimpleOrderStatus);
+
+/* Pay Service Functions */
+declarePrintable(VALR::VALR_PAY_Result);
+declarePrintableList(VALR::VALR_PAY_Result);
 
 #endif /* valrTypes_h */

@@ -471,6 +471,13 @@ namespace VALR {
         
         return ss.str();
     }
+
+    std::string VALR_PAY_Result::toString() const {
+        std::stringstream ss;
+        ss << "Identifier: " << id << "\n";
+        ss << "Transaction ID: " << transactionID << "\n";
+        return ss.str();
+    }
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -522,6 +529,10 @@ printableDefinition(VALR::ExcercisedQuote);
 printableList(VALR::ExcercisedQuote);
 printableDefinition(VALR::SimpleOrderStatus);
 printableList(VALR::SimpleOrderStatus);
+
+/* Pay Service Functions */
+printableDefinition(VALR::VALR_PAY_Result);
+printableList(VALR::VALR_PAY_Result);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);
