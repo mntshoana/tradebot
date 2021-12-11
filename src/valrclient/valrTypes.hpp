@@ -351,7 +351,16 @@ namespace VALR {
         
         std::string toString() const;
     };
+    
+    class PaymentLimitInfo {
+    public:
+        float maxAmount;
+        float minAmount;
+        std::string asset;
+        std::string limitedByWhat;
 
+        std::string toString() const;
+    };
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:
@@ -425,5 +434,7 @@ declarePrintableList(VALR::SimpleOrderStatus);
 /* Pay Service Functions */
 declarePrintable(VALR::VALR_PAY_Result);
 declarePrintableList(VALR::VALR_PAY_Result);
+declarePrintable(VALR::PaymentLimitInfo);
+declarePrintableList(VALR::PaymentLimitInfo);
 
 #endif /* valrTypes_h */

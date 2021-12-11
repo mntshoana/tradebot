@@ -58,7 +58,7 @@ namespace VALR {
         
         /* Pay Service Functions */
         static VALR_PAY_Result postNewPayment(float amount, VALR_PAY_NOTIFICATION notificationMethod, std::string notificationString, std::string beneficiaryReference = "",    std::string myReference = "", bool isAnonymous = false);
-        
+        static PaymentLimitInfo getPaymentInfo();
         /*static Fee getFeeInfo(std::string pair);
         static std::vector<UserOrder> getUserOrders(std::string pair = "",
                                      std::string state = "",

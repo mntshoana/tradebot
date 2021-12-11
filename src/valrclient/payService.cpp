@@ -2,19 +2,18 @@
 
 extern Client client;
 
+// To help validate emails, phone numbers and VALR IDs
 namespace validator {
-    bool isChar(char c)
-    {
-        return ((c >= 'a' && c <= 'z')
-                || (c >= 'A' && c <= 'Z'));
+    bool isChar(char c) {
+        return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
     }
       
-    bool isDigit(const char c)
-    {
+    bool isDigit(const char c) {
         return (c >= '0' && c <= '9');
     }
 
-    bool isValidNumber(std::string number){
+    // Validates a south african phone number
+    bool isValidNumber(std::string number) {
         if (number.length() < 10)
             return false; // Must be at least 10 digits
         
@@ -33,6 +32,8 @@ namespace validator {
         }
         else return false;
     }
+
+    // Validates an email address
     bool isValidEmail(std::string email){
         if (email.length() < 3)
             return false; // shortest possible email letter @ letter == 3 chars
@@ -62,12 +63,18 @@ namespace validator {
         return !(isDotAtEnd); // Dot cannot be present at the end
     }
 }
+
+// VALR payment service functions
 namespace VALR {
     extern std::string host;
 
-    //
-    //
-    //
+    // NEW PAYMENT
+    // Makes an instant payment using VALR Pay
+    //  paramater required :
+    //      -- amount (in rands)
+    //      -- VALR_PAY_NOTIFICATION (enumerator)
+    //      -- recipient email or recipient cellphone number or their account payment reference (VALR PayID)
+    // the rest are optional
     VALR_PAY_Result VALRClient::postNewPayment(float amount, VALR_PAY_NOTIFICATION notificationMethod, std::string notificationString, std::string beneficiaryReference,    std::string myReference, bool isAnonymous){
         std::string path = "/v1/pay";
         
@@ -127,5 +134,41 @@ namespace VALR {
         result.transactionID = extractNextString(res, last, last);
         
         return result;
+    }
+
+
+
+    // PAYMENT INFO
+    //
+    // Gets all  payment limits applicable to your account
+    PaymentLimitInfo VALRClient::getPaymentInfo(){
+        std::string path = "/v1/pay/limits";
+        
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        PaymentLimitInfo info;
+        size_t last = 0;
+        
+        
+        // maxPaymentAmount
+        std::string token = extractNextString(res, last, ",", last);
+        info.maxAmount = atof(token.c_str());
+        
+        // minPaymentAmount
+        token = extractNextString(res, last, ",", last);
+        info.minAmount = atof(token.c_str());
+        
+        // paymentCurrency
+        info.asset = extractNextString(res, last, last);
+        
+        // limitType
+        info.limitedByWhat = extractNextString(res, last, last);
+        
+        
+        return info;
     }
 }

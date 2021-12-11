@@ -61,7 +61,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                              &VALR::OrderBook::FormatHTML),
                     true);*/
     
-    *home->workPanel->text  << VALR::VALRClient::postNewPayment(200, VALR_PAY_NOTIFICATION::EMAIL, "mntshoana@icloud.com");
+    *home->workPanel->text  << VALR::VALRClient::getPaymentInfo();
     
     installEventFilter(this);
 }

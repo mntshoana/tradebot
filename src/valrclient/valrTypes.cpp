@@ -478,6 +478,15 @@ namespace VALR {
         ss << "Transaction ID: " << transactionID << "\n";
         return ss.str();
     }
+
+    std::string PaymentLimitInfo::toString() const {
+        std::stringstream ss;
+        ss << "Maximum amount limited to: " << maxAmount << "\n";
+        ss << "Minimum amount limited to: " << minAmount << "\n";
+        ss << "For currency: " << asset << "\n";
+        ss << "How is this limit applied: " << limitedByWhat << "\n";
+        return ss.str();
+    }
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -533,6 +542,8 @@ printableList(VALR::SimpleOrderStatus);
 /* Pay Service Functions */
 printableDefinition(VALR::VALR_PAY_Result);
 printableList(VALR::VALR_PAY_Result);
+printableDefinition(VALR::PaymentLimitInfo);
+printableList(VALR::PaymentLimitInfo);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);
