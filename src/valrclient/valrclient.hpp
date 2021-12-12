@@ -59,39 +59,20 @@ namespace VALR {
         /* Pay Service Functions */
         static VALR_PAY_Result postNewPayment(float amount, VALR_PAY_NOTIFICATION notificationMethod, std::string notificationString, std::string beneficiaryReference = "",    std::string myReference = "", bool isAnonymous = false);
         static PaymentLimitInfo getPaymentInfo();
-        /*static Fee getFeeInfo(std::string pair);
-        static std::vector<UserOrder> getUserOrders(std::string pair = "",
-                                     std::string state = "",
-                                     int limit = 0,
-                                     long long before = 0);
+        static std::string getUserPaymentID();
+        //static Fee getFeeInfo(std::string pair);
+        //static std::vector<UserOrder> getUserOrders(std::string pair = "",
+          //                           std::string state = "",
+            //                         int limit = 0,
+              //                       long long before = 0);
         
         // Post market order (mission funciton)
-        static std::string getOrderDetails(std::string id);
-        static std::string postLimitOrder(std::string pair, std::string type, float volume, float price);
+        //static std::string getOrderDetails(std::string id);
+        //static std::string postLimitOrder(std::string pair, std::string type, float volume, float price);
             // returns order id
-        static std::string stopOrder(std::string orderId);
+        //static std::string stopOrder(std::string orderId);
             // returns boolean true or false
 
-        /* Quotes Functions */
-        // Create quote
-        // Get quote
-        // Excercise quote
-        // Discard quote
-
-        /* Send and Receive Functions */
-        /*static std::string getRecieveAddress(std::string asset);
-        // Create receive address
-        */
-        /*prototype*/
-        /* static std::string sendToAddress(std::string asset, std::string address, float amount);
-        /* Danger: could lose asset*/
-
-        /* Transfers Functions */
-       /* static std::vector<Withdrawal> getWithdrawalList();
-        static Withdrawal withdraw(float amount, bool isFast);
-        static std::string getWithdrawal(std::string id);
-        static std::string cancelWithdrawal(std::string id);
-*/
     };
 }
 #endif /* valrclient_hpp */

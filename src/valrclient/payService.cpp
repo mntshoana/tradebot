@@ -171,4 +171,23 @@ namespace VALR {
         
         return info;
     }
+
+    // USER PAYMENT ID
+    //
+    // Retrieves your account's unique VALR PayID
+    std::string VALRClient::getUserPaymentID(){
+        std::string path = "/v1/pay/payid";
+        
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        
+        // payId
+        std::string id = extractNextString(res, 0);
+        
+        return id;
+    }
 }
