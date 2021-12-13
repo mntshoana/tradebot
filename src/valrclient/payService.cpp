@@ -193,7 +193,7 @@ namespace VALR {
 
     // PAYMENT HISTORY
     //
-    // Retrieves your account's payments which were made ths account or made to this account.
+    // Retrieves your account's payments which were made from this account or made to this account.
     // Parameters:
     //      statusFilter: "INITIATED", "AUTHORISED", "COMPLETE", "RETURNED", "FAILED", "EXPIRED"
     //      skip: skips a number of entries
@@ -228,7 +228,7 @@ namespace VALR {
             VALR_PAY_History_Entry entry;
 
             // identifier
-            entry.userID = extractNextString(res, last, last);
+            entry.paymentID = extractNextString(res, last, last);
             
             // otherPartyIdentifier
             entry.otherPartysID = extractNextString(res, last, last);

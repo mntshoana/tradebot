@@ -364,7 +364,7 @@ namespace VALR {
 
     class VALR_PAY_History_Entry {
     public:
-        std::string userID;
+        std::string paymentID;
         std::string otherPartysID;
         std::string transactionID;
         float amount;

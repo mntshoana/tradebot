@@ -492,7 +492,7 @@ namespace VALR {
         std::stringstream ss;
         ss << "Transaction ID: " << transactionID << "\n";
         ss << "Timestamp: " << timestamp << "\n";
-        ss << "User's ID: " << userID << "\n";
+        ss << "Payment ID: " << paymentID << "\n";
         ss << "Other party's ID: " << otherPartysID << "\n";
         ss << "Amount: " << amount << "\n";
         ss << "Type: " << type << "\t " << (isAnonymous ? "(anonymous)\n" : "\n");
