@@ -487,6 +487,24 @@ namespace VALR {
         ss << "How is this limit applied: " << limitedByWhat << "\n";
         return ss.str();
     }
+
+    std::string VALR_PAY_History_Entry::toString() const {
+        std::stringstream ss;
+        ss << "Transaction ID: " << transactionID << "\n";
+        ss << "Timestamp: " << timestamp << "\n";
+        ss << "User's ID: " << userID << "\n";
+        ss << "Other party's ID: " << otherPartysID << "\n";
+        ss << "Amount: " << amount << "\n";
+        ss << "Type: " << type << "\t " << (isAnonymous ? "(anonymous)\n" : "\n");
+        if (status.length() > 0)
+            ss << "Status: " << status << "\n";
+        if (myReference.length() > 0)
+            ss << "My reference: " << myReference << "\n";
+        if (beneficiaryReference.length() > 0)
+            ss << "Beneficiary reference: " << beneficiaryReference << "\n";
+        
+        return ss.str();
+    }
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -544,6 +562,8 @@ printableDefinition(VALR::VALR_PAY_Result);
 printableList(VALR::VALR_PAY_Result);
 printableDefinition(VALR::PaymentLimitInfo);
 printableList(VALR::PaymentLimitInfo);
+printableDefinition(VALR::VALR_PAY_History_Entry);
+printableList(VALR::VALR_PAY_History_Entry);
 
 printableDefinition(VALR::UserOrder);
 printableList(VALR::UserOrder);

@@ -61,7 +61,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                              &VALR::OrderBook::FormatHTML),
                     true);*/
     
-    *home->workPanel->text  << VALR::VALRClient::getUserPaymentID();
+    *home->workPanel->text  << VALR::VALRClient::getUserPaymentHistory();
     
     installEventFilter(this);
 }

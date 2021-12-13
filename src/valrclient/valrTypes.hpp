@@ -361,6 +361,22 @@ namespace VALR {
 
         std::string toString() const;
     };
+
+    class VALR_PAY_History_Entry {
+    public:
+        std::string userID;
+        std::string otherPartysID;
+        std::string transactionID;
+        float amount;
+        std::string status;
+        std::string timestamp;
+        std::string myReference;
+        std::string beneficiaryReference;
+        bool isAnonymous;
+        std::string type;
+        
+        std::string toString() const;
+    };
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:
@@ -436,5 +452,7 @@ declarePrintable(VALR::VALR_PAY_Result);
 declarePrintableList(VALR::VALR_PAY_Result);
 declarePrintable(VALR::PaymentLimitInfo);
 declarePrintableList(VALR::PaymentLimitInfo);
+declarePrintable(VALR::VALR_PAY_History_Entry);
+declarePrintableList(VALR::VALR_PAY_History_Entry);
 
 #endif /* valrTypes_h */

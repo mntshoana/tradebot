@@ -60,6 +60,7 @@ namespace VALR {
         static VALR_PAY_Result postNewPayment(float amount, VALR_PAY_NOTIFICATION notificationMethod, std::string notificationString, std::string beneficiaryReference = "",    std::string myReference = "", bool isAnonymous = false);
         static PaymentLimitInfo getPaymentInfo();
         static std::string getUserPaymentID();
+        static std::vector<VALR_PAY_History_Entry> getUserPaymentHistory(std::string statusFilter = "", unsigned skip = 0, unsigned limit = 0);
         //static Fee getFeeInfo(std::string pair);
         //static std::vector<UserOrder> getUserOrders(std::string pair = "",
           //                           std::string state = "",
