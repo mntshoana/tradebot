@@ -62,6 +62,7 @@ namespace VALR {
         static std::string getUserPaymentID();
         static std::vector<VALR_PAY_History_Entry> getUserPaymentHistory(std::string statusFilter = "", unsigned skip = 0, unsigned limit = 0);
         static VALR_PAY_History_Entry getUserPaymentEntryByPaymentID(std::string id);
+        static VALR_PAY_History_Entry getUserPaymentEntryByTransactionID(std::string id);
         //static Fee getFeeInfo(std::string pair);
         //static std::vector<UserOrder> getUserOrders(std::string pair = "",
           //                           std::string state = "",

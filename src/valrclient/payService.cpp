@@ -343,4 +343,87 @@ namespace VALR {
             
         return entry;
     }
+
+    // PAYMENT HISTORY ENTRY (LOOKUP BY TRANSACTION ID)
+    //
+    // Retrieves details about a single entry from your account's payments history (made from this account or made to this account.
+    // Parameters:
+    //      id: transaction identifier
+    VALR_PAY_History_Entry VALRClient::getUserPaymentEntryByTransactionID(std::string id){
+        std::string path = "/v1/pay/transactionid/" + id;
+        
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        
+        size_t last = 0;
+
+        VALR_PAY_History_Entry entry;
+        
+        std::string token = extractNextStringBlock(res, last, "\"", "\"");
+        if (token == "identifier")
+            // identifier
+            entry.paymentID = extractNextString(res, last, last);
+        
+        token = extractNextStringBlock(res, last, "\"", "\"");
+        if (token == "otherPartyIdentifier")
+            // otherPartyIdentifier
+            entry.otherPartysID = extractNextString(res, last, last);
+        
+        token = extractNextStringBlock(res, last, "\"", "\"");
+        if (token == "amount"){
+            // amount
+            std::string token = extractNextString(res, last, ",", last);
+            entry.amount = atof(token.c_str());
+        }
+        
+        token = extractNextStringBlock(res, last, "\"", "\"");
+        if (token == "status"){
+            // status
+            entry.status = extractNextString(res, last, last);
+        }
+        
+        token = extractNextStringBlock(res, last, "\"", "\"");
+        if (token == "timestamp")
+            // timestamp
+            entry.timestamp = extractNextString(res, last, last);
+        
+        token = extractNextStringBlock(res, last, "\"", "\"");
+        if (token == "senderNote"){
+            // senderNote
+            entry.myReference = extractNextString(res, last, last);
+        }
+        
+        token = extractNextStringBlock(res, last, "\"", "\"");
+        if (token == "recipientNote"){
+            // recipientNote
+            entry.beneficiaryReference = extractNextString(res, last, last);
+        }
+        
+        token = extractNextStringBlock(res, last, "\"", "\"");
+        if (token == "transactionId")
+            // transactionId
+            entry.transactionID = extractNextString(res, last, last);
+        
+        token = extractNextStringBlock(res, last, "\"", "\"");
+        if (token == "anonymous"){
+            // anonymous
+            token = extractNextString(res, last, ",", last);
+            entry.isAnonymous = (token == "true" ? true : false);
+        }
+        
+        token = extractNextStringBlock(res, last, "\"", "\"");
+        if (token == "type"){
+            // type
+            entry.type = extractNextString(res, last, last);
+            if (entry.type == "CREDIT")
+                entry.type += " (incoming payment)";
+            if (entry.type == "DEBIT")
+                entry.type += " (outgoing payment)";
+        }
+        return entry;
+    }
 }
