@@ -48,9 +48,6 @@ namespace VALR {
         
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
-        
         SimpleQuote quote;
         
         // currencyPair
@@ -97,7 +94,7 @@ namespace VALR {
         return quote;
     }
 
-    // SIMPLE BUY/SELL (Excercise Quote)
+    // POST SIMPLE ORDER (Excercise Quote)
     // Request an instant buy or sell order
     //     action   expects string {  "BID" or "ASK" }
     //
@@ -138,9 +135,6 @@ namespace VALR {
         
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
-        
         ExcercisedQuote execution;
         // code
         std::string token = extractNextString(res, last, last);
@@ -165,9 +159,6 @@ namespace VALR {
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         size_t last = 0;
-        
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
                 
         SimpleOrderStatus orderStatus;
         
@@ -207,5 +198,76 @@ namespace VALR {
         orderStatus.timestamp = extractNextString(res, last, last);
         
         return orderStatus;
+    }
+
+    // POST LIMIT ORDER
+    // Request a limit buy or sell order
+    //     returns order id on success
+    // parameters
+    //     action   expects string {  "BID" or "ASK" }
+    //
+    // NOTE:
+    // fee     (for takers)
+    //      for bids will be paid in base  price,
+    //      for asks will be paid in quote price
+    // rewards (for makers)
+    //      for bids will be paid in quote price,
+    //      for asks will be paid in base  price
+    std::string VALRClient::postLimitOrder(std::string pair, std::string action, float volume, float price){
+        std::string path = "/v1/orders/limit";
+        
+        if (!(action == "BID" || action == "ASK"))
+            throw std::invalid_argument("'action' expects string value \"BID\" or \"ASK\" only! ");
+        bool isBuy = (action == "BID") ? true : false;
+        
+        std::string baseCurrency = pair.substr(0, 3);
+        std::string quoteCurrency = pair.substr(3, 3);
+        int decimalsBase, decimalsQuote;
+        
+        if (currencies.size() == 0)
+            currencies = VALRClient::getCurrencies();
+        for (const CurrencyInfo& currency : currencies) {
+            if (currency.shortName == baseCurrency)
+                decimalsBase = currency.decimalCount;
+            if (currency.shortName == quoteCurrency)
+                decimalsQuote = currency.decimalCount;
+        }
+        
+        std::ostringstream strPrice;
+        strPrice.precision(decimalsQuote);
+        strPrice << std::fixed << price;
+        
+        std::ostringstream strVolume;
+        strVolume.precision(decimalsBase);
+        strVolume << std::fixed << volume;
+        
+        std::string payload = "{";
+        payload += "\n\t" + createJSONlabel("side", (isBuy ? "BUY" : "SELL")) + ",";
+        payload += "\n\t" + createJSONlabel("quantity", strVolume.str()) + ",";
+        payload += "\n\t" + createJSONlabel("price", strPrice.str()) + ",";
+        payload += "\n\t" + createJSONlabel("pair", pair)+ "," ;
+        payload += "\n\t" + createJSONlabelUnquoted("postOnly", "true");
+        payload +=  "\n" "}";
+        
+        // NOTE: you may also add "customerOrderId": "1234" to manage open orders using cusom ids
+        // customerOrderId must be alphanumeric with no special chars, limit of 50 characters.
+
+        // NOTE: you may also add "timeInForce": "GTC"
+        // values of timeInForce can be only:
+        //      "GTC" (Good Till Cancelled)  - this is the default
+        //      "FOK" (Fill or Kill)
+        //      or "IOC" (Immediate or Cancel)
+
+        std::string res = client.request("POST", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str(), payload.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 202)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        // NOTE: recieving an id does not always mean that the order has been placed.
+        // IT COULD STILL HAVE FAILED
+        std::string id = extractNextString(res, 0);
+        
+        return id;
     }
 }

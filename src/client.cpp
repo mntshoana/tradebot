@@ -54,7 +54,7 @@ std::string createJSONlabelUnquoted(std::string label, std::string key){
 std::string extractNextString(std::string source, size_t start, size_t& jumpTo) {
     size_t posStart = source.find(":", start);
     if (posStart != std::string::npos){
-        posStart += 2;
+        posStart = source.find("\"", posStart) + 1;
         size_t posEnd = source.find("\"", posStart);
         jumpTo = posEnd + 1;
         return source.substr(posStart, posEnd-posStart);
@@ -74,6 +74,8 @@ std::string extractNextString(std::string source, size_t start, const char* read
     size_t posStart = source.find(":", start);
     if (posStart != std::string::npos) {
         posStart += 1;
+        if (source[posStart] == ' ')
+            posStart++;
         size_t posEnd = source.find(readUntil, posStart);
         jumpTo = posEnd + 1;
         return source.substr(posStart, posEnd-posStart);

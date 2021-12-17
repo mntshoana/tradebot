@@ -55,6 +55,7 @@ namespace VALR {
         static SimpleQuote getOrderQuote(std::string pair, std::string action, float volume);
         static ExcercisedQuote excerciseOrderQuote(std::string pair, std::string action, float volume);
         static SimpleOrderStatus getSimpleOrderStatus(std::string pair, std::string id);
+        static std::string postLimitOrder(std::string pair, std::string action, float volume, float price);
         
         /* Pay Service Functions */
         static VALR_PAY_Result postNewPayment(float amount, VALR_PAY_NOTIFICATION notificationMethod, std::string notificationString, std::string beneficiaryReference = "",    std::string myReference = "", bool isAnonymous = false);
@@ -63,6 +64,7 @@ namespace VALR {
         static std::vector<VALR_PAY_History_Entry> getUserPaymentHistory(std::string statusFilter = "", unsigned skip = 0, unsigned limit = 0);
         static VALR_PAY_History_Entry getUserPaymentEntryByPaymentID(std::string id);
         static VALR_PAY_History_Entry getUserPaymentEntryByTransactionID(std::string id);
+        
         //static Fee getFeeInfo(std::string pair);
         //static std::vector<UserOrder> getUserOrders(std::string pair = "",
           //                           std::string state = "",
@@ -71,8 +73,6 @@ namespace VALR {
         
         // Post market order (mission funciton)
         //static std::string getOrderDetails(std::string id);
-        //static std::string postLimitOrder(std::string pair, std::string type, float volume, float price);
-            // returns order id
         //static std::string stopOrder(std::string orderId);
             // returns boolean true or false
 

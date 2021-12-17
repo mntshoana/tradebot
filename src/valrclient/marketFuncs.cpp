@@ -28,9 +28,6 @@ namespace VALR {
         OrderBook ob;
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
-        
         // asks and bids
         last = res.find("Asks", last);
         std::string asks = extractNextStringBlock(res, last, "[", "]", last);
@@ -114,8 +111,6 @@ namespace VALR {
         
         OrderBook ob;
         size_t last = 0, next = 0;
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         
         std::string token;
         
@@ -209,9 +204,6 @@ namespace VALR {
         
         std::string token;
 
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
-        
         while ((last = res.find("{", last)) != std::string::npos) {
             CurrencyInfo info;
             
@@ -255,9 +247,6 @@ namespace VALR {
         
         std::string token;
 
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
-        
         while ((last = res.find("{", last)) != std::string::npos) {
             CurrencyPairInfo info;
             
@@ -322,9 +311,6 @@ namespace VALR {
         size_t last = 0;
         
         std::string token;
-
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         
         while ((last = res.find("{", last)) != std::string::npos) {
             OrderTypeInfo info;
@@ -374,8 +360,6 @@ namespace VALR {
         size_t last = 0;
         
         std::string token;
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         
         while ((last = res.find("{", last)) != std::string::npos) {
             list.push_back(Ticker());
@@ -477,9 +461,6 @@ namespace VALR {
         size_t last = 0;
         last = res.find("[", last) + 1;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
-        
         while ((last = res.find("{", last)) != std::string::npos) {
             trades.push_back(Trade());
             // price
@@ -524,9 +505,6 @@ namespace VALR {
         int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
-          
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         
         std::stringstream ss;
         size_t last = 0;
@@ -546,9 +524,6 @@ namespace VALR {
         int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
-            
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
 
         std::stringstream ss;
         size_t last = 0;

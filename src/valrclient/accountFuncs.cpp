@@ -21,9 +21,6 @@ namespace VALR {
         KeyInfo keyInfo;
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
-        
         // label
         keyInfo.label =  extractNextString(res, last, last);;
         
@@ -92,8 +89,6 @@ namespace VALR {
         std::vector<Account> subAccounts;
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         std::string token;
         while ((last = res.find("{", last)) != std::string::npos) {
             Account acc;
@@ -129,9 +124,6 @@ namespace VALR {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
-        
         std::string subAccID = extractNextString(res, 0);
 
         return subAccID;
@@ -151,8 +143,6 @@ namespace VALR {
         
         std::vector<AccountSummary> accounts;
         size_t last = 0;
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
        
         last = res.find("[", last) + 1;
         
@@ -241,8 +231,6 @@ namespace VALR {
         
         std::vector<Balance> balances;
         size_t last = 0;
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
        
         last = res.find("[", last) + 1;
         
@@ -321,9 +309,6 @@ namespace VALR {
         
         std::vector<TransactionInfo> history;
         size_t last = 0;
-        
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         
         
         while ((last = res.find("{", last)) != std::string::npos) {
@@ -419,9 +404,6 @@ namespace VALR {
         std::vector<UserTrade> trades;
         size_t last = 0;
         last = res.find("[", last) + 1;
-        
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         
         while ((last = res.find("{", last)) != std::string::npos) {
             UserTrade trade;

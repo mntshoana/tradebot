@@ -125,9 +125,6 @@ namespace VALR {
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         size_t last = 0;
-        
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
      
         VALR_PAY_Result result;
         result.id = extractNextString(res, last, last);

@@ -17,8 +17,6 @@ namespace VALR {
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         size_t last = 0;
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
             
         //currency
         std::string resultedAsset  =  extractNextString(res, last, last);
@@ -46,8 +44,6 @@ namespace VALR {
         std::vector<AddressEntry> whitelistedAddresses;
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         std::string token;
         while ((last = res.find("{", last)) != std::string::npos) {
             AddressEntry entry;
@@ -85,8 +81,6 @@ namespace VALR {
         
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         std::string token;
         WithdrawalDetail info;
     
@@ -149,8 +143,6 @@ namespace VALR {
         
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         std::string token;
         WithdrawalInfo info;
 
@@ -216,8 +208,6 @@ namespace VALR {
         
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         std::string token;
         std::vector<DepositInfo> list;
         
@@ -287,8 +277,6 @@ namespace VALR {
         
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         std::string token;
         std::vector<WithdrawalInfo> list;
         
@@ -351,8 +339,6 @@ namespace VALR {
         
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         std::string token;
         std::vector<BankInfo> list;
         
@@ -399,8 +385,6 @@ namespace VALR {
         
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         
         std::string reference = extractNextString(res, last, last);
            
@@ -452,8 +436,6 @@ namespace VALR {
         
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
         std::string token;
         std::vector<InternationalBankInfo> list;
         
@@ -506,9 +488,6 @@ namespace VALR {
         
         size_t last = 0;
         
-        // erase spaces
-        res.erase(remove( res.begin(), res.end(), ' ' ),res.end());
-        
         InternationalBankInstructions instructions;
         // Note, from here, everything is untested!!!
         // unmarshalling could be incorrect here, as I am not sure what to expect from server
@@ -521,8 +500,3 @@ namespace VALR {
         return instructions;
     }
 }
-/*
-// create account
-// update account
-// list pending transaction
-*/
