@@ -61,7 +61,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                              &VALR::OrderBook::FormatHTML),
                     true);*/
     
-    *home->workPanel->text  << VALR::VALRClient::postLimitOrder("BTCZAR", "BID", 0.001, 500000);
+    *home->workPanel->text  << VALR::VALRClient::postMarketOrder("BTCZAR", "BID", 0.001, true);
     
     installEventFilter(this);
 }

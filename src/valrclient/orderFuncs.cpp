@@ -270,4 +270,65 @@ namespace VALR {
         
         return id;
     }
+
+    // POST MARKET ORDER
+    // Request a market buy or sell order. specify the amount you are willing to spend and that order will be filled immidiately
+    //     returns order id on success
+    // parameters
+    //     action:   string {must be  "BID" or "ASK" }
+    //
+    // NOTE:
+    // fee     (for takers)
+    //      for bids will be paid in base  price,
+    //      for asks will be paid in quote price
+    // rewards (for makers)
+    //      for bids will be paid in quote price,
+    //      for asks will be paid in base  price
+    std::string VALRClient::postMarketOrder(std::string pair, std::string action, float amount, bool isOfBaseCurrency){
+        std::string path = "/v1/orders/market";
+        
+        if (!(action == "BID" || action == "ASK"))
+            throw std::invalid_argument("'action' expects string value \"BID\" or \"ASK\" only! ");
+        bool isBuy = (action == "BID") ? true : false;
+        
+        std::string amountLabel = (isOfBaseCurrency ? "baseAmount" : "quoteAmount");
+        std::string baseCurrency = pair.substr(0, 3);
+        std::string quoteCurrency = pair.substr(3, 3);
+        int decimals;
+        
+        if (currencies.size() == 0)
+            currencies = VALRClient::getCurrencies();
+        for (const CurrencyInfo& currency : currencies) {
+            if (isOfBaseCurrency && currency.shortName == baseCurrency)
+                decimals = currency.decimalCount;
+            if ( (!isOfBaseCurrency) && currency.shortName == quoteCurrency)
+                decimals = currency.decimalCount;
+        }
+        
+        // note: takers fee will be subtracted
+        std::ostringstream strAmount;
+        strAmount.precision(decimals);
+        strAmount << std::fixed << amount;
+        
+        std::string payload = "{";
+        payload += "\n\t" + createJSONlabel("side", (isBuy ? "BUY" : "SELL")) + ",";
+        payload += "\n\t" + createJSONlabel(amountLabel , strAmount.str()) + ",";
+        payload += "\n\t" + createJSONlabel("pair", pair) + ",";
+        payload += "\n\t" + createJSONlabelUnquoted("postOnly", "true");
+        payload +=  "\n" "}";
+        // NOTE: you may also add "customerOrderId": "1234" to manage open orders using cusom ids
+        // customerOrderId must be alphanumeric with no special chars, limit of 50 characters.
+
+        std::string res = client.request("POST", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str(), payload.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 202)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        // NOTE: recieving an id does not always mean that the order has been placed.
+        // IT COULD STILL HAVE FAILED
+        std::string id = extractNextString(res, 0);
+        
+        return id;
+    }
 }
