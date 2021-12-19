@@ -202,9 +202,12 @@ namespace VALR {
 
     // POST LIMIT ORDER
     // Request a limit buy or sell order
-    //     returns order id on success
+    //     returns order id on success  (this only means it was accepted, not successful)
     // parameters
-    //     action   expects string {  "BID" or "ASK" }
+    //     pair:     string {must be "BTCZAR", "ETHZAR" or "XRPZAR"}
+    //     action:   string {must be  "BID" or "ASK" }
+    //     volume:   base amount u wish to make BUY / SELL
+    //     price:    quote amount u wish your order to be made at
     //
     // NOTE:
     // fee     (for takers)
@@ -273,9 +276,13 @@ namespace VALR {
 
     // POST MARKET ORDER
     // Request a market buy or sell order. specify the amount you are willing to spend and that order will be filled immidiately
-    //     returns order id on success
+    //     returns order id on success  (this only means it was accepted, not successful)
     // parameters
+    //     pair: string {must be "BTCZAR", "ETHZAR" or "XRPZAR"}
     //     action:   string {must be  "BID" or "ASK" }
+    //     amount:   amount u wish to make BUY / SELL (a fee will be subtracted)
+    //     isOfBaseCurrency:   bool {true when quoting the Crypto value "BTC, ETH or XRP"}
+    //                              {false when quoting the ZAR value "ZAR" }
     //
     // NOTE:
     // fee     (for takers)
@@ -331,4 +338,92 @@ namespace VALR {
         
         return id;
     }
+
+    // POST STOP LIMIT ORDER
+    // Request a stop limit buy or sell order
+    //
+    // returns
+    //     order id on success (this only means it was accepted, not successful)
+    // parameters
+    //     pair:         string {must be "BTCZAR", "ETHZAR" or "XRPZAR"}
+    //     action:       string {must be  "BID" or "ASK" }
+    //     volume:       base amount u wish to make BUY / SELL
+    //     price:        quote amount u wish your order to be made at
+    //     stopPrice:    quote amount which will trigger your order
+    //     isStopLossLimit: if order is TAKE_PROFIT_LIMIT order or STOP_LOSS_LIMIT
+    //                          NB! stop price below last traded price for:
+    //                                 SELL order [makes] stop-loss order
+    //                                 BUY order [makes] take-profit order
+    //                          NB! stop price above last traded price for:
+    //                                 SELL order [makes] take-profit order
+    //                                 BUY order [makes] stop-loss order
+    // NOTE:
+    // fee     (for takers)
+    //      for bids will be paid in base  price,
+    //      for asks will be paid in quote price
+    // rewards (for makers)
+    //      for bids will be paid in quote price,
+    //      for asks will be paid in base  price
+    std::string VALRClient::postStopLimitOrder(std::string pair, std::string action, float volume, float price, float stopPrice, bool isStopLossLimit){
+        std::string path = "/v1/orders/stop/limit";
+        
+        if (!(action == "BID" || action == "ASK"))
+            throw std::invalid_argument("'action' expects string value \"BID\" or \"ASK\" only! ");
+        bool isBuy = (action == "BID") ? true : false;
+        
+        std::string baseCurrency = pair.substr(0, 3);
+        std::string quoteCurrency = pair.substr(3, 3);
+        int decimalsBase, decimalsQuote;
+        
+        if (currencies.size() == 0)
+            currencies = VALRClient::getCurrencies();
+        for (const CurrencyInfo& currency : currencies) {
+            if (currency.shortName == baseCurrency)
+                decimalsBase = currency.decimalCount;
+            if (currency.shortName == quoteCurrency)
+                decimalsQuote = currency.decimalCount;
+        }
+        
+        std::ostringstream strPrice, strStopPrice;
+        strPrice.precision(decimalsQuote);
+        strPrice << std::fixed << price;
+        strStopPrice.precision(decimalsQuote);
+        strStopPrice << std::fixed << stopPrice;
+        
+        std::ostringstream strVolume;
+        strVolume.precision(decimalsBase);
+        strVolume << std::fixed << volume;
+        
+        std::string orderType = (isStopLossLimit ? "TAKE_PROFIT_LIMIT" : "STOP_LOSS_LIMIT");
+        std::string payload = "{";
+        payload += "\n\t" + createJSONlabel("side", (isBuy ? "BUY" : "SELL")) + ",";
+        payload += "\n\t" + createJSONlabel("quantity", strVolume.str()) + ",";
+        payload += "\n\t" + createJSONlabel("price", strPrice.str()) + ",";
+        payload += "\n\t" + createJSONlabel("pair", pair)+ "," ;
+        payload += "\n\t" + createJSONlabel("stopPrice", strStopPrice.str()) + ",";
+        payload += "\n\t" + createJSONlabel("type", orderType);
+        payload +=  "\n" "}";
+        
+        // NOTE: you may also add "customerOrderId": "1234" to manage open orders using cusom ids
+        // customerOrderId must be alphanumeric with no special chars, limit of 50 characters.
+
+        // NOTE: you may also add "timeInForce": "GTC"
+        // values of timeInForce can be only:
+        //      "GTC" (Good Till Cancelled)  - this is the default
+        //      "FOK" (Fill or Kill)
+        //      or "IOC" (Immediate or Cancel)
+
+        std::string res = client.request("POST", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str(), payload.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 202)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        // NOTE: recieving an id does not always mean that the order has been placed.
+        // IT COULD STILL HAVE FAILED
+        std::string id = extractNextString(res, 0);
+        
+        return id;
+    }
+
 }

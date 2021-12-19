@@ -57,6 +57,7 @@ namespace VALR {
         static SimpleOrderStatus getSimpleOrderStatus(std::string pair, std::string id);
         static std::string postLimitOrder(std::string pair, std::string action, float volume, float price);
         static std::string postMarketOrder(std::string pair, std::string action, float amount, bool isOfBaseCurrency);
+        static std::string postStopLimitOrder(std::string pair, std::string action, float volume, float price, float stopPrice, bool isStopLossLimit);
         
         /* Pay Service Functions */
         static VALR_PAY_Result postNewPayment(float amount, VALR_PAY_NOTIFICATION notificationMethod, std::string notificationString, std::string beneficiaryReference = "",    std::string myReference = "", bool isAnonymous = false);
