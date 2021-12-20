@@ -377,6 +377,26 @@ namespace VALR {
         
         std::string toString() const;
     };
+
+class OrderOutcome {
+public:
+    OrderOutcome() {accepted = false;}
+    bool accepted;
+    std::string orderId;
+    int errorCode;
+    std::string message;
+        
+    std::string toString() const;
+};
+
+class BatchOrderOutcome {
+public:
+    std::vector<OrderOutcome> orders;
+    std::string batchId;
+    
+    std::string toString() const;
+};
+
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:
@@ -446,6 +466,10 @@ declarePrintable(VALR::ExcercisedQuote);
 declarePrintableList(VALR::ExcercisedQuote);
 declarePrintable(VALR::SimpleOrderStatus);
 declarePrintableList(VALR::SimpleOrderStatus);
+declarePrintable(VALR::OrderOutcome);
+declarePrintableList(VALR::OrderOutcome);
+declarePrintable(VALR::BatchOrderOutcome);
+declarePrintableList(VALR::BatchOrderOutcome);
 
 /* Pay Service Functions */
 declarePrintable(VALR::VALR_PAY_Result);

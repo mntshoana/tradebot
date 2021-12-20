@@ -426,4 +426,63 @@ namespace VALR {
         return id;
     }
 
+    // POST BATCH ORDERS
+    // Create a batch of multiple orders, or cancel orders, in a single request
+    //
+    // returns
+    //     list of result for each order. NB! orders with status success only means it was accepted, not executed successfully)
+    // parameters
+    //     payload:     batch orders all packed into one JSON string
+    BatchOrderOutcome VALRClient::postBatchOrders( std::string payload){
+        std::string path = "/v1/batch/orders";
+        
+        std::string res = client.request("POST", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str(), payload.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        BatchOrderOutcome results;
+        size_t last = 0;
+        
+        std::string list = extractNextStringBlock(res, last, "[", "]", last);
+         
+        // batchId
+        results.batchId = extractNextString(res, last, "}", last);
+        
+        last = 0;
+        while ((last = list.find("{", last)) != std::string::npos) {
+            OrderOutcome singleOutcome;
+            
+            // accepted
+            std::string token = extractNextString(list, last, ",");
+                if (token == "true" || token == "false")
+                    token = extractNextString(list, last, ",", last);
+                else
+                    token = extractNextString(list, last, "}", last);
+            singleOutcome.accepted = (token == "true" ? true : false);
+            
+            if (singleOutcome.accepted) {
+                token = extractNextStringBlock(list, last, "\"", "\"");
+                if (token == "orderId")
+                    // orderId
+                    singleOutcome.orderId = extractNextString(list, last, last);
+                    // recieving this id does not always mean that the order has been placed.
+                    // IT COULD STILL HAVE FAILED
+            } else {
+                std::string errorBlock = extractNextStringBlock(list, last, "{", "}", last);
+                size_t pos = 0;
+                // code
+                token = extractNextString(errorBlock, pos, ",", pos);
+                singleOutcome.errorCode = atoi(token.c_str());
+                
+                // message
+                singleOutcome.message = extractNextString(errorBlock, pos, pos);
+            }
+
+            results.orders.push_back(singleOutcome);
+        }
+        
+        return results;
+    }
 }

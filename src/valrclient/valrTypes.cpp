@@ -505,6 +505,32 @@ namespace VALR {
         
         return ss.str();
     }
+
+    std::string OrderOutcome::toString() const {
+        std::stringstream ss;
+        ss << "Accepted: " << (accepted ? "true" : "false") << "\n";
+        if (accepted){
+            if (orderId.length() > 0){
+            ss << "Order ID: " << orderId << "\n";
+            }
+        }
+        else {
+            ss << "Error code: " << errorCode << "\n";
+            ss << "With message: " << message << "\n";
+        }
+    
+        return ss.str();
+    }
+
+std::string BatchOrderOutcome::toString() const {
+    std::stringstream ss;
+    ss << "Batch Result...\n";
+    for (size_t i = 0; i < orders.size(); i++)
+        ss << orders[i].toString() << "\n";
+    ss << "Batch ID: " << batchId << "\n";
+    return ss.str();
+}
+
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -556,6 +582,10 @@ printableDefinition(VALR::ExcercisedQuote);
 printableList(VALR::ExcercisedQuote);
 printableDefinition(VALR::SimpleOrderStatus);
 printableList(VALR::SimpleOrderStatus);
+printableDefinition(VALR::OrderOutcome);
+printableList(VALR::OrderOutcome);
+printableDefinition(VALR::BatchOrderOutcome);
+printableList(VALR::BatchOrderOutcome);
 
 /* Pay Service Functions */
 printableDefinition(VALR::VALR_PAY_Result);
