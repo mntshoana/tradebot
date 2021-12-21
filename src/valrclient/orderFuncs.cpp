@@ -200,25 +200,10 @@ namespace VALR {
         return orderStatus;
     }
 
-    // POST LIMIT ORDER
-    // Request a limit buy or sell order
-    //     returns order id on success  (this only means it was accepted, not successful)
-    // parameters
-    //     pair:     string {must be "BTCZAR", "ETHZAR" or "XRPZAR"}
-    //     action:   string {must be  "BID" or "ASK" }
-    //     volume:   base amount u wish to make BUY / SELL
-    //     price:    quote amount u wish your order to be made at
+    // FORM LIMIT ORDER PAYLOAD
+    // Creates the json payload string that allows on to make a LIMIT order on VALR
     //
-    // NOTE:
-    // fee     (for takers)
-    //      for bids will be paid in base  price,
-    //      for asks will be paid in quote price
-    // rewards (for makers)
-    //      for bids will be paid in quote price,
-    //      for asks will be paid in base  price
-    std::string VALRClient::postLimitOrder(std::string pair, std::string action, float volume, float price){
-        std::string path = "/v1/orders/limit";
-        
+    std::string VALRClient::formLimitPayload(std::string pair, std::string action, float volume, float price, bool isBatch){
         if (!(action == "BID" || action == "ASK"))
             throw std::invalid_argument("'action' expects string value \"BID\" or \"ASK\" only! ");
         bool isBuy = (action == "BID") ? true : false;
@@ -260,6 +245,38 @@ namespace VALR {
         //      "GTC" (Good Till Cancelled)  - this is the default
         //      "FOK" (Fill or Kill)
         //      or "IOC" (Immediate or Cancel)
+        
+        if (isBatch){
+            std::string batchPayload = R"({
+                "type": "PLACE_LIMIT",
+                "data": )"
+                + payload
+                + "\n" "}";
+            return batchPayload;
+        }
+        return payload;
+    }
+
+    // POST LIMIT ORDER
+    // Request a limit buy or sell order
+    //     returns order id on success  (this only means it was accepted, not successful)
+    // parameters
+    //     pair:     string {must be "BTCZAR", "ETHZAR" or "XRPZAR"}
+    //     action:   string {must be  "BID" or "ASK" }
+    //     volume:   base amount u wish to make BUY / SELL
+    //     price:    quote amount u wish your order to be made at
+    //
+    // NOTE:
+    // fee     (for takers)
+    //      for bids will be paid in base  price,
+    //      for asks will be paid in quote price
+    // rewards (for makers)
+    //      for bids will be paid in quote price,
+    //      for asks will be paid in base  price
+    std::string VALRClient::postLimitOrder(std::string pair, std::string action, float volume, float price){
+        std::string path = "/v1/orders/limit";
+        
+        std::string payload = formLimitPayload(pair, action, volume, price);
 
         std::string res = client.request("POST", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str(), payload.c_str());
         
@@ -274,26 +291,10 @@ namespace VALR {
         return id;
     }
 
-    // POST MARKET ORDER
-    // Request a market buy or sell order. specify the amount you are willing to spend and that order will be filled immidiately
-    //     returns order id on success  (this only means it was accepted, not successful)
-    // parameters
-    //     pair: string {must be "BTCZAR", "ETHZAR" or "XRPZAR"}
-    //     action:   string {must be  "BID" or "ASK" }
-    //     amount:   amount u wish to make BUY / SELL (a fee will be subtracted)
-    //     isOfBaseCurrency:   bool {true when quoting the Crypto value "BTC, ETH or XRP"}
-    //                              {false when quoting the ZAR value "ZAR" }
+    // FORM MARKET ORDER PAYLOAD
+    // Creates the json payload string that allows on to make a MARKET order on VALR
     //
-    // NOTE:
-    // fee     (for takers)
-    //      for bids will be paid in base  price,
-    //      for asks will be paid in quote price
-    // rewards (for makers)
-    //      for bids will be paid in quote price,
-    //      for asks will be paid in base  price
-    std::string VALRClient::postMarketOrder(std::string pair, std::string action, float amount, bool isOfBaseCurrency){
-        std::string path = "/v1/orders/market";
-        
+    std::string VALRClient::formMarketPayload(std::string pair, std::string action, float amount, bool isOfBaseCurrency, bool isBatch){
         if (!(action == "BID" || action == "ASK"))
             throw std::invalid_argument("'action' expects string value \"BID\" or \"ASK\" only! ");
         bool isBuy = (action == "BID") ? true : false;
@@ -320,12 +321,44 @@ namespace VALR {
         std::string payload = "{";
         payload += "\n\t" + createJSONlabel("side", (isBuy ? "BUY" : "SELL")) + ",";
         payload += "\n\t" + createJSONlabel(amountLabel , strAmount.str()) + ",";
-        payload += "\n\t" + createJSONlabel("pair", pair) + ",";
-        payload += "\n\t" + createJSONlabelUnquoted("postOnly", "true");
+        payload += "\n\t" + createJSONlabel("pair", pair);
         payload +=  "\n" "}";
         // NOTE: you may also add "customerOrderId": "1234" to manage open orders using cusom ids
         // customerOrderId must be alphanumeric with no special chars, limit of 50 characters.
 
+        if (isBatch){
+            std::string batchPayload = R"({
+                "type": "PLACE_MARKET",
+                "data": )"
+                + payload
+                + "\n" "}";
+            return batchPayload;
+        }
+        return payload;
+    }
+
+    // POST MARKET ORDER
+    // Request a market buy or sell order. specify the amount you are willing to spend and that order will be filled immidiately
+    //     returns order id on success  (this only means it was accepted, not successful)
+    // parameters
+    //     pair: string {must be "BTCZAR", "ETHZAR" or "XRPZAR"}
+    //     action:   string {must be  "BID" or "ASK" }
+    //     amount:   amount u wish to make BUY / SELL (a fee will be subtracted)
+    //     isOfBaseCurrency:   bool {true when quoting the Crypto value "BTC, ETH or XRP"}
+    //                              {false when quoting the ZAR value "ZAR" }
+    //
+    // NOTE:
+    // fee     (for takers)
+    //      for bids will be paid in base  price,
+    //      for asks will be paid in quote price
+    // rewards (for makers)
+    //      for bids will be paid in quote price,
+    //      for asks will be paid in base  price
+    std::string VALRClient::postMarketOrder(std::string pair, std::string action, float amount, bool isOfBaseCurrency){
+        std::string path = "/v1/orders/market";
+        
+        std::string payload = formMarketPayload(pair, action, amount, isOfBaseCurrency);
+        
         std::string res = client.request("POST", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str(), payload.c_str());
         
         int httpCode = client.getHttpCode();
@@ -339,33 +372,10 @@ namespace VALR {
         return id;
     }
 
-    // POST STOP LIMIT ORDER
-    // Request a stop limit buy or sell order
+    // FORM STOP LIMIT ORDER PAYLOAD
+    // Creates the json payload string that allows on to make a STOP LIMIT order on VALR
     //
-    // returns
-    //     order id on success (this only means it was accepted, not successful)
-    // parameters
-    //     pair:         string {must be "BTCZAR", "ETHZAR" or "XRPZAR"}
-    //     action:       string {must be  "BID" or "ASK" }
-    //     volume:       base amount u wish to make BUY / SELL
-    //     price:        quote amount u wish your order to be made at
-    //     stopPrice:    quote amount which will trigger your order
-    //     isStopLossLimit: if order is TAKE_PROFIT_LIMIT order or STOP_LOSS_LIMIT
-    //                          NB! stop price below last traded price for:
-    //                                 SELL order [makes] stop-loss order
-    //                                 BUY order [makes] take-profit order
-    //                          NB! stop price above last traded price for:
-    //                                 SELL order [makes] take-profit order
-    //                                 BUY order [makes] stop-loss order
-    // NOTE:
-    // fee     (for takers)
-    //      for bids will be paid in base  price,
-    //      for asks will be paid in quote price
-    // rewards (for makers)
-    //      for bids will be paid in quote price,
-    //      for asks will be paid in base  price
-    std::string VALRClient::postStopLimitOrder(std::string pair, std::string action, float volume, float price, float stopPrice, bool isStopLossLimit){
-        std::string path = "/v1/orders/stop/limit";
+    std::string VALRClient::formStopLimitPayload(std::string pair, std::string action, float volume, float price, float stopPrice, bool isStopLossLimit, bool isBatch){
         
         if (!(action == "BID" || action == "ASK"))
             throw std::invalid_argument("'action' expects string value \"BID\" or \"ASK\" only! ");
@@ -413,6 +423,50 @@ namespace VALR {
         //      "FOK" (Fill or Kill)
         //      or "IOC" (Immediate or Cancel)
 
+
+        if (isBatch){
+            std::string batchPayload = R"({
+                "type": "PLACE_STOP_LIMIT",
+                "data": )"
+                + payload
+                + "\n" "}";
+            return batchPayload;
+        }
+        
+        return payload;
+    }
+
+    // POST STOP LIMIT ORDER
+    // Request a stop limit buy or sell order
+    //
+    // returns
+    //     order id on success (this only means it was accepted, not successful)
+    // parameters
+    //     pair:         string {must be "BTCZAR", "ETHZAR" or "XRPZAR"}
+    //     action:       string {must be  "BID" or "ASK" }
+    //     volume:       base amount u wish to make BUY / SELL
+    //     price:        quote amount u wish your order to be made at
+    //     stopPrice:    quote amount which will trigger your order
+    //     isStopLossLimit: if order is TAKE_PROFIT_LIMIT order or STOP_LOSS_LIMIT
+    //                          NB! stop price below last traded price for:
+    //                                 SELL order [makes] stop-loss order
+    //                                 BUY order [makes] take-profit order
+    //                          NB! stop price above last traded price for:
+    //                                 SELL order [makes] take-profit order
+    //                                 BUY order [makes] stop-loss order
+    // NOTE:
+    // fee     (for takers)
+    //      for bids will be paid in base  price,
+    //      for asks will be paid in quote price
+    // rewards (for makers)
+    //      for bids will be paid in quote price,
+    //      for asks will be paid in base  price
+    std::string VALRClient::postStopLimitOrder(std::string pair, std::string action, float volume, float price, float stopPrice, bool isStopLossLimit){
+        std::string path = "/v1/orders/stop/limit";
+        
+        std::string payload = formStopLimitPayload(pair, action, volume, price, stopPrice, isStopLossLimit);
+
+        
         std::string res = client.request("POST", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str(), payload.c_str());
         
         int httpCode = client.getHttpCode();
@@ -426,6 +480,13 @@ namespace VALR {
         return id;
     }
 
+    std::string VALRClient::wrapAsBatchPayload(std::string payloadList){
+        return "{\n"
+            "\t\"requests\": [\n"
+                + payloadList
+        + "\n]"
+        + "\n}";
+    }
     // POST BATCH ORDERS
     // Create a batch of multiple orders, or cancel orders, in a single request
     //
@@ -433,6 +494,7 @@ namespace VALR {
     //     list of result for each order. NB! orders with status success only means it was accepted, not executed successfully)
     // parameters
     //     payload:     batch orders all packed into one JSON string
+    //                  NB! batch allows type PLACE_MARKET, PLACE_LIMIT, PLACE_STOP LIMIT or CANCEL_ORDER only
     BatchOrderOutcome VALRClient::postBatchOrders( std::string payload){
         std::string path = "/v1/batch/orders";
         

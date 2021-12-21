@@ -55,9 +55,13 @@ namespace VALR {
         static SimpleQuote getOrderQuote(std::string pair, std::string action, float volume);
         static ExcercisedQuote excerciseOrderQuote(std::string pair, std::string action, float volume);
         static SimpleOrderStatus getSimpleOrderStatus(std::string pair, std::string id);
+        static std::string formLimitPayload(std::string pair, std::string action, float volume, float price, bool isBatch = false);
         static std::string postLimitOrder(std::string pair, std::string action, float volume, float price);
+        static std::string formMarketPayload(std::string pair, std::string action, float amount, bool isOfBaseCurrency, bool isBatch = false);
         static std::string postMarketOrder(std::string pair, std::string action, float amount, bool isOfBaseCurrency);
+        static std::string formStopLimitPayload(std::string pair, std::string action, float volume, float price, float stopPrice, bool isStopLossLimit, bool isBatch = false);
         static std::string postStopLimitOrder(std::string pair, std::string action, float volume, float price, float stopPrice, bool isStopLossLimit);
+        static std::string wrapAsBatchPayload(std::string payloadList);
         static BatchOrderOutcome postBatchOrders( std::string payload);
         
         /* Pay Service Functions */

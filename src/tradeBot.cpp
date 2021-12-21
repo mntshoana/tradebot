@@ -61,84 +61,23 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                              &VALR::OrderBook::FormatHTML),
                     true);*/
     
-    *home->workPanel->text  << VALR::VALRClient::postBatchOrders(R"(
-{
-    "requests": [
-        {
-            "type": "PLACE_MARKET",
-            "data": {
-                "side": "SELL",
-                "quoteAmount": "100",
-                "pair": "BTCZAR",
-                "customerOrderId": "1234"
-            }
-        },
-        {
-            "type": "PLACE_LIMIT",
-            "data": {
-                "pair": "BTCZAR",
-                "side": "BUY",
-                "quantity": "0.0002",
-                "price": "100000",
-                "timeInForce": "GTC"
-            }
-        },
-        {
-            "type": "PLACE_LIMIT",
-            "data": {
-                "pair": "ETHZAR",
-                "side": "SELL",
-                "quantity": "0.2",
-                "price": "32000",
-                "postOnly":"false",
-                "timeInForce": "GTC"
-            }
-        },
-        {
-            "type": "PLACE_STOP_LIMIT",
-            "data": {
-                "pair": "BTCZAR",
-                "side": "BUY",
-                "quantity": "0.0002",
-                "price": "100000",
-                "timeInForce": "GTC",
-                "stopPrice": "110000",
-                "type": "TAKE_PROFIT_LIMIT"
-            }
-        },
-        {
-            "type": "PLACE_STOP_LIMIT",
-            "data": {
-                "pair": "BTCZAR",
-                "side": "SELL",
-                "quantity": "0.0003",
-                "price": "1150000",
-                "timeInForce": "GTC",
-                "stopPrice": "110000",
-                "type": "STOP_LOSS_LIMIT"
-            }
-        },
-        {
-            "type": "PLACE_STOP_LIMIT",
-            "data": {
-                "pair": "BTCZAR",
-                "side": "BUY",
-                "quantity": "0.00000002",
-                "price": "100000",
-                "timeInForce": "GTC",
-                "stopPrice": "110000",
-                "type": "STOP_LOSS_LIMIT"
-            }
-            },
-        {
-            "type": "CANCEL_ORDER",
-            "data": {
-                "orderId":"e5886f2d-191b-4330-a221-c7b41b0bc553",
-                "pair": "ETHZAR"
-            }
-        }
-    ]
-})");
+    /*std::string batch = VALR::VALRClient::formMarketPayload("BTCZAR", "ASK", 100, false, true)
+        + ",\n" + VALR::VALRClient::formLimitPayload("BTCZAR", "BID", 0.002, 100000, true)
+    + ",\n" + VALR::VALRClient::formLimitPayload("ETHZAR", "ASK", 0.2, 32000, true)
+    + ",\n" + VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.002, 100000, 110000, false, true)
+    + ",\n" + VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.0003, 1150000, 110000, true, true)
+    + ",\n" + VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.00000002, 100000, 110000, true, true)
+    + ",\n" R"(
+            {
+                "type": "CANCEL_ORDER",
+                "data": {
+                    "orderId":"e5886f2d-191b-4330-a221-c7b41b0bc553",
+                    "pair": "ETHZAR"
+                }
+            })";
+   
+    std::string batchPayload = VALR::VALRClient::wrapAsBatchPayload(batch);
+    *home->workPanel->text  << VALR::VALRClient::postBatchOrders(batchPayload);*/
     
     installEventFilter(this);
 }
