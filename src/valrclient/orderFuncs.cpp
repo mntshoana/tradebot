@@ -480,12 +480,22 @@ namespace VALR {
         return id;
     }
 
-    std::string VALRClient::wrapAsBatchPayload(std::string payloadList){
-        return "{\n"
-            "\t\"requests\": [\n"
-                + payloadList
-        + "\n]"
-        + "\n}";
+    // Packs a list of individual payloads into a single batch payload supported by VALR exchange
+    std::string VALRClient::packBatchPayloadFromList(std::vector<std::string> payloadList){
+        if (payloadList.size() == 0)
+            throw std::invalid_argument("Error! Unable to construct batch payload. Cannot pass empty vector to this function.");
+        std::stringstream ss;
+        ss << "{\n";
+        ss << "\t\"requests\": [";
+        for (size_t i = 0; i < payloadList.size(); i++){
+            if (i > 0)
+                ss << ",";
+            ss << "\n" << payloadList[i];
+        }
+        ss << "\n]";
+        ss << "\n}";
+        
+        return ss.str();
     }
     // POST BATCH ORDERS
     // Create a batch of multiple orders, or cancel orders, in a single request

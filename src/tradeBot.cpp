@@ -61,23 +61,24 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                              &VALR::OrderBook::FormatHTML),
                     true);*/
     
-    /*std::string batch = VALR::VALRClient::formMarketPayload("BTCZAR", "ASK", 100, false, true)
-        + ",\n" + VALR::VALRClient::formLimitPayload("BTCZAR", "BID", 0.002, 100000, true)
-    + ",\n" + VALR::VALRClient::formLimitPayload("ETHZAR", "ASK", 0.2, 32000, true)
-    + ",\n" + VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.002, 100000, 110000, false, true)
-    + ",\n" + VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.0003, 1150000, 110000, true, true)
-    + ",\n" + VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.00000002, 100000, 110000, true, true)
-    + ",\n" R"(
+    std::vector<std::string> batch;
+    batch.push_back(VALR::VALRClient::formMarketPayload("BTCZAR", "ASK", 100, false, true));
+    batch.push_back(VALR::VALRClient::formLimitPayload("BTCZAR", "BID", 0.002, 100000, true));
+    batch.push_back(VALR::VALRClient::formLimitPayload("ETHZAR", "ASK", 0.2, 32000, true));
+    batch.push_back(VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.002, 100000, 110000, false, true));
+    batch.push_back(VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.0003, 1150000, 110000, true, true));
+    batch.push_back(VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.00000002, 100000, 110000, true, true));
+    batch.push_back(R"(
             {
                 "type": "CANCEL_ORDER",
                 "data": {
                     "orderId":"e5886f2d-191b-4330-a221-c7b41b0bc553",
                     "pair": "ETHZAR"
                 }
-            })";
+            })");
    
-    std::string batchPayload = VALR::VALRClient::wrapAsBatchPayload(batch);
-    *home->workPanel->text  << VALR::VALRClient::postBatchOrders(batchPayload);*/
+    std::string batchPayload = VALR::VALRClient::packBatchPayloadFromList(batch);
+    *home->workPanel->text  << VALR::VALRClient::postBatchOrders(batchPayload);
     
     installEventFilter(this);
 }

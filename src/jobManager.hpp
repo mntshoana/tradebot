@@ -17,10 +17,11 @@ protected:
     void* (*request)();
     void* (*preprocessor)();
 public:
-    virtual void performJob() { updateWaitTime(1);}
+    virtual void performJob() {}
     bool repeat;
     int wait;
     int recommendedWait;
+    JobBase(){updateWaitTime(1);}
     virtual ~JobBase(){}
     void updateWaitTime(int time) { wait = recommendedWait = time; }
 };
