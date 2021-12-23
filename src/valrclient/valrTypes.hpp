@@ -378,25 +378,43 @@ namespace VALR {
         std::string toString() const;
     };
 
-class OrderOutcome {
-public:
-    OrderOutcome() {accepted = false;}
-    bool accepted;
-    std::string orderId;
-    int errorCode;
-    std::string message;
+    class OrderOutcome {
+    public:
+        OrderOutcome() {accepted = false;}
+        bool accepted;
+        std::string orderId;
+        int errorCode;
+        std::string message;
+            
+        std::string toString() const;
+    };
+
+    class BatchOrderOutcome {
+    public:
+        std::vector<OrderOutcome> orders;
+        std::string batchId;
         
-    std::string toString() const;
-};
+        std::string toString() const;
+    };
 
-class BatchOrderOutcome {
-public:
-    std::vector<OrderOutcome> orders;
-    std::string batchId;
-    
-    std::string toString() const;
-};
-
+    class OrderIDOutcome {
+    public:
+        std::string orderID;
+        std::string status;
+        std::string pair;
+        float price;
+        float volume;
+        float volumeRemaining;
+        bool isBuy;
+        std::string orderType;
+        std::string message;
+        std::string customerOrderID;
+        std::string timestamp;
+        std::string lastUpdated;
+        std::string timeInForce;
+        
+        std::string toString() const;
+    };
     /* Transfer Functions Types*/
     /*class Withdrawal {
     public:
@@ -470,6 +488,8 @@ declarePrintable(VALR::OrderOutcome);
 declarePrintableList(VALR::OrderOutcome);
 declarePrintable(VALR::BatchOrderOutcome);
 declarePrintableList(VALR::BatchOrderOutcome);
+declarePrintable(VALR::OrderIDOutcome);
+declarePrintableList(VALR::OrderIDOutcome);
 
 /* Pay Service Functions */
 declarePrintable(VALR::VALR_PAY_Result);

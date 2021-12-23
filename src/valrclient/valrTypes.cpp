@@ -522,14 +522,39 @@ namespace VALR {
         return ss.str();
     }
 
-std::string BatchOrderOutcome::toString() const {
-    std::stringstream ss;
-    ss << "Batch Result...\n";
-    for (size_t i = 0; i < orders.size(); i++)
-        ss << orders[i].toString() << "\n";
-    ss << "Batch ID: " << batchId << "\n";
-    return ss.str();
-}
+    std::string BatchOrderOutcome::toString() const {
+        std::stringstream ss;
+        ss << "Batch Result...\n";
+        for (size_t i = 0; i < orders.size(); i++)
+            ss << orders[i].toString() << "\n";
+        ss << "Batch ID: " << batchId << "\n";
+        return ss.str();
+    }
+
+    std::string OrderIDOutcome::toString() const {
+        std::stringstream ss;
+        ss << "Order ID: " << orderID;
+        if (customerOrderID.length() > 0)
+            ss << " (custom ID: " << customerOrderID << ")\n";
+        else
+            ss << "\n";
+        
+        ss << "Status: " << status << "\n";
+        ss << "Pair: " << pair << "\n";
+        ss << "Price: " << price << "\n";
+        ss << "Volume: " << volume << "\n";
+        ss << "Volume remaining: " << volumeRemaining << "\n";
+        ss << "Order type: " << (isBuy ? "BID" : "ASK") << " of " << orderType << "\n";
+        if (message.length() > 0)
+            ss << "Failed because: " << message << "\n";
+                
+        ss << "Timestamp: " << timestamp << "\n";
+        ss << "Last Updated: " << lastUpdated << "\n";
+        if (timeInForce.length() > 0)
+            ss << "Time in force selected: " << timeInForce << "\n";
+        
+        return ss.str();
+    }
 
 }
 printableDefinition(VALR::OrderBook);
@@ -586,6 +611,8 @@ printableDefinition(VALR::OrderOutcome);
 printableList(VALR::OrderOutcome);
 printableDefinition(VALR::BatchOrderOutcome);
 printableList(VALR::BatchOrderOutcome);
+printableDefinition(VALR::OrderIDOutcome);
+printableList(VALR::OrderIDOutcome);
 
 /* Pay Service Functions */
 printableDefinition(VALR::VALR_PAY_Result);

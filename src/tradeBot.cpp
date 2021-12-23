@@ -61,7 +61,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
                              &VALR::OrderBook::FormatHTML),
                     true);*/
     
-    std::vector<std::string> batch;
+    /*std::vector<std::string> batch;
     batch.push_back(VALR::VALRClient::formMarketPayload("BTCZAR", "ASK", 100, false, true));
     batch.push_back(VALR::VALRClient::formLimitPayload("BTCZAR", "BID", 0.002, 100000, true));
     batch.push_back(VALR::VALRClient::formLimitPayload("ETHZAR", "ASK", 0.2, 32000, true));
@@ -78,8 +78,8 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
             })");
    
     std::string batchPayload = VALR::VALRClient::packBatchPayloadFromList(batch);
-    *home->workPanel->text  << VALR::VALRClient::postBatchOrders(batchPayload);
-    
+    *home->workPanel->text  << VALR::VALRClient::postBatchOrders(batchPayload);*/
+    *home->workPanel->text << VALR::VALRClient::getOrderDetails("BTCZAR", "cd7a676b-a1ac-44fb-b074-33ee4fd14b31");
     installEventFilter(this);
 }
 

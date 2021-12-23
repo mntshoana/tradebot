@@ -55,17 +55,29 @@ namespace VALR {
         static SimpleQuote getOrderQuote(std::string pair, std::string action, float volume);
         static ExcercisedQuote excerciseOrderQuote(std::string pair, std::string action, float volume);
         static SimpleOrderStatus getSimpleOrderStatus(std::string pair, std::string id);
-        static std::string formLimitPayload(std::string pair, std::string action, float volume, float price, bool isBatch = false);
+        static std::string formLimitPayload(std::string pair, std::string action,
+                                            float volume, float price,
+                                            bool isBatch = false);
         static std::string postLimitOrder(std::string pair, std::string action, float volume, float price);
-        static std::string formMarketPayload(std::string pair, std::string action, float amount, bool isOfBaseCurrency, bool isBatch = false);
+        static std::string formMarketPayload(std::string pair, std::string action,
+                                             float amount, bool isOfBaseCurrency,
+                                             bool isBatch = false);
         static std::string postMarketOrder(std::string pair, std::string action, float amount, bool isOfBaseCurrency);
-        static std::string formStopLimitPayload(std::string pair, std::string action, float volume, float price, float stopPrice, bool isStopLossLimit, bool isBatch = false);
+        static std::string formStopLimitPayload(std::string pair, std::string action,
+                                                float volume, float price,
+                                                float stopPrice, bool isStopLossLimit,
+                                                bool isBatch = false);
         static std::string postStopLimitOrder(std::string pair, std::string action, float volume, float price, float stopPrice, bool isStopLossLimit);
         static std::string packBatchPayloadFromList(std::vector<std::string> payloadList);
         static BatchOrderOutcome postBatchOrders( std::string payload);
+        static OrderIDOutcome getOrderDetails(std::string pair, std::string id, bool isCustomerOrderID = false);
         
         /* Pay Service Functions */
-        static VALR_PAY_Result postNewPayment(float amount, VALR_PAY_NOTIFICATION notificationMethod, std::string notificationString, std::string beneficiaryReference = "",    std::string myReference = "", bool isAnonymous = false);
+        static VALR_PAY_Result postNewPayment(float amount, VALR_PAY_NOTIFICATION notificationMethod,
+                                              std::string notificationString,
+                                              std::string beneficiaryReference = "",
+                                              std::string myReference = "",
+                                              bool isAnonymous = false);
         static PaymentLimitInfo getPaymentInfo();
         static std::string getUserPaymentID();
         static std::vector<VALR_PAY_History_Entry> getUserPaymentHistory(std::string statusFilter = "", unsigned skip = 0, unsigned limit = 0);

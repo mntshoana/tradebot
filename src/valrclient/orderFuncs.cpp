@@ -557,4 +557,81 @@ namespace VALR {
         
         return results;
     }
+
+    //
+    //
+    OrderIDOutcome VALRClient::getOrderDetails(std::string pair, std::string id, bool isCustomerOrderID){
+        std::string path = "/v1/orders/" + pair;
+        if (!isCustomerOrderID)
+            path += "/orderid/" + id;
+        else
+            path += "/customerorderid/" + id;
+
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        size_t last = 0;
+                
+        OrderIDOutcome orderStatus;
+        
+        // orderId
+        orderStatus.orderID = extractNextString(res, last, last);
+        
+        // orderStatusType
+        orderStatus.status = extractNextString(res, last, last);
+        
+        // currencyPair
+        orderStatus.pair = extractNextString(res, last, last);
+        
+        // originalPrice
+        std::string token = extractNextString(res, last, last);
+        orderStatus.price = atof(token.c_str());
+        
+        // remainingQuantity
+        token = extractNextString(res, last, last);
+        orderStatus.volumeRemaining = atof(token.c_str());
+        
+        // originalQuantity
+        token = extractNextString(res, last, last);
+        orderStatus.volume = atof(token.c_str());
+        
+        // orderSide
+        token = extractNextString(res, last, last);
+        orderStatus.isBuy = (token == "buy" ? true : false);
+        
+        // orderType
+        orderStatus.orderType = extractNextString(res, last, last);
+        
+        // failedReason
+        orderStatus.message = extractNextString(res, last, last);
+
+        token =  extractNextString(res, last);
+        if (token == "customerOrderId"){
+            // customerOrderId
+            orderStatus.customerOrderID = extractNextString(res, last, last);
+            
+            // orderUpdatedAt
+            orderStatus.lastUpdated = extractNextString(res, last, last);
+            
+            // orderCreatedAt
+            orderStatus.timestamp = extractNextString(res, last, last);
+        }
+        else {
+            // orderUpdatedAt
+            orderStatus.lastUpdated = extractNextString(res, last, last);
+            // orderCreatedAt
+            orderStatus.timestamp = extractNextString(res, last, last);
+        }
+        
+        token =  extractNextString(res, last);
+        if (token == "timeInForce"){
+            // timeInForce
+            orderStatus.message = extractNextString(res, last, last);
+        }
+        
+        return orderStatus;
+    }
 }
