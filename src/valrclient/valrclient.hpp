@@ -71,6 +71,7 @@ namespace VALR {
         static std::string packBatchPayloadFromList(std::vector<std::string> payloadList);
         static BatchOrderOutcome postBatchOrders( std::string payload);
         static OrderIDOutcome getOrderDetails(std::string pair, std::string id, bool isCustomerOrderID = false);
+        static std::vector<OpenOrder> getAllOpenOrders();
         
         /* Pay Service Functions */
         static VALR_PAY_Result postNewPayment(float amount, VALR_PAY_NOTIFICATION notificationMethod,

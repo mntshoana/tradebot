@@ -608,7 +608,7 @@ namespace VALR {
         // failedReason
         orderStatus.message = extractNextString(res, last, last);
 
-        token =  extractNextString(res, last);
+        token =  extractNextStringBlock(res, last, "\"", "\"");
         if (token == "customerOrderId"){
             // customerOrderId
             orderStatus.customerOrderID = extractNextString(res, last, last);
@@ -626,12 +626,83 @@ namespace VALR {
             orderStatus.timestamp = extractNextString(res, last, last);
         }
         
-        token =  extractNextString(res, last);
+        token =  extractNextStringBlock(res, last, "\"", "\"");
         if (token == "timeInForce"){
             // timeInForce
             orderStatus.message = extractNextString(res, last, last);
         }
         
         return orderStatus;
+    }
+
+    //
+    //
+    std::vector<OpenOrder> VALRClient::getAllOpenOrders(){
+        std::string path = "/v1/orders/open";
+
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+                
+        std::vector<OpenOrder> orders;
+        
+        size_t last = 0;
+        while ((last = res.find("{", last)) != std::string::npos) {
+            OpenOrder order;
+            
+            // orderId
+            order.orderID = extractNextString(res, last, last);
+            
+            // side
+            std::string token = extractNextString(res, last, last);
+            order.isBuy = (token == "buy" ? true : false);
+            
+            // remainingQuantity
+            token = extractNextString(res, last, last);
+            order.volumeRemaining = atof(token.c_str());
+            
+            // price
+            token = extractNextString(res, last, last);
+            order.price = atof(token.c_str());
+            
+            // currencyPair
+            order.pair = extractNextString(res, last, last);
+            
+            // createdAt
+            order.timestamp = extractNextString(res, last, last);
+            
+            // originalQuantity
+            token = extractNextString(res, last, last);
+            order.volume = atof(token.c_str());
+            
+            // filledPercentage
+            token = extractNextString(res, last, last);
+            order.filledPercentage = atof(token.c_str());
+            
+            // stopPrice
+            token = extractNextString(res, last, last);
+            order.stopPrice = atof(token.c_str());
+            
+            // updatedAt
+            order.lastUpdated = extractNextString(res, last, last);
+            
+            // status
+            order.status = extractNextString(res, last, last);
+            
+            // orderType
+            order.orderType = extractNextString(res, last, last);
+            
+            token =  extractNextStringBlock(res, last, "\"", "\"");
+            if (token == "timeInForce"){
+                // timeInForce
+                order.message = extractNextString(res, last, last);
+            }
+            
+            orders.push_back(order);
+        }
+        return orders;
     }
 }

@@ -556,6 +556,32 @@ namespace VALR {
         return ss.str();
     }
 
+    std::string OpenOrder::toString() const {
+        std::stringstream ss;
+        ss << "Order ID: " << orderID;
+        if (customerOrderID.length() > 0)
+            ss << " (custom ID: " << customerOrderID << ")\n";
+        else
+            ss << "\n";
+        
+        ss << "Status: " << status << "\n";
+        ss << "Pair: " << pair << "\n";
+        ss << "Price: " << price << "\n";
+        if (stopPrice > 0)
+            ss << "Stop price: " << stopPrice << "\n";
+        ss << "Volume: " << volume << "\n";
+        ss << "Volume remaining: " << volumeRemaining << "\n";
+        ss << "Filled: " << filledPercentage << "%\n";
+        ss << "Order type: " << (isBuy ? "BID" : "ASK") << " of " << orderType << "\n";
+        
+        ss << "Timestamp: " << timestamp << "\n";
+        ss << "Last Updated: " << lastUpdated << "\n";
+        if (timeInForce.length() > 0)
+            ss << "Time in force selected: " << timeInForce << "\n";
+        
+        return ss.str();
+    }
+
 }
 printableDefinition(VALR::OrderBook);
 printableList(VALR::OrderBook);
@@ -613,6 +639,9 @@ printableDefinition(VALR::BatchOrderOutcome);
 printableList(VALR::BatchOrderOutcome);
 printableDefinition(VALR::OrderIDOutcome);
 printableList(VALR::OrderIDOutcome);
+printableDefinition(VALR::OpenOrder);
+printableList(VALR::OpenOrder);
+
 
 /* Pay Service Functions */
 printableDefinition(VALR::VALR_PAY_Result);

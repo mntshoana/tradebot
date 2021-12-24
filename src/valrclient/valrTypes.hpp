@@ -415,22 +415,13 @@ namespace VALR {
         
         std::string toString() const;
     };
-    /* Transfer Functions Types*/
-    /*class Withdrawal {
+
+    class OpenOrder : public OrderIDOutcome {
     public:
-        Withdrawal(){}
-        long long id;
-        std::string status;
-        long long createdTime;
-        std::string type;
-        std::string currency;
-        float amount;
-        float fee;
-     
-        std::string toString();
+        float stopPrice;
+        float filledPercentage;
+        std::string toString() const;
     };
-     declarePrintable(Withdrawal);
-     */
 }
 declarePrintable(VALR::UserOrder);
 declarePrintableList(VALR::UserOrder);
@@ -490,6 +481,8 @@ declarePrintable(VALR::BatchOrderOutcome);
 declarePrintableList(VALR::BatchOrderOutcome);
 declarePrintable(VALR::OrderIDOutcome);
 declarePrintableList(VALR::OrderIDOutcome);
+declarePrintable(VALR::OpenOrder);
+declarePrintableList(VALR::OpenOrder);
 
 /* Pay Service Functions */
 declarePrintable(VALR::VALR_PAY_Result);
