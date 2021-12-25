@@ -119,6 +119,26 @@ namespace VALR {
     
         return info;
     }
+    
+    // Withdraw (crypto)
+    // This will withdraw a cryptocurrency amount to an address.
+    std::string VALRClient::withdraw( std::string asset, float amount, std::string address){
+        std::string path = "/v1/wallet/crypto/" + asset + "/withdraw";
+        std::string payload = "{";
+        payload += "\n\t" + createJSONlabel("amount", std::to_string(amount)) + ",";
+        payload += "\n\t" + createJSONlabel("address", address) ;
+        payload +=  "\n" "}";
+
+        std::string res = client.request("POST", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str(), payload.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::string id = extractNextString(res, 0);
+        
+        return id;
+    }
 }
 /*
 // create account
