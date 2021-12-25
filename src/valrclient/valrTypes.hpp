@@ -416,6 +416,16 @@ namespace VALR {
         std::string toString() const;
     };
 
+    class OrderHistory : public OrderIDOutcome {
+    public:
+        float avgPrice;
+        float total;
+        float totalFee;
+        std::string feeAsset;
+
+        std::string toString() const;
+    };
+
     class OpenOrder : public OrderIDOutcome {
     public:
         float stopPrice;
@@ -481,6 +491,8 @@ declarePrintable(VALR::BatchOrderOutcome);
 declarePrintableList(VALR::BatchOrderOutcome);
 declarePrintable(VALR::OrderIDOutcome);
 declarePrintableList(VALR::OrderIDOutcome);
+declarePrintable(VALR::OrderHistory);
+declarePrintableList(VALR::OrderHistory);
 declarePrintable(VALR::OpenOrder);
 declarePrintableList(VALR::OpenOrder);
 

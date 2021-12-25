@@ -556,6 +556,38 @@ namespace VALR {
         return ss.str();
     }
 
+    std::string OrderHistory::toString() const {
+        std::stringstream ss;
+        ss << "Order ID: " << orderID;
+        if (customerOrderID.length() > 0)
+            ss << " (custom ID: " << customerOrderID << ")\n";
+        else
+            ss << "\n";
+        
+        ss << "Status: " << status << "\n";
+        ss << "Pair: " << pair << "\n";
+        if (avgPrice > 0)
+            ss << "Average price: " << avgPrice << "\n";
+        if (total > 0)
+            ss << "Total: " << total << "\n";
+        if (totalFee > 0)
+            ss << "Total fee: " << totalFee <<  " " << feeAsset << "\n";
+       
+        ss << "Price: " << price << "\n";
+        ss << "Volume: " << volume << "\n";
+        ss << "Volume remaining: " << volumeRemaining << "\n";
+        ss << "Order type: " << (isBuy ? "BID" : "ASK") << " of " << orderType << "\n";
+        if (message.length() > 0)
+            ss << "Failed because: " << message << "\n";
+                
+        ss << "Timestamp: " << timestamp << "\n";
+        ss << "Last Updated: " << lastUpdated << "\n";
+        if (timeInForce.length() > 0)
+            ss << "Time in force selected: " << timeInForce << "\n";
+        
+        return ss.str();
+    }
+
     std::string OpenOrder::toString() const {
         std::stringstream ss;
         ss << "Order ID: " << orderID;
@@ -639,6 +671,8 @@ printableDefinition(VALR::BatchOrderOutcome);
 printableList(VALR::BatchOrderOutcome);
 printableDefinition(VALR::OrderIDOutcome);
 printableList(VALR::OrderIDOutcome);
+printableDefinition(VALR::OrderHistory);
+printableList(VALR::OrderHistory);
 printableDefinition(VALR::OpenOrder);
 printableList(VALR::OpenOrder);
 

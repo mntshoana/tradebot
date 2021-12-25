@@ -79,7 +79,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
    
     std::string batchPayload = VALR::VALRClient::packBatchPayloadFromList(batch);
     *home->workPanel->text  << VALR::VALRClient::postBatchOrders(batchPayload);*/
-    *home->workPanel->text << VALR::VALRClient::getAllOpenOrders();
+    *home->workPanel->text << VALR::VALRClient::getUserOrderHistory();
     installEventFilter(this);
 }
 

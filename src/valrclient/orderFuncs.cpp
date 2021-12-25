@@ -629,7 +629,7 @@ namespace VALR {
         token =  extractNextStringBlock(res, last, "\"", "\"");
         if (token == "timeInForce"){
             // timeInForce
-            orderStatus.message = extractNextString(res, last, last);
+            orderStatus.timeInForce = extractNextString(res, last, last);
         }
         
         return orderStatus;
@@ -682,9 +682,12 @@ namespace VALR {
             token = extractNextString(res, last, last);
             order.filledPercentage = atof(token.c_str());
             
-            // stopPrice
-            token = extractNextString(res, last, last);
-            order.stopPrice = atof(token.c_str());
+            token =  extractNextStringBlock(res, last, "\"", "\"");
+            if (token == "stopPrice"){
+                // stopPrice
+                token = extractNextString(res, last, last);
+                order.stopPrice = atof(token.c_str());
+            }
             
             // updatedAt
             order.lastUpdated = extractNextString(res, last, last);
@@ -705,4 +708,103 @@ namespace VALR {
         }
         return orders;
     }
+
+    //
+    // Get historical orders placed by the user.
+    std::vector<OrderHistory> VALRClient::getUserOrderHistory(int skip, int limit){
+        std::string path = "/v1/orders/history";
+        
+        int args = 0;
+        if (skip > 0) {
+            path += (args++ >= 1) ? "&" : "?";
+            path += "skip=";
+            path += std::to_string(skip);
+        }
+        if (limit > 0) {
+            path += (args++ >= 1) ? "&" : "?";
+            path += "limit=";
+            path += std::to_string(limit);
+        }
+
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::vector<OrderHistory> orders;
+        
+        size_t last = 0;
+        while ((last = res.find("{", last)) != std::string::npos) {
+            OrderHistory order;
+            
+            // orderId
+            order.orderID = extractNextString(res, last, last);
+            
+            std::string token =  extractNextStringBlock(res, last, "\"", "\"");
+            if (token == "customerOrderId"){
+                // customerOrderId
+                order.customerOrderID = extractNextString(res, last, last);
+            }
+            
+            // orderStatusType
+            order.status = extractNextString(res, last, last);
+            
+            // currencyPair
+            order.pair = extractNextString(res, last, last);
+            
+            // averagePrice
+            token = extractNextString(res, last, last);
+            order.avgPrice = atof(token.c_str());
+            
+            // originalPrice
+            token = extractNextString(res, last, last);
+            order.price = atof(token.c_str());
+            
+            // remainingQuantity
+            token = extractNextString(res, last, last);
+            order.volumeRemaining = atof(token.c_str());
+            
+            // originalQuantity
+            token = extractNextString(res, last, last);
+            order.volume = atof(token.c_str());
+            
+            // total
+            token = extractNextString(res, last, last);
+            order.total = atof(token.c_str());
+            
+            // totalFee
+            token = extractNextString(res, last, last);
+            order.totalFee = atof(token.c_str());
+            
+            // feeCurrency
+            order.feeAsset = extractNextString(res, last, last);
+            
+            // orderSide
+            token = extractNextString(res, last, last);
+            order.isBuy = (token == "buy" ? true : false);
+            
+            // orderType
+            order.orderType = extractNextString(res, last, last);
+            
+            // failedReason
+            order.message = extractNextString(res, last, last);
+        
+            // orderUpdatedAt
+            order.lastUpdated = extractNextString(res, last, last);
+            
+            // orderCreatedAt
+            order.timestamp = extractNextString(res, last, last);
+            
+            token =  extractNextStringBlock(res, last, "\"", "\"");
+            if (token == "timeInForce"){
+                // timeInForce
+                order.timeInForce = extractNextString(res, last, last);
+            }
+            
+            orders.push_back(order);
+        }
+        return orders;
+    }
+
 }
