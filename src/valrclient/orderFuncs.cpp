@@ -807,4 +807,90 @@ namespace VALR {
         return orders;
     }
 
+    //
+    // Get historical orders placed by the user.
+    OrderHistory VALRClient::getUserOrderByID(std::string id, bool isCustomerOrderID){
+        std::string path = "/v1/orders/history/summary";
+        
+        if (!isCustomerOrderID)
+            path += "/orderid/" + id;
+        else
+            path += "/customerorderid/" + id;
+
+        std::string res = client.request("GET", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        size_t last = 0;
+
+        OrderHistory order;
+        
+        // orderId
+        order.orderID = extractNextString(res, last, last);
+        
+        std::string token =  extractNextStringBlock(res, last, "\"", "\"");
+        if (token == "customerOrderId"){
+            // customerOrderId
+            order.customerOrderID = extractNextString(res, last, last);
+        }
+        
+        // orderStatusType
+        order.status = extractNextString(res, last, last);
+        
+        // currencyPair
+        order.pair = extractNextString(res, last, last);
+        
+        // averagePrice
+        token = extractNextString(res, last, last);
+        order.avgPrice = atof(token.c_str());
+        
+        // originalPrice
+        token = extractNextString(res, last, last);
+        order.price = atof(token.c_str());
+        
+        // remainingQuantity
+        token = extractNextString(res, last, last);
+        order.volumeRemaining = atof(token.c_str());
+        
+        // originalQuantity
+        token = extractNextString(res, last, last);
+        order.volume = atof(token.c_str());
+        
+        // total
+        token = extractNextString(res, last, last);
+        order.total = atof(token.c_str());
+        
+        // totalFee
+        token = extractNextString(res, last, last);
+        order.totalFee = atof(token.c_str());
+        
+        // feeCurrency
+        order.feeAsset = extractNextString(res, last, last);
+        
+        // orderSide
+        token = extractNextString(res, last, last);
+        order.isBuy = (token == "buy" ? true : false);
+        
+        // orderType
+        order.orderType = extractNextString(res, last, last);
+        
+        // failedReason
+        order.message = extractNextString(res, last, last);
+    
+        // orderUpdatedAt
+        order.lastUpdated = extractNextString(res, last, last);
+        
+        // orderCreatedAt
+        order.timestamp = extractNextString(res, last, last);
+        
+        token =  extractNextStringBlock(res, last, "\"", "\"");
+        if (token == "timeInForce"){
+            // timeInForce
+            order.timeInForce = extractNextString(res, last, last);
+        }
+        
+        return order;
+    }
 }
