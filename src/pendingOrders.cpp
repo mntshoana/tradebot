@@ -101,7 +101,7 @@ void PendingOrdersPanel::createItem (Luno::UserOrder& order)
     connect(but, &QPushButton::clicked, this, [this, order] () {
         auto it = std::find(orderIds.begin(), orderIds.end(), order.orderID);
         int index = it - orderIds.begin() + 1; // plus title row
-        std::string result = Luno::LunoClient::stopOrder(order.orderID);
+        std::string result = Luno::LunoClient::cancelOrder(order.orderID);
         
         QLayout *level = format->takeAt(index)->layout();
         while(!level->isEmpty()) {
@@ -155,7 +155,7 @@ void PendingOrdersPanel::popFrontOrder(){
     int displayedOrderListCount = list.size();
     displayedOrderListCount--; // Must exclude the title row
     if (orderIds.size() > 0 && orderIds.size() == displayedOrderListCount){
-        std::string result = Luno::LunoClient::stopOrder(orderIds[0]);
+        std::string result = Luno::LunoClient::cancelOrder(orderIds[0]);
         
         QLayout *level = format->takeAt(1)->layout();
         while(!level->isEmpty()) {

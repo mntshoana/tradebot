@@ -893,4 +893,49 @@ namespace VALR {
         
         return order;
     }
+
+    // FORM LIMIT ORDER PAYLOAD
+    // Creates the json payload string that allows on to make a LIMIT order on VALR
+    //
+    std::string VALRClient::formCancelOrderPayload(std::string pair, std::string id, bool isCustomerOrderID, bool isBatch){
+        
+        std::string label;
+        if (!isCustomerOrderID)
+            label = "orderId";
+        else
+            label = "customerOrderId";
+        
+        std::string payload = "{";
+        payload += "\n\t" + createJSONlabel(label, id) + ",";
+        payload += "\n\t" + createJSONlabel("pair", pair);
+        payload +=  "\n" "}";
+        
+        if (isBatch){
+            std::string batchPayload = R"({
+                "type": "CANCEL_ORDER",
+                "data": )"
+                + payload
+                + "\n" "}";
+            return batchPayload;
+        }
+        return payload;
+    }
+
+    //
+    // Get historical orders placed by the user.
+    void VALRClient::cancelOrder(std::string pair, std::string id, bool isCustomerOrderID){
+        std::string path = "/v1/orders/order";
+
+        std::string payload = formCancelOrderPayload(pair, id, isCustomerOrderID);
+
+        std::string res = client.request("DELETE", (host+path).c_str(), true, VALR_EXCHANGE, path.c_str(), payload.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        // order was accepted.
+        // Use the other order status API to receive clearer status about this cancel request.
+        return;
+    }
 }

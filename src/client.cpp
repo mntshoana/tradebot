@@ -172,7 +172,8 @@ std::string Client::request (const char* method, const char* uri, bool auth, int
                 headers = curl_slist_append(headers, ("X-VALR-TIMESTAMP: " + timestamp).c_str());
                 curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
                 
-                if (strcmp(method, "POST") == 0 && strlen(body) > 0){
+                if ( ( strcmp(method, "POST") == 0 || strcmp(method, "DELETE") == 0 )
+                    && strlen(body) > 0){
                     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body);
                 }
 

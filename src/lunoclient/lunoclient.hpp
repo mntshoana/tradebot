@@ -38,7 +38,7 @@ namespace Luno {
         static std::string getOrderDetails(std::string id);
         static std::string postLimitOrder(std::string pair, std::string action, float volume, float price);
             // returns order id
-        static std::string stopOrder(std::string orderId);
+        static std::string cancelOrder(std::string orderId);
             // returns boolean true or false
 
         /* Quotes Functions */

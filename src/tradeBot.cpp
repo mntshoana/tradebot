@@ -68,18 +68,14 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
     batch.push_back(VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.002, 100000, 110000, false, true));
     batch.push_back(VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.0003, 1150000, 110000, true, true));
     batch.push_back(VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.00000002, 100000, 110000, true, true));
-    batch.push_back(R"(
-            {
-                "type": "CANCEL_ORDER",
-                "data": {
-                    "orderId":"e5886f2d-191b-4330-a221-c7b41b0bc553",
-                    "pair": "ETHZAR"
-                }
-            })");
+    batch.push_back(VALR::VALRClient::formCancelOrderPayload("ETHZAR", "e5886f2d-191b-4330-a221-c7b41b0bc553", false, true));
    
     std::string batchPayload = VALR::VALRClient::packBatchPayloadFromList(batch);
-    *home->workPanel->text  << VALR::VALRClient::postBatchOrders(batchPayload);*/
-    //*home->workPanel->text << VALR::VALRClient::getUserOrderByID("");
+
+    *home->workPanel->text  << VALR::VALRClient::postBatchOrders(batchPayload);
+    */
+    
+    //VALR::VALRClient::cancelOrder("ETHZAR", "e5886f2d-191b-4330-a221-c7b41b0bc553");
     installEventFilter(this);
 }
 

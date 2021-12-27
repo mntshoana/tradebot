@@ -284,7 +284,7 @@ namespace Luno {
     // STOP ORDER
     //
     //
-    std::string LunoClient::stopOrder(std::string orderId){
+    std::string LunoClient::cancelOrder(std::string orderId){
         std::string uri = "https://api.mybitx.com/api/1/stoporder?order_id=" + orderId;
         
         std::string res = client.request("POST", uri.c_str(), true);

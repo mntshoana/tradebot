@@ -74,6 +74,9 @@ namespace VALR {
         static std::vector<OpenOrder> getAllOpenOrders();
         static std::vector<OrderHistory> getUserOrderHistory(int skip = 0, int limit = 0);
         static OrderHistory getUserOrderByID( std::string id, bool isCustomerOrderID = false);
+        static std::string formCancelOrderPayload(std::string pair, std::string id, bool isCustomerOrderID,
+                                                  bool isBatch = false);
+        static void cancelOrder(std::string pair, std::string id, bool isCustomerOrderID = false);
         
         /* Pay Service Functions */
         static VALR_PAY_Result postNewPayment(float amount, VALR_PAY_NOTIFICATION notificationMethod,
