@@ -10,17 +10,6 @@
 #include <fstream>
 
 namespace Luno {
-    /* Account Functions Types*/
-    class Balance {
-    public:
-        Balance(){}
-        std::string accountID;
-        std::string asset;
-        float balance;
-        float reserved;
-        float uncomfirmed;
-        std::string toString() const;
-    };
 
     /* Market Functions Types */
     class Order {
@@ -71,6 +60,28 @@ namespace Luno {
 
     std::fstream& operator << (std::fstream& stream, std::vector<Trade>& trades);
     std::fstream& operator >> (std::fstream& stream, std::vector<Trade>& trades);
+
+    class Candle {
+    public:
+        Candle() {}
+        float open;
+        float close;
+        float high;
+        float low;
+        unsigned long long timestamp;
+        float volume;
+        std::string toString () const;
+    };
+
+    class CandleData {
+    public:
+        CandleData() {}
+        std::string pair;
+        int duration;
+        std::vector<Candle> candles;
+    
+        std::string toString () const;
+    };
 
     /* Order Functions Types*/
     class Fee {
@@ -131,19 +142,41 @@ namespace Luno {
         std::string toString()const;
     };
    
+    /* Account Functions Types*/
+    class Balance {
+    public:
+        Balance(){}
+        std::string accountID;
+        std::string asset;
+        float balance;
+        float reserved;
+        float uncomfirmed;
+        std::string toString() const;
+    };
 }
-declarePrintable(Luno::Balance);
-declarePrintableList(Luno::Balance);
+
+/* Market Functions Types */
 declarePrintable(Luno::OrderBook);
 declarePrintableList(Luno::OrderBook);
 declarePrintable(Luno::Ticker);
 declarePrintableList(Luno::Ticker);
 declarePrintable(Luno::Trade);
 declarePrintableList(Luno::Trade);
-declarePrintable(Luno::Fee);
-declarePrintableList(Luno::Fee);
+declarePrintable(Luno::Candle);
+declarePrintableList(Luno::Candle);
+declarePrintable(Luno::CandleData);
+declarePrintableList(Luno::CandleData);
+
+/* Order Functions Types*/
+declarePrintable(Luno::Balance);
+declarePrintableList(Luno::Balance);
 declarePrintable(Luno::UserOrder);
 declarePrintableList(Luno::UserOrder);
+
+
+declarePrintable(Luno::Fee);
+declarePrintableList(Luno::Fee);
+
 declarePrintable(Luno::UserTrade);
 declarePrintableList(Luno::UserTrade);
 declarePrintable(Luno::Withdrawal);

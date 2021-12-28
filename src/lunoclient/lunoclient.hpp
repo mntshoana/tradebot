@@ -13,7 +13,8 @@ namespace Luno {
         static Ticker getTicker(std::string pair);
         static std::vector<Ticker> getTickers();
         static std::vector<Trade> getTrades(std::string pair, unsigned long long since = 0);
-
+        static CandleData getCandles(std::string pair, unsigned long long sinceTimestamp, int duration);
+        
         /* Account Functions */
         // create account
         // update account

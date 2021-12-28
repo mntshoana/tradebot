@@ -160,6 +160,30 @@ namespace Luno {
         return ss.str();
     }
 
+    std::string Candle::toString() const{
+        std::stringstream ss;
+        ss << "Open: " << open << "\n";
+        ss << "Close: " << close << "\n";
+        ss << "High: " << high << "\n";
+        ss << "Low: " << low << "\n";
+        ss << "Volume: " << volume << "\n";
+        ss << "Timestamp: " << timestamp << "\n";
+        
+        return ss.str();
+    }
+
+    std::string CandleData::toString() const{
+        std::stringstream ss;
+        ss << pair << " candle (duration: " << duration << ")...\n\n";
+        
+        if (candles.size() > 0)
+            ss << "Candles Data:\n";
+        for (Candle candle : candles){
+            ss << " " << candle.toString() << "\n";
+        }
+        return ss.str();
+    }
+
 
     std::string Trade::toString(std::string formatType) const{
         std::stringstream ss;
@@ -287,12 +311,19 @@ namespace Luno {
     }
     
 }
+
+/* Market Functions Types */
 printableDefinition(Luno::OrderBook);
 printableList(Luno::OrderBook);
 printableDefinition(Luno::Ticker);
 printableList(Luno::Ticker);
 printableDefinition(Luno::Trade);
 printableList(Luno::Trade);
+printableDefinition(Luno::Candle);
+printableList(Luno::Candle);
+printableDefinition(Luno::CandleData);
+printableList(Luno::CandleData);
+
 printableDefinition(Luno::Fee);
 printableList(Luno::Fee);
 printableDefinition(Luno::UserOrder);

@@ -274,4 +274,73 @@ namespace Luno {
         return trades;
     }
 
+    // GET CANDLES
+    //
+    // Returns candlestick data from a specified time until now.
+    // Note: parameters
+    //          sinceTimestamp: expects time since unix in seconds
+    //          duration      : expects integer in seconds.
+    //                          60 (1m), 300 (5m), 900 (15m), 1800 (30m), 3600 (1h),
+    //                          10800 (3h), 14400 (4h), 28800 (8h), 86400 (24h),
+    //                          259200 (3d), 604800 (7d).
+    CandleData LunoClient::getCandles(std::string pair, unsigned long long sinceTimestamp, int duration ){
+        std::string uri = "https://api.mybitx.com/api/exchange/1/candles?pair="
+                             + pair
+                            + "&since=" + std::to_string(sinceTimestamp)
+                            + "&duration=" + std::to_string(duration);
+        
+        std::string res = client.request("GET", uri.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        CandleData data;
+        size_t last = 0;
+
+        // pair
+        data.pair = extractNextString(res, last, last);
+        
+        // duration
+        std::string token = extractNextString(res, last, ",", last);
+        data.duration = atoi(token.c_str());
+        
+        // candles
+        std::string candles = extractNextStringBlock(res, last, "[", "]", last);
+        last = 0;
+        
+        while ((last = candles.find("{", last)) != std::string::npos) {
+            Candle candle;
+           
+            // timestamp
+            token = extractNextString(candles, last, ",", last);
+            candle.timestamp = atoll(token.c_str());
+            
+            // close
+            token = extractNextString(candles, last, last);
+            candle.close = atof(token.c_str());
+            
+            // high
+            token = extractNextString(candles, last, last);
+            candle.high = atof(token.c_str());
+            
+            // low
+            token = extractNextString(candles, last, last);
+            candle.low = atof(token.c_str());
+            
+            // open
+            token = extractNextString(candles, last, last);
+            candle.open = atof(token.c_str());
+            
+            // volume
+            token = extractNextString(candles, last, last);
+            candle.volume = atof(token.c_str());
+            
+            data.candles.push_back(candle);
+        }
+        
+        return data;
+    }
 }
+
+
