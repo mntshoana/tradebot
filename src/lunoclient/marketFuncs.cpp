@@ -341,6 +341,77 @@ namespace Luno {
         
         return data;
     }
+
+
+    // GET MARKET INFO
+    //
+    // Returns supported market information like price scale, min and max order volumes and market ID.
+    std::vector<CurrencyPairInfo> LunoClient::getMarketInfo(){
+        std::string uri = "https://api.mybitx.com/api/exchange/1/markets";
+    
+        std::string res = client.request("GET", uri.c_str());
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::vector<CurrencyPairInfo> data;
+        size_t last = 0;
+
+        
+        // candles
+        res = extractNextStringBlock(res, last, "[", "]");
+        std::string token;
+        
+        while ((last = res.find("{", last)) != std::string::npos && last < res.size()) {
+            CurrencyPairInfo info;
+            // Symbol
+            info.symbol = extractNextString(res, last, last);
+            
+            // trading_status
+            info.tradeStatus = extractNextString(res, last, last);
+            
+            // Base currency
+            info.baseCurrency = extractNextString(res, last, last);
+            
+            // Quote currency
+            info.quoteCurrency = extractNextString(res, last, last);
+            
+            // min_volume
+            token = extractNextString(res, last, last);
+            info.baseMin = atof(token.c_str());
+            
+            // max_volume
+            token = extractNextString(res, last, last);
+            info.baseMax = atof(token.c_str());
+            
+            // volume_scale
+            token = extractNextString(res, last, ",", last);
+            info.baseDecimalCount = atoi(token.c_str());
+            
+            // min_price
+            token = extractNextString(res, last, last);
+            info.quoteMin = atof(token.c_str());
+                      
+            // max_price
+            token = extractNextString(res, last, last);
+            info.quoteMax = atof(token.c_str());
+            
+            // price_scale
+            token = extractNextString(res, last, ",", last);
+            info.quoteDecimalCount = atoi(token.c_str());
+            
+            // fee_scale
+            token = extractNextString(res, last, "}", last);
+            info.feeDecimalCount = atoi(token.c_str());
+
+            
+            data.push_back(info);
+        }
+        
+        return data;
+    }
+
 }
 
 

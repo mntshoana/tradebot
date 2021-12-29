@@ -160,31 +160,6 @@ namespace Luno {
         return ss.str();
     }
 
-    std::string Candle::toString() const{
-        std::stringstream ss;
-        ss << "Open: " << open << "\n";
-        ss << "Close: " << close << "\n";
-        ss << "High: " << high << "\n";
-        ss << "Low: " << low << "\n";
-        ss << "Volume: " << volume << "\n";
-        ss << "Timestamp: " << timestamp << "\n";
-        
-        return ss.str();
-    }
-
-    std::string CandleData::toString() const{
-        std::stringstream ss;
-        ss << pair << " candle (duration: " << duration << ")...\n\n";
-        
-        if (candles.size() > 0)
-            ss << "Candles Data:\n";
-        for (Candle candle : candles){
-            ss << " " << candle.toString() << "\n";
-        }
-        return ss.str();
-    }
-
-
     std::string Trade::toString(std::string formatType) const{
         std::stringstream ss;
         if (formatType == "csv"){
@@ -235,6 +210,48 @@ namespace Luno {
             }
         }
         return stream;
+    }
+
+    std::string Candle::toString() const{
+        std::stringstream ss;
+        ss << "Open: " << open << "\n";
+        ss << "Close: " << close << "\n";
+        ss << "High: " << high << "\n";
+        ss << "Low: " << low << "\n";
+        ss << "Volume: " << volume << "\n";
+        ss << "Timestamp: " << timestamp << "\n";
+        
+        return ss.str();
+    }
+
+    std::string CandleData::toString() const{
+        std::stringstream ss;
+        ss << pair << " candle (duration: " << duration << ")...\n\n";
+        
+        if (candles.size() > 0)
+            ss << "Candles Data:\n";
+        for (Candle candle : candles){
+            ss << " " << candle.toString() << "\n";
+        }
+        return ss.str();
+    }
+
+    std::string CurrencyPairInfo::toString()const{
+        std::stringstream ss;
+        ss << "Symbol: " << symbol << "\n";
+        ss << "Base currency: " << baseCurrency << "\n";
+        ss << "Quote currency: " << quoteCurrency << "\n";
+        ss << "Trade Status: " << tradeStatus << "\n";
+        ss << "Minimum base amount: " << baseMin << "\n";
+        ss << "Maximum base amount: " << baseMax << "\n";
+        ss << "Minimum quote amount: " << quoteMin << "\n";
+        ss << "Maximum base amount: " << quoteMax << "\n";
+        
+        ss << "Base decimal places: " << baseDecimalCount << "\n";
+        ss << "Quote decimal places: " << quoteDecimalCount << "\n";
+        ss << "Fee decimal places: " << feeDecimalCount << "\n";
+        
+        return ss.str();
     }
 
     /* Order Functions Types*/
@@ -323,6 +340,9 @@ printableDefinition(Luno::Candle);
 printableList(Luno::Candle);
 printableDefinition(Luno::CandleData);
 printableList(Luno::CandleData);
+printableDefinition(Luno::CurrencyPairInfo);
+printableList(Luno::CurrencyPairInfo);
+
 
 printableDefinition(Luno::Fee);
 printableList(Luno::Fee);

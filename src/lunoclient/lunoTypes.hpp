@@ -83,6 +83,24 @@ namespace Luno {
         std::string toString () const;
     };
 
+    class CurrencyPairInfo {
+    public:
+        std::string symbol;
+        std::string baseCurrency;
+        std::string quoteCurrency;
+        std::string tradeStatus;
+        float baseMin;
+        float baseMax;
+        float quoteMin;
+        float quoteMax;
+        int baseDecimalCount;
+        int quoteDecimalCount;
+        int feeDecimalCount;
+        std::string toString()const;
+        
+    };
+
+
     /* Order Functions Types*/
     class Fee {
     public:
@@ -166,6 +184,8 @@ declarePrintable(Luno::Candle);
 declarePrintableList(Luno::Candle);
 declarePrintable(Luno::CandleData);
 declarePrintableList(Luno::CandleData);
+declarePrintable(Luno::CurrencyPairInfo);
+declarePrintableList(Luno::CurrencyPairInfo);
 
 /* Order Functions Types*/
 declarePrintable(Luno::Balance);

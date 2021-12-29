@@ -76,7 +76,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
     */
     
     //VALR::VALRClient::cancelOrder("ETHZAR", "e5886f2d-191b-4330-a221-c7b41b0bc553");
-    //*home->workPanel->text  << Luno::LunoClient::getCandles("XBTZAR", QDateTime::currentMSecsSinceEpoch() - 5 * 60 * 1000, 60);
+   // *home->workPanel->text  << Luno::LunoClient::getMarketInfo();
     installEventFilter(this);
 }
 
