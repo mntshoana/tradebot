@@ -17,7 +17,8 @@ namespace Luno {
         static std::vector<CurrencyPairInfo> getMarketInfo();
         
         /* Account Functions */
-        // create account
+        static std::string createAccount(std::string asset, std::string name);
+        static bool updateAccount(std::string id, std::string name);
         // update account
         // list pending transaction
         // list transaction
