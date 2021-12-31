@@ -110,7 +110,141 @@ namespace Luno {
         return (token == "true" ? true : false);
     }
     
-    // list pending transaction
+    std::string getPendingTransactions(std::string id){
+        std::string uri = "https://api.mybitx.com/api/1/accounts/" + id + "/pending";
+        
+        std::string res = client.request("GET", uri.c_str(), true);
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        return res;
+        // Result will look something like
+
+        /*
+         {
+           "currency": "string",
+           "id": "string",
+           "name": "string",
+           "pending": [
+             {
+               "account_id": "string",
+               "available": "string",
+               "available_delta": "string",
+               "balance": "string",
+               "balance_delta": "string",
+               "currency": "string",
+               "description": "string",
+               "detail_fields": {
+                 "crypto_details": {
+                   "address": "string",
+                   "txid": "string"
+                 },
+                 "trade_details": {
+                   "pair": "string",
+                   "price": "string",
+                   "sequence": 0,
+                   "volume": "string"
+                 }
+               },
+               "details": {
+                 "property1": "string",
+                 "property2": "string"
+               },
+               "kind": null,
+               "row_index": 0,
+               "timestamp": "string"
+             }
+           ],
+           "transactions": [
+             {
+               "account_id": "string",
+               "available": "string",
+               "available_delta": "string",
+               "balance": "string",
+               "balance_delta": "string",
+               "currency": "string",
+               "description": "string",
+               "detail_fields": {
+                 "crypto_details": {
+                   "address": "string",
+                   "txid": "string"
+                 },
+                 "trade_details": {
+                   "pair": "string",
+                   "price": "string",
+                   "sequence": 0,
+                   "volume": "string"
+                 }
+               },
+               "details": {
+                 "property1": "string",
+                 "property2": "string"
+               },
+               "kind": null,
+               "row_index": 0,
+               "timestamp": "string"
+             }
+           ]
+         }
+         */
+    }
+
+    // Rows are numbered sequentially from 1 (the oldest).
+    // The range returned is specified with the min row (inclusive) and max_row (exclusive) parameters.
+    // MAXIMUM 1000 rows per call.
+    // non-positive range wraps around the most recent row.
+    // For example, the 100 most recent rows: use min_row=-100 and max_row=0.
+    //
+    std::string LunoClient::getTransactions(std::string id, int minRowRange, int maxRowRange){
+        std::string uri = "https://api.mybitx.com/api/1/accounts/" + id + "/transactions";
+    
+        std::string res = client.request("GET", uri.c_str(), true);
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        return res;
+        
+        // Results will look like:
+        /*
+         {
+           "id": "string",
+           "transactions": [
+             {
+               "account_id": "string",
+               "available": "string",
+               "available_delta": "string",
+               "balance": "string",
+               "balance_delta": "string",
+               "currency": "string",
+               "description": "string",
+               "detail_fields": {
+                 "crypto_details": {
+                   "address": "string",
+                   "txid": "string"
+                 },
+                 "trade_details": {
+                   "pair": "string",
+                   "price": "string",
+                   "sequence": 0,
+                   "volume": "string"
+                 }
+               },
+               "details": {
+                 "property1": "string",
+                 "property2": "string"
+               },
+               "kind": "FEE",
+               "row_index": 0,
+               "timestamp": "string"
+             }
+           ]
+         }
+         */
+    }
     // list transaction
 
     // GET BALANCE

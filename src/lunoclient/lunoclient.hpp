@@ -19,10 +19,10 @@ namespace Luno {
         /* Account Functions */
         static std::string createAccount(std::string asset, std::string name);
         static bool updateAccount(std::string id, std::string name);
-        // update account
-        // list pending transaction
-        // list transaction
+        static std::string getPendingTransactions(std::string id);
+        static std::string getTransactions(std::string id, int minRowRange, int maxRowRange);
         static std::vector<Balance> getBalances(std::string asset = "");
+        // move GET and POST requests are still at beta (ignoring them... for now)
         
         /* Order Functions */
         static Fee getFeeInfo(std::string pair);
