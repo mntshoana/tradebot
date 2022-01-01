@@ -144,6 +144,28 @@ namespace Luno {
         std::string toString()const;
     };
     
+    class MoveSummary {
+    public:
+        MoveSummary(){}
+        std::string id;
+        std::string customID;
+        std::string status;
+        
+        std::string toString()const;
+    };
+
+    class MoveResult : public MoveSummary {
+    public:
+        MoveResult(){}
+        float amount;
+        unsigned long long timestamp;
+        unsigned long long lastUpdatedAt;
+        std::string sourceAccountID;
+        std::string destinationAccountID;
+        
+        std::string toString() const;
+    };
+
 
     /* Transfer Functions Types*/
     class Withdrawal {
@@ -187,18 +209,21 @@ declarePrintableList(Luno::CandleData);
 declarePrintable(Luno::CurrencyPairInfo);
 declarePrintableList(Luno::CurrencyPairInfo);
 
-/* Order Functions Types*/
+/* Account Functions */
 declarePrintable(Luno::Balance);
 declarePrintableList(Luno::Balance);
+declarePrintable(Luno::MoveSummary);
+declarePrintableList(Luno::MoveSummary);
+
+/* Order Functions Types*/
 declarePrintable(Luno::UserOrder);
 declarePrintableList(Luno::UserOrder);
-
-
 declarePrintable(Luno::Fee);
 declarePrintableList(Luno::Fee);
-
 declarePrintable(Luno::UserTrade);
 declarePrintableList(Luno::UserTrade);
+
+/* Transfers Functions */
 declarePrintable(Luno::Withdrawal);
 declarePrintableList(Luno::Withdrawal);
 

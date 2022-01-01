@@ -300,6 +300,27 @@ namespace Luno {
         return ss.str();
     }
     
+    std::string MoveSummary::toString() const {
+        std::stringstream ss;
+        ss << "ID: " << id << "\n";
+        if (!(customID == ""))
+            ss << "Custom ID: " << customID << "\n";
+        ss << "Status: " << status << "\n";
+        return ss.str();
+    }
+
+    std::string MoveResult::toString() const {
+        std::stringstream ss;
+        ss << MoveSummary::toString();
+        ss << "Amount: " << amount << "\n";
+        ss << "Created at: " << timestamp << "\n";
+        ss << "Last updated at: " << lastUpdatedAt << "\n";
+        ss << "Source account ID: " << sourceAccountID << "\n";
+        ss << "Destination account ID: " << destinationAccountID << "\n";
+    
+        return ss.str();
+    }
+
 
     /* Transfer Functions Types*/
     std::string Withdrawal::toString() const{
@@ -343,14 +364,20 @@ printableList(Luno::CandleData);
 printableDefinition(Luno::CurrencyPairInfo);
 printableList(Luno::CurrencyPairInfo);
 
+/* Account Functions */
+printableDefinition(Luno::Balance);
+printableList(Luno::Balance);
+printableDefinition(Luno::MoveSummary);
+printableList(Luno::MoveSummary);
 
+/* Order Functions Types*/
 printableDefinition(Luno::Fee);
 printableList(Luno::Fee);
 printableDefinition(Luno::UserOrder);
 printableList(Luno::UserOrder);
 printableDefinition(Luno::UserTrade);
 printableList(Luno::UserTrade);
+
+/* Transfers Functions */
 printableDefinition(Luno::Withdrawal);
 printableList(Luno::Withdrawal);
-printableDefinition(Luno::Balance);
-printableList(Luno::Balance);

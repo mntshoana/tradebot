@@ -22,7 +22,8 @@ namespace Luno {
         static std::string getPendingTransactions(std::string id);
         static std::string getTransactions(std::string id, int minRowRange, int maxRowRange);
         static std::vector<Balance> getBalances(std::string asset = "");
-        // move GET and POST requests are still at beta (ignoring them... for now)
+        static MoveSummary postMove(std::string sourceID, std::string destinationID, float amount, std::string customID = "");
+        static MoveResult queryMove(std::string id, bool isCustomID = false);
         
         /* Order Functions */
         static Fee getFeeInfo(std::string pair);

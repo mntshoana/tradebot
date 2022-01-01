@@ -191,6 +191,7 @@ namespace Luno {
          */
     }
 
+    // LIST TRANSACTIONS
     // Rows are numbered sequentially from 1 (the oldest).
     // The range returned is specified with the min row (inclusive) and max_row (exclusive) parameters.
     // MAXIMUM 1000 rows per call.
@@ -294,4 +295,100 @@ namespace Luno {
         return balances;
     }
 
+    // MOVE (BALANCE)
+    //
+    // Moves funds between two of your accounts (same currency)
+    // Query the status of this move request as it is not guranteed to be moved on success .
+    MoveSummary LunoClient::postMove(std::string sourceID, std::string destinationID, float amount, std::string customID){
+        std::string uri = "https://api.mybitx.com/api/exchange/1/move";
+        
+        uri += "?amount=" + std::to_string(amount);
+        uri += "&debit_account_id=" + sourceID;
+        uri += "&credit_account_id=" + destinationID;
+        if (customID != "")
+            uri += "&client_move_id=" + customID;
+        
+        
+        std::string res = client.request("POST", uri.c_str(), true);
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        MoveSummary result;
+        size_t last = 0;
+        
+        // id
+        last = res.find("id", last);
+        result.id = extractNextString(res, last, last);
+        
+        // status
+        last = res.find("status", last);
+        result.status = extractNextString(res, last, last);
+        
+        // client_move_id
+        last = res.find("client_move_id", 0);
+        result.customID = extractNextString(res, last, last);
+        
+        // Remember to query the results of this move as it is not guranteed to be successfully moved even with id and status "CREATED".
+        return result;
+    }
+
+    // QUERY MOVE (BALANCE)
+    //
+    // Checks the status of a move-funds request between two of your accounts (same currency) was succe
+    // Query the status of this move request as it is not guranteed to be moved on success .
+    MoveResult LunoClient::queryMove(std::string id, bool isCustomID){
+        std::string uri = "https://api.mybitx.com/api/exchange/1/move";
+        
+        if (isCustomID)
+            uri += "client_move_id=" + id;
+        else
+            uri += "id=" + id;
+        
+        std::string res = client.request("GET", uri.c_str(), true);
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        MoveResult result;
+        
+        // amount
+        size_t last = res.find("amount", last);
+        std::string token = extractNextString(res, last, last);
+        result.amount = atof(token.c_str());
+        
+        // client_move_id
+        last = res.find("client_move_id", last);
+        result.customID = extractNextString(res, last, last);
+        
+        // created_at
+        last = res.find("created_at", last);
+        token = extractNextString(res, last, last);
+        result.timestamp = atoll(token.c_str());
+        
+        // credit_account_id
+        last = res.find("credit_account_id", last);
+        result.destinationAccountID = extractNextString(res, last, last);
+        
+        // debit_account_id
+        last = res.find("debit_account_id", last);
+        result.sourceAccountID = extractNextString(res, last, last);
+        
+        // id
+        last = res.find("id", last);
+        result.id = extractNextString(res, last, last);
+        
+        // status
+        last = res.find("status", last);
+        result.status = extractNextString(res, last, last);
+        
+        // updated_at
+        last = res.find("updated_at", last);
+        token = extractNextString(res, last, last);
+        result.lastUpdatedAt = atoll(token.c_str());
+        
+        return result;
+    }
 }
