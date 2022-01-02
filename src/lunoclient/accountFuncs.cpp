@@ -342,9 +342,9 @@ namespace Luno {
         std::string uri = "https://api.mybitx.com/api/exchange/1/move";
         
         if (isCustomID)
-            uri += "client_move_id=" + id;
+            uri += "?client_move_id=" + id;
         else
-            uri += "id=" + id;
+            uri += "&id=" + id;
         
         std::string res = client.request("GET", uri.c_str(), true);
         
@@ -355,7 +355,7 @@ namespace Luno {
         MoveResult result;
         
         // amount
-        size_t last = res.find("amount", last);
+        size_t last = res.find("amount", 0);
         std::string token = extractNextString(res, last, last);
         result.amount = atof(token.c_str());
         
@@ -390,5 +390,73 @@ namespace Luno {
         result.lastUpdatedAt = atoll(token.c_str());
         
         return result;
+    }
+
+    // LIST MOVES HISTORY(BALANCE)
+    //
+    // Checks the status of a move-funds request between two of your accounts (same currency) was succe
+    // Query the status of this move request as it is not guranteed to be moved on success .
+    std::vector<MoveResult> LunoClient::ListMoveHistory(int limit, unsigned long long since){
+        std::string uri = "https://api.mybitx.com/api/exchange/1/move/list_moves";
+        
+        if (since != 0)
+            uri += "?before=" + std::to_string(since);
+        
+        uri += "&limit=" + std::to_string(limit);
+        
+        std::string res = client.request("GET", uri.c_str(), true);
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::vector<MoveResult> list;
+        size_t last = 0;
+        
+        res = extractNextStringBlock(res, last, "[", "]");
+        
+        while ((last = res.find("{", last)) != std::string::npos) {
+            MoveResult result;
+            
+            std::string entry = extractNextStringBlock(res, last, "{", "}", last); // this line updates last to after "}"
+            
+            // amount
+            size_t pos = entry.find("amount", 0);
+            std::string token = extractNextString(entry, pos, pos);
+            result.amount = atof(token.c_str());
+            
+            // client_move_id
+            pos = entry.find("client_move_id", pos);
+            result.customID = extractNextString(entry, pos, pos);
+            
+            // created_at
+            pos = entry.find("created_at", pos);
+            token = extractNextString(entry, pos, pos);
+            result.timestamp = atoll(token.c_str());
+            
+            // credit_account_id
+            pos = entry.find("credit_account_id", pos);
+            result.destinationAccountID = extractNextString(entry, pos, pos);
+            
+            // debit_account_id
+            pos = entry.find("debit_account_id", pos);
+            result.sourceAccountID = extractNextString(entry, pos, pos);
+            
+            // id
+            pos = entry.find("id", pos);
+            result.id = extractNextString(entry, pos, pos);
+            
+            // status
+            pos = entry.find("status", pos);
+            result.status = extractNextString(entry, pos, pos);
+            
+            // updated_at
+            pos = entry.find("updated_at", pos);
+            token = extractNextString(entry, pos, pos);
+            result.lastUpdatedAt = atoll(token.c_str());
+            
+            list.push_back(result);
+        }
+        return list;
     }
 }

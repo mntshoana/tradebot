@@ -24,6 +24,7 @@ namespace Luno {
         static std::vector<Balance> getBalances(std::string asset = "");
         static MoveSummary postMove(std::string sourceID, std::string destinationID, float amount, std::string customID = "");
         static MoveResult queryMove(std::string id, bool isCustomID = false);
+        static std::vector<MoveResult> ListMoveHistory(int limit = 100, unsigned long long since = 0);
         
         /* Order Functions */
         static Fee getFeeInfo(std::string pair);

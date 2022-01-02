@@ -214,6 +214,8 @@ declarePrintable(Luno::Balance);
 declarePrintableList(Luno::Balance);
 declarePrintable(Luno::MoveSummary);
 declarePrintableList(Luno::MoveSummary);
+declarePrintable(Luno::MoveResult);
+declarePrintableList(Luno::MoveResult);
 
 /* Order Functions Types*/
 declarePrintable(Luno::UserOrder);

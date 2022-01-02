@@ -369,6 +369,8 @@ printableDefinition(Luno::Balance);
 printableList(Luno::Balance);
 printableDefinition(Luno::MoveSummary);
 printableList(Luno::MoveSummary);
+printableDefinition(Luno::MoveResult);
+printableList(Luno::MoveResult);
 
 /* Order Functions Types*/
 printableDefinition(Luno::Fee);
