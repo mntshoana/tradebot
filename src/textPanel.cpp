@@ -1,10 +1,10 @@
 #include "textPanel.hpp"
 
-QTextEdit& operator << (QTextEdit& stream, std::string& variable){
+QTextEdit& operator << (QTextEdit& stream, const std::string& variable){
     stream.append(variable.c_str());
     return stream;
 }
-TextPanel& operator << (TextPanel& stream, std::string& variable){
+TextPanel& operator << (TextPanel& stream, const std::string& variable){
     stream.getQText() << variable;
     return stream;
 }
@@ -13,11 +13,11 @@ QTextBrowser& operator<< (QTextBrowser& stream, std::string& str){
     return stream;
 }
 
-QTextEdit* operator << (QTextEdit* stream, std::string& variable){
+QTextEdit* operator << (QTextEdit* stream, const std::string& variable){
     (*stream) << variable;
     return stream;
 }
-TextPanel* operator << (TextPanel* stream, std::string& variable){
+TextPanel* operator << (TextPanel* stream, const std::string& variable){
     stream->getQText() << variable;
     return stream;
 }
@@ -38,10 +38,6 @@ TextPanel::TextPanel (QWidget* parent) : QWidget(parent){
     text->setText("");
 }
 
-TextPanel& TextPanel::operator<< (const std::string str) {
-    text->append(str.c_str());
-    return *this;
-}
 
 void TextPanel::init(QWidget* parent){
     if (isInitialized)

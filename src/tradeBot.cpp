@@ -30,14 +30,15 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
         Cleanup();
     });
     // begin job manager
-    JobBase* updateOrderBook = new Job1WPArg(
-                                          home->livePanel->orderview,
-                                          &Luno::LunoClient::getOrderBook,
-                                          std::string("XBTZAR"),
-                                          &Luno::OrderBook::FormatHTMLWith,
-                                          &(home->workPanel->pendingOrders->openUserOrders));
-    updateOrderBook->updateWaitTime(2);
-    manager.enqueue(updateOrderBook, true);
+    Task* job = new Task( [this]() {
+        
+            Luno::OrderBook orderBook = Luno::LunoClient::getOrderBook("XBTZAR");
+            std::vector<Luno::UserOrder>* currentOrders = &(home->workPanel->pendingOrders->openUserOrders);
+            home->livePanel->orderview << orderBook.FormatHTMLWith(currentOrders);
+    });
+    job->updateWaitTime(2);
+    
+    manager.enqueue(job);
     
     /*JobBase* updateOrderBook = new Job2(
                                           home->livePanel->orderview,
@@ -97,10 +98,9 @@ void TradeBot::Cleanup(){
 
 void TradeBot::OnFinishedUpdate(){
     if (*timerCount == 0)
-        manager.enqueue(new func1(this,
-                                 &TradeBot::downloadTicks,
-                                 std::string("XBTZAR")
-                                 ), true);
+        manager.enqueue(new Task([this](){
+            downloadTicks("XBTZAR");
+        }, true));
     
     *timerCount = *timerCount +1;
     if (!closing)

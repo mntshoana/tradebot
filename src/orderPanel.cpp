@@ -61,3 +61,8 @@ OrderPanel& operator<< <std::string>(OrderPanel& stream, std::string str)
     }
     return stream;
 }
+
+OrderPanel* operator<< (OrderPanel* stream, std::string str){
+    (*stream) << str;
+    return stream;
+}

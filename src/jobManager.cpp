@@ -1,5 +1,36 @@
 #include "jobManager.hpp"
 
+Task::Task( std::function<void (void)> lamdaFunction, bool fastTrack  ){
+    updateWaitTime(1);
+    this->fastTrack = fastTrack;
+    this->lamdaFunction = lamdaFunction;
+}
+
+void Task::updateWaitTime(int time) {
+    wait = recommendedWait = time;
+}
+
+void Task::performJob() {
+    try{
+        lamdaFunction();
+    } catch (ResponseEx ex){
+        TextPanel::textPanel << ex.String();
+    }
+}
+
+void Task::setAsFast() {
+    fastTrack = true;
+}
+void Task::setAsSlow() { 
+    fastTrack = false;
+}
+bool Task::isFast() {
+    return fastTrack;
+}
+void Task::resetTimer() {
+    wait = recommendedWait;
+}
+
 // LUNO allows 1 public request p/sec and
 //             5 authenticated requests p/sec
 // VALR allows 10 public requests p/min and (1 every 10 seconds)
@@ -35,7 +66,7 @@ void JobManager::onUpdate(){
     while (!wait && !marketQueue.empty()) {
         if (abort)
             return;
-        JobBase* job = marketQueue.front();
+        Task* job = marketQueue.front();
         marketQueue.pop();
         
         if (job->wait > 1){
@@ -48,7 +79,7 @@ void JobManager::onUpdate(){
         job->performJob();
     
         if (job->repeat){
-            job->wait = job->recommendedWait;
+            job->resetTimer();
             marketQueue.push(job);
         }
         else
@@ -74,7 +105,7 @@ void JobManager::onUpdate(){
         if (abort)
             return;
         
-        JobBase* job = fasterQueue.front();
+        Task* job = fasterQueue.front();
         fasterQueue.pop();
         
         if (job->wait > 1){
@@ -86,7 +117,7 @@ void JobManager::onUpdate(){
         // complete task
         job->performJob();
         if (job->repeat){
-            job->wait = job->recommendedWait;
+            job->resetTimer();
             backOfTheQueue.push(job);
         }
         else
@@ -107,8 +138,8 @@ void JobManager::onUpdate(){
     timeElapsed++; // update timeElapsed afterwards, not before!!
 }
 
-void JobManager::enqueue(JobBase* job, bool addIntoSlowQueue){
-    if (addIntoSlowQueue)
+void JobManager::enqueue(Task* job){
+    if (!job->isFast())
         marketQueue.push(job);
     else
         fasterQueue.push(job);

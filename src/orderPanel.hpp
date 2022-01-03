@@ -36,4 +36,5 @@ template <class T> OrderPanel& operator<< (OrderPanel& stream, T obj){
 template <>
 OrderPanel& operator<< <std::string>(OrderPanel& stream, std::string str);
 
+OrderPanel* operator<< (OrderPanel* stream, std::string str);
 #endif /* exceptions_hpp */

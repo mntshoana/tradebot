@@ -13,8 +13,6 @@ class TextPanel : public QWidget {
     TextPanel (QWidget* parent);
 public:
     static TextPanel* textPanel;
-
-    TextPanel& operator<< (const std::string str);
     
     QTextEdit& getQText() const;
     void setGeometry(int ax, int ay, int aw, int ah);
@@ -22,11 +20,11 @@ public:
     static void init(QWidget* parent);
 };
 
-QTextEdit& operator << (QTextEdit& stream, std::string& variable);
-TextPanel& operator << (TextPanel& stream, std::string& variable);
+QTextEdit& operator << (QTextEdit& stream, const std::string& variable);
+TextPanel& operator << (TextPanel& stream, const std::string& variable);
 QTextBrowser& operator<< (QTextBrowser& stream, std::string& variable);
-QTextEdit* operator << (QTextEdit* stream, std::string& variable);
-TextPanel* operator << (TextPanel* stream, std::string& variable);
+QTextEdit* operator << (QTextEdit* stream, const std::string& variable);
+TextPanel* operator << (TextPanel* stream, const std::string& variable);
 QTextBrowser* operator<< (QTextBrowser* stream, std::string& variable);
 
 /* Type Helpers
