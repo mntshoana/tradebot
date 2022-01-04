@@ -66,7 +66,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
     *home->workPanel->text  << VALR::VALRClient::postBatchOrders(batchPayload);
     */
     
-    *home->workPanel->text  << Luno::LunoClient::listBeneficiaries();
+    //*home->workPanel->text  << Luno::LunoClient::listBeneficiaries();
     installEventFilter(this);
 }
 
