@@ -29,38 +29,28 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
         closing=true;
         Cleanup();
     });
+    
     // begin job manager
     Task* job = new Task( [this]() {
-        
-            Luno::OrderBook orderBook = Luno::LunoClient::getOrderBook("XBTZAR");
-            std::vector<Luno::UserOrder>* currentOrders = &(home->workPanel->pendingOrders->openUserOrders);
-            home->livePanel->orderview << orderBook.FormatHTMLWith(currentOrders);
+        Luno::OrderBook orderBook = Luno::LunoClient::getOrderBook("XBTZAR");
+        std::vector<Luno::UserOrder>* currentOrders = &(home->workPanel->pendingOrders->openUserOrders);
+        home->livePanel->orderview << orderBook.FormatHTMLWith(currentOrders);
     });
     job->updateWaitTime(2);
-    
     manager.enqueue(job);
     
-    /*JobBase* updateOrderBook = new Job2(
-                                          home->livePanel->orderview,
-                                          &VALR::VALRClient::getOrderBook,
-                                          std::string("BTCZAR"), bool(true),
-                                          &VALR::OrderBook::FormatHTML);
-    updateOrderBook->updateWaitTime(2);
-    manager.enqueue(updateOrderBook, false);*/
     
-    /*manager.enqueue(new Job1WPArg(
-                              home->livePanel->orderview,
-                              &VALR::VALRClient::getFullOrderBook,
-                              std::string("BTCZAR"),
-                              &VALR::OrderBook::FormatHTMLWith,
-                              &(home->workPanel->pendingOrders->openUserOrders)),
-                     true);*/
-    /*manager.enqueue(new Job1(
-                             home->livePanel->orderview,
-                             &VALR::VALRClient::getOrderBook,
-                             std::string("BTCZAR"),
-                             &VALR::OrderBook::FormatHTML),
-                    true);*/
+    /*
+     Task* job1 = new Task( [this]() {
+        VALR::OrderBook orderBook = VALR::VALRClient::getFullOrderBook("BTCZAR");
+        std::vector<VALR::OrderBook>* currentOrders; // = &(home->workPanel->pendingOrders->openUserOrders);
+        home->livePanel->orderview << orderBook.FormatHTMLWith(currentOrders);
+     });
+     
+     job1->updateWaitTime(2);
+     job1->setAsFast();
+     manager.enqueue(job1);
+     */
     
     /*std::vector<std::string> batch;
     batch.push_back(VALR::VALRClient::formMarketPayload("BTCZAR", "ASK", 100, false, true));
@@ -76,8 +66,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
     *home->workPanel->text  << VALR::VALRClient::postBatchOrders(batchPayload);
     */
     
-    //VALR::VALRClient::cancelOrder("ETHZAR", "e5886f2d-191b-4330-a221-c7b41b0bc553");
-    //*home->workPanel->text  << Luno::LunoClient::ListMoveHistory();
+    *home->workPanel->text  << Luno::LunoClient::listBeneficiaries();
     installEventFilter(this);
 }
 

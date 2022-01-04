@@ -40,7 +40,8 @@ HEADERS += jobManager.hpp
 SOURCES += lunoclient/lunoTypes.cpp  \
             lunoclient/marketFuncs.cpp lunoclient/orderFuncs.cpp \
             lunoclient/transferFuncs.cpp lunoclient/srFuncs.cpp \
-            lunoclient/quoteFuncs.cpp lunoclient/accountFuncs.cpp
+            lunoclient/quoteFuncs.cpp lunoclient/accountFuncs.cpp \
+            lunoclient/beneficiariesFuncs.cpp
 HEADERS += lunoclient/lunoTypes.hpp lunoclient/lunoclient.hpp
 SOURCES +=  valrclient/valrTypes.cpp \
             valrclient/marketFuncs.cpp \

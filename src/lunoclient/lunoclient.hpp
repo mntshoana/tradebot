@@ -26,6 +26,9 @@ namespace Luno {
         static MoveResult queryMove(std::string id, bool isCustomID = false);
         static std::vector<MoveResult> ListMoveHistory(int limit = 100, unsigned long long since = 0);
         
+        /* Beneficiaries Functions */
+        static std::vector<Beneficiary> listBeneficiaries();
+        
         /* Order Functions */
         static Fee getFeeInfo(std::string pair);
         static std::vector<UserOrder> getUserOrders(std::string pair = "",

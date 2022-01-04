@@ -321,7 +321,23 @@ namespace Luno {
         return ss.str();
     }
 
+    /* Beneficiaries Function Types*/
+    std::string Beneficiary::toString() const {
+        std::stringstream ss;
+        ss << "Beneficiary ID: " << id << "\n";
+        ss << "Beneficiary: " << accountHolder << "\n";
+        ss << "Bank: " << bank << "\n";
+        ss << "Branch: " << branch << "\n";
+        ss << "Country: " << country << "\n";
+        ss << "Account Number: " << accountNumber << "\n";
+        ss << "Account Type: " << accountType << "\n";
+        ss << "Supports Fast Withdrawal: " << (supportsFastWithdrawal ? "true" : "false") << "\n";
+        ss << "Created at: " << timestamp << "\n";
 
+        return ss.str();
+    }
+    
+     
     /* Transfer Functions Types*/
     std::string Withdrawal::toString() const{
         std::stringstream ss;
@@ -371,6 +387,10 @@ printableDefinition(Luno::MoveSummary);
 printableList(Luno::MoveSummary);
 printableDefinition(Luno::MoveResult);
 printableList(Luno::MoveResult);
+
+/* Beneficiaries Function Types*/
+printableDefinition(Luno::Beneficiary);
+printableList(Luno::Beneficiary);
 
 /* Order Functions Types*/
 printableDefinition(Luno::Fee);

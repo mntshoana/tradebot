@@ -166,6 +166,22 @@ namespace Luno {
         std::string toString() const;
     };
 
+    /* Beneficiaries Function Types*/
+    class Beneficiary {
+    public:
+        Beneficiary() {}
+        std::string id;
+        std::string bank;
+        std::string branch;
+        std::string accountNumber;
+        std::string accountType;
+        std::string country;
+        std::string accountHolder;
+        bool supportsFastWithdrawal;
+        unsigned long long timestamp;
+        
+        std::string toString() const;
+    };
 
     /* Transfer Functions Types*/
     class Withdrawal {
@@ -216,6 +232,10 @@ declarePrintable(Luno::MoveSummary);
 declarePrintableList(Luno::MoveSummary);
 declarePrintable(Luno::MoveResult);
 declarePrintableList(Luno::MoveResult);
+
+/* Beneficiaries Function Types*/
+declarePrintable(Luno::Beneficiary);
+declarePrintableList(Luno::Beneficiary);
 
 /* Order Functions Types*/
 declarePrintable(Luno::UserOrder);
