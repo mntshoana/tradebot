@@ -3,6 +3,7 @@
 extern Client client;
 
 namespace Luno {
+    std::vector<CurrencyPairInfo> currencies;
 
     // GET FEE INFO
     //
@@ -247,6 +248,60 @@ namespace Luno {
         return trades;
     }
 
+    // POST LIMIT ORDER
+    //
+    //
+    std::string LunoClient::postMarketOrder(std::string pair, std::string action, float amount){
+        std::string uri = "https://api.mybitx.com/api/1/marketorder";
+    
+        if (!(action == "BID" || action == "ASK")) // BUY or SELL (using bid ask for consistency)
+            throw std::invalid_argument("'action' expects string value \"BID\" or \"ASK\" only! ");
+
+        
+        bool isOfBaseCurrency = (action == "ASK") ? true : false;
+        std::string amountLabel = (isOfBaseCurrency ? "base_volume" : "counter_volume");
+        
+        std::string baseCurrency = pair.substr(0, 3);
+        std::string quoteCurrency = pair.substr(3, 3);
+        int decimals;
+        
+        if (currencies.size() == 0)
+            currencies = getMarketInfo();
+        for (const CurrencyPairInfo& currency : currencies) {
+            if (isOfBaseCurrency && currency.baseCurrency == baseCurrency)
+                decimals = currency.baseDecimalCount;
+            if ( (!isOfBaseCurrency) && currency.quoteCurrency == quoteCurrency)
+                decimals = currency.quoteDecimalCount;
+        }
+        
+        // note: takers fee will be subtracted
+        std::ostringstream strAmount;
+        strAmount.precision(decimals);
+        strAmount << std::fixed << amount;
+        
+        // base_account_id = default (no need to add it)
+        // counter_account_id = default (no need to add it)
+        // timestamp (needed only if using ttl)
+        // ttl - time to live in miliseconds (no need to add it)
+        // client_order_id (no need to add it)
+        uri += "?pair=" + pair;
+        
+        uri += "&type=";
+        uri += ((action == "BID") ? "BUY" : "SELL");
+        
+        uri += "&" + amountLabel+ "=";
+        uri += strAmount.str();
+        
+        
+        std::string res = client.request("POST", uri.c_str(), true);
+        
+        int httpCode = client.getHttpCode();
+        if (httpCode != 200)
+            throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
+        
+        std::string orderID = extractNextString(res, 0);
+        return orderID;
+    }
     // GET ORDER DETAILS
     //
     //
@@ -278,7 +333,8 @@ namespace Luno {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        return res;
+        std::string orderID = extractNextString(res, 0);
+        return orderID;
     }
 
     // STOP ORDER

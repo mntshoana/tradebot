@@ -42,12 +42,12 @@ namespace Luno {
                                              long long before_seq = 0,
                                              bool sort = false,
                                              int limit = 0);
-        // Post market order (mission funciton)
+        static std::string postMarketOrder(std::string pair, std::string action, float amount);
         static std::string getOrderDetails(std::string id);
         static std::string postLimitOrder(std::string pair, std::string action, float volume, float price);
-            // returns order id
         static std::string cancelOrder(std::string orderId);
-            // returns boolean true or false
+        // getOrder v2 and v3 (not needed)
+        // getOrders v2 (not needed)
 
         /* Quotes Functions */
         // Create quote

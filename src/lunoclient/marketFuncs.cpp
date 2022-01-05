@@ -358,8 +358,6 @@ namespace Luno {
         std::vector<CurrencyPairInfo> data;
         size_t last = 0;
 
-        
-        // candles
         res = extractNextStringBlock(res, last, "[", "]");
         std::string token;
         
