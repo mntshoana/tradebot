@@ -56,7 +56,8 @@ namespace Luno {
         // Discard quote
 
         /* Send and Receive Functions */
-        static std::string getRecieveAddress(std::string asset);
+        static std::string getRecieveAddress(std::string asset, std::string name = "");
+        static std::string createRecieveAddress(std::string asset, std::string name = "");
         // Create receive address
         
         /*prototype*/

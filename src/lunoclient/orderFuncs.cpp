@@ -248,7 +248,7 @@ namespace Luno {
         return trades;
     }
 
-    // POST LIMIT ORDER
+    // POST MARKET ORDER
     //
     //
     std::string LunoClient::postMarketOrder(std::string pair, std::string action, float amount){
@@ -302,6 +302,7 @@ namespace Luno {
         std::string orderID = extractNextString(res, 0);
         return orderID;
     }
+
     // GET ORDER DETAILS
     //
     //
