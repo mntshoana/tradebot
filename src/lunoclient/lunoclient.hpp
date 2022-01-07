@@ -58,18 +58,17 @@ namespace Luno {
         /* Send and Receive Functions */
         static std::string getRecieveAddress(std::string asset, std::string name = "");
         static std::string createRecieveAddress(std::string asset, std::string name = "");
-        // Create receive address
         
         /*prototype*/
         /**/ static std::string sendToAddress(std::string asset, std::string address, float amount);
-        /* Danger: could lose asset*/
+        /* Danger: could lose asset if not careful - NOT TESTED YET*/
 
         /* Transfers Functions */
         static std::vector<Withdrawal> getWithdrawalList();
         static Withdrawal withdraw(float amount, bool isFast);
         static std::string getWithdrawal(std::string id);
         static std::string cancelWithdrawal(std::string id);
-
+        // getTransfers (not needed)
     };
 }
 #endif /* lunoclient_hpp */

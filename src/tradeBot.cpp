@@ -37,6 +37,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
         home->livePanel->orderview << orderBook.FormatHTMLWith(currentOrders);
     });
     job->updateWaitTime(2);
+    job->setRepeat(true);
     manager.enqueue(job);
     
     
@@ -86,10 +87,12 @@ void TradeBot::Cleanup(){
 }
 
 void TradeBot::OnFinishedUpdate(){
-    if (*timerCount == 0)
-        manager.enqueue(new Task([this](){
-            downloadTicks("XBTZAR");
-        }, true));
+    if (*timerCount == 0){
+        Task* job = new Task( [this]() {downloadTicks("XBTZAR");}, false);
+        job->updateWaitTime(3);
+        job->setRepeat(true);
+        manager.enqueue(job);
+    }
     
     *timerCount = *timerCount +1;
     if (!closing)

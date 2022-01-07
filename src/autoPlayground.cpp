@@ -35,7 +35,7 @@ AutoPlaygroundPanel::AutoPlaygroundPanel(QWidget* parent) : QWidget(parent) {
     *text << "Place script inside \"" + filepath + "\"\n";
     connect(timer, &QTimer::timeout, this, &AutoPlaygroundPanel::Onupdate);
     
-    timer->start(1500);
+    timer->start(4000);
     //
     runScript();
 }

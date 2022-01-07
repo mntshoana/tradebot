@@ -24,6 +24,7 @@ public:
     void updateWaitTime(int time);
     void setAsFast();
     void setAsSlow();
+    void setRepeat(bool status);
     bool isFast();
     void resetTimer();
     

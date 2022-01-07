@@ -10,6 +10,7 @@ from multiprocessing import shared_memory
 import signal
 import pandas as pd
 
+import pandas.io.common
 import time
   
   
@@ -32,7 +33,11 @@ class Autoplayground():
             print ("File doesn't exist... waiting one second")
             return
         print("Autoplayground: Loading [" + sys.argv[1] + "]")
-        self.data = pd.read_csv(sys.argv[1])
+        try:
+            self.data = pd.read_csv(sys.argv[1])
+        except pandas.io.common:
+            print ("File is empty... waiting to load data")
+            return
         self.data.columns = ['sequence', 'timestamp', 'price', 'volume', 'Buy?']
         # Remove common garbage data from network errors
         index_names = self.data[ (self.data['price'] <= 50) | (self.data['volume'] == 0)].index
@@ -94,6 +99,6 @@ if __name__ == "__main__":
         i =  i+1
         if (i>7):
             i = 0;
-        time.sleep(1)
+        time.sleep(4)
 
     buf.close()

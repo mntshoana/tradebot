@@ -1,9 +1,10 @@
 #include "jobManager.hpp"
 
-Task::Task( std::function<void (void)> lamdaFunction, bool fastTrack  ){
+Task::Task( std::function<void (void)> lamdaFunction, bool fastTrack ){
     updateWaitTime(1);
     this->fastTrack = fastTrack;
     this->lamdaFunction = lamdaFunction;
+    this->repeat = false;
 }
 
 void Task::updateWaitTime(int time) {
@@ -26,6 +27,9 @@ void Task::setAsSlow() {
 }
 bool Task::isFast() {
     return fastTrack;
+}
+void Task::setRepeat(bool status){
+    repeat = status;
 }
 void Task::resetTimer() {
     wait = recommendedWait;

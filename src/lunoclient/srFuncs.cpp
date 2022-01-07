@@ -22,7 +22,7 @@ namespace Luno {
         return res;
     }
 
-    // CREATE ADDRESS
+    // CREATE RECIEVE ADDRESS
     //
     //
     std::string LunoClient::createRecieveAddress(std::string asset, std::string name){
