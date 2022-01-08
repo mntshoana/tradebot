@@ -44,14 +44,16 @@ std::string createJSONlabel(std::string label, std::string key);
 std::string createJSONlabelUnquoted(std::string label, std::string key);
 
 // unmarshalling helpers
-std::string extractNextString(std::string source, size_t start, size_t& jumpTo);
-std::string extractNextString(std::string source, size_t start);
+std::string extractNextString(std::string source, size_t start, size_t& jumpTo, const char* label);
+std::string extractNextString(std::string source, size_t start, const char* label);
 
-std::string extractNextString(std::string source, size_t start, const char* readUntil, size_t& jumpTo);
-std::string extractNextString(std::string source, size_t start, const char* readUntil);
+std::string extractNextString(std::string source, size_t start, const char* readUntil, size_t& jumpTo, const char* label);
+std::string extractNextString(std::string source, size_t start, const char* readUntil, const char* label);
 
 std::string extractNextStringBlock(std::string source, size_t start,
-                                   const char* startDelim, const char* stopDelim, size_t& jumpTo);
+                                   const char* startDelim, const char* stopDelim, size_t& jumpTo,
+                                   const char* label);
 std::string extractNextStringBlock(std::string source, size_t start,
-                                   const char* startDelim, const char* stopDelim );
+                                   const char* startDelim, const char* stopDelim,
+                                   const char* label );
 #endif /* client_hpp */

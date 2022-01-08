@@ -106,7 +106,7 @@ namespace Luno {
         
         
         // success
-        std::string token = extractNextString(res, 0, "}");
+        std::string token = extractNextString(res, 0, "}", "success");
         return (token == "true" ? true : false);
     }
     
@@ -269,27 +269,22 @@ namespace Luno {
             balances.push_back(Balance());
             
             //account_id
-            last = res.find("account_id", last);
-            balances.back().accountID = extractNextString(res, last, last);
+            balances.back().accountID = extractNextString(res, last, last, "account_id");
 
             
             //asset
-            last = res.find("asset", last);
-            balances.back().asset = extractNextString(res, last, last);
+            balances.back().asset = extractNextString(res, last, last, "asset");
             
             //balance
-            last = res.find("balance", last);
-            std::string token = extractNextString(res, last, last);
+            std::string token = extractNextString(res, last, last, "balance");
             balances.back().balance = atof(token.c_str());
             
             //reserved
-            last = res.find("reserved", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "reserved");
             balances.back().reserved = atof(token.c_str());
             
             //unconfirmed
-            last = res.find("unconfirmed", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "unconfirmed");
             balances.back().uncomfirmed = atof(token.c_str());
         }
         return balances;
@@ -319,16 +314,13 @@ namespace Luno {
         size_t last = 0;
         
         // id
-        last = res.find("id", last);
-        result.id = extractNextString(res, last, last);
+        result.id = extractNextString(res, last, last, "id");
         
         // status
-        last = res.find("status", last);
-        result.status = extractNextString(res, last, last);
+        result.status = extractNextString(res, last, last, "status");
         
         // client_move_id
-        last = res.find("client_move_id", 0);
-        result.customID = extractNextString(res, last, last);
+        result.customID = extractNextString(res, last, last, "client_move_id");
         
         // Remember to query the results of this move as it is not guranteed to be successfully moved even with id and status "CREATED".
         return result;
@@ -354,39 +346,33 @@ namespace Luno {
         
         MoveResult result;
         
+        size_t last = 0;
+        
         // amount
-        size_t last = res.find("amount", 0);
-        std::string token = extractNextString(res, last, last);
+        std::string token = extractNextString(res, last, last, "amount");
         result.amount = atof(token.c_str());
         
         // client_move_id
-        last = res.find("client_move_id", last);
-        result.customID = extractNextString(res, last, last);
+        result.customID = extractNextString(res, last, last, "client_move_id");
         
         // created_at
-        last = res.find("created_at", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "created_at");
         result.timestamp = atoll(token.c_str());
         
         // credit_account_id
-        last = res.find("credit_account_id", last);
-        result.destinationAccountID = extractNextString(res, last, last);
+        result.destinationAccountID = extractNextString(res, last, last, "credit_account_id");
         
         // debit_account_id
-        last = res.find("debit_account_id", last);
-        result.sourceAccountID = extractNextString(res, last, last);
+        result.sourceAccountID = extractNextString(res, last, last, "debit_account_id");
         
         // id
-        last = res.find("id", last);
-        result.id = extractNextString(res, last, last);
+        result.id = extractNextString(res, last, last, "id");
         
         // status
-        last = res.find("status", last);
-        result.status = extractNextString(res, last, last);
+        result.status = extractNextString(res, last, last, "status");
         
         // updated_at
-        last = res.find("updated_at", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "updated_at");
         result.lastUpdatedAt = atoll(token.c_str());
         
         return result;
@@ -413,46 +399,40 @@ namespace Luno {
         std::vector<MoveResult> list;
         size_t last = 0;
         
-        res = extractNextStringBlock(res, last, "[", "]");
+        // moves
+        res = extractNextStringBlock(res, last, "[", "]", "moves");
         
         while ((last = res.find("{", last)) != std::string::npos) {
             MoveResult result;
             
-            std::string entry = extractNextStringBlock(res, last, "{", "}", last); // this line updates last to after "}"
+            std::string entry = extractNextStringBlock(res, last, "{", "}", last, nullptr); // this line updates last to after "}"
             
             // amount
-            size_t pos = entry.find("amount", 0);
-            std::string token = extractNextString(entry, pos, pos);
+            size_t pos = 0;
+            std::string token = extractNextString(entry, pos, pos, "amount");
             result.amount = atof(token.c_str());
             
             // client_move_id
-            pos = entry.find("client_move_id", pos);
-            result.customID = extractNextString(entry, pos, pos);
+            result.customID = extractNextString(entry, pos, pos, "client_move_id");
             
             // created_at
-            pos = entry.find("created_at", pos);
-            token = extractNextString(entry, pos, pos);
+            token = extractNextString(entry, pos, pos, "created_at");
             result.timestamp = atoll(token.c_str());
             
             // credit_account_id
-            pos = entry.find("credit_account_id", pos);
-            result.destinationAccountID = extractNextString(entry, pos, pos);
+            result.destinationAccountID = extractNextString(entry, pos, pos, "credit_account_id");
             
             // debit_account_id
-            pos = entry.find("debit_account_id", pos);
-            result.sourceAccountID = extractNextString(entry, pos, pos);
+            result.sourceAccountID = extractNextString(entry, pos, pos, "debit_account_id");
             
             // id
-            pos = entry.find("id", pos);
-            result.id = extractNextString(entry, pos, pos);
+            result.id = extractNextString(entry, pos, pos, "id");
             
             // status
-            pos = entry.find("status", pos);
-            result.status = extractNextString(entry, pos, pos);
+            result.status = extractNextString(entry, pos, pos, "status");
             
             // updated_at
-            pos = entry.find("updated_at", pos);
-            token = extractNextString(entry, pos, pos);
+            token = extractNextString(entry, pos, pos, "updated_at");
             result.lastUpdatedAt = atoll(token.c_str());
             
             list.push_back(result);

@@ -29,11 +29,9 @@ namespace VALR {
         size_t last = 0;
         
         // asks and bids
-        last = res.find("Asks", last);
-        std::string asks = extractNextStringBlock(res, last, "[", "]", last);
+        std::string asks = extractNextStringBlock(res, last, "[", "]", last, "Asks");
         
-        last = res.find("Bids", last);
-        std::string bids = extractNextStringBlock(res, last, "[", "]", last);
+        std::string bids = extractNextStringBlock(res, last, "[", "]", last, "Bids");
         
         last = 0;
         std::string token;
@@ -44,18 +42,18 @@ namespace VALR {
             last = asks.find(":", last) + 2;
             
             // volume
-            token = extractNextString(asks, last, last);
+            token = extractNextString(asks, last, last, "volume");
             order.volume = atof(token.c_str());
             
             // price
-            token = extractNextString(asks, last, last);
+            token = extractNextString(asks, last, last, "price");
             order.price = atof(token.c_str());
             
             // ignore currencPair
             last = asks.find(":", last) + 2;
             
             // orderCount
-            token = extractNextString(asks, last, "}", last);
+            token = extractNextString(asks, last, "}", last, "orderCount");
             order.count = atoi(token.c_str());
             
             ob.asks.push_back(order);
@@ -70,18 +68,18 @@ namespace VALR {
             last = bids.find(":", last) + 2;
             
             // volume
-            token = extractNextString(bids, last, last);
+            token = extractNextString(bids, last, last, "volume");
             order.volume = atof(token.c_str());
             
             // price
-            token = extractNextString(bids, last, last);
+            token = extractNextString(bids, last, last, "price");
             order.price = atof(token.c_str());
             
             // ignore currencPair
             last = bids.find(":", last) + 2;
             
             // orderCount
-            token = extractNextString(bids, last, "}", last);
+            token = extractNextString(bids, last, "}", last, "orderCount");
             order.count = atoi(token.c_str());
             
             ob.bids.push_back(order);
@@ -115,15 +113,11 @@ namespace VALR {
         std::string token;
         
         // asks and bids
-        last = res.find("Asks", last);
-        std::string asks = extractNextStringBlock(res, last, "[", "]", last);
-        
-        last = res.find("Bids", last);
-        std::string bids = extractNextStringBlock(res, last, "[", "]", last);
+        std::string asks = extractNextStringBlock(res, last, "[", "]", last, "Asks");
+        std::string bids = extractNextStringBlock(res, last, "[", "]", last, "Bids");
         
         // timestamp
-        last = res.find("LastChange", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "LastChange");
         ob.timestamp = get_seconds_since_epoch(token);
         
         res.erase();
@@ -136,21 +130,21 @@ namespace VALR {
             last = asks.find(":", last) + 2;
             
             // volume
-            token = extractNextString(asks, last, last);
+            token = extractNextString(asks, last, last, "volume");
             order.volume = atof(token.c_str());
             
             // price
-            token = extractNextString(asks, last, last);
+            token = extractNextString(asks, last, last, "price");
             order.price = atof(token.c_str());
             
             // ignore currencPair
             last = asks.find(":", last) + 2;
             
             // id
-            order.id = extractNextString(asks, last, last);
+            order.id = extractNextString(asks, last, last, "id");
             
             // orderCount
-            token = extractNextString(asks, last, "}", last);
+            token = extractNextString(asks, last, "}", last, "orderCount");
             order.count = atoi(token.c_str());
             
             ob.asks.push_back(order);
@@ -165,21 +159,21 @@ namespace VALR {
             last = bids.find(":", last) + 2;
             
             // volume
-            token = extractNextString(bids, last, last);
+            token = extractNextString(bids, last, last, "volume");
             order.volume = atof(token.c_str());
             
             // price
-            token = extractNextString(bids, last, last);
+            token = extractNextString(bids, last, last, "price");
             order.price = atof(token.c_str());
             
             // ignore currencPair
             last = bids.find(":", last) + 2;
             
             // id
-            order.id = extractNextString(bids, last, last);
+            order.id = extractNextString(bids, last, last, "id");
             
             // orderCount
-            token = extractNextString(bids, last, "}", last);
+            token = extractNextString(bids, last, "}", last, "orderCount");
             order.count = atoi(token.c_str());
             
             ob.bids.push_back(order);
@@ -207,25 +201,25 @@ namespace VALR {
         while ((last = res.find("{", last)) != std::string::npos) {
             CurrencyInfo info;
             
-            // Symbol
-            info.symbol = extractNextString(res, last, last);
+            // symbol
+            info.symbol = extractNextString(res, last, last, "symbol");
             
             // isActive
-            token = extractNextString(res, last, ",", last);
+            token = extractNextString(res, last, ",", last, "isActive");
             info.isActive = (token == "true") ? true : false;
             
             // short Name
-            info.shortName = extractNextString(res, last, last);
+            info.shortName = extractNextString(res, last, last, "shortName");
             
             // long Name
-            info.longName = extractNextString(res, last, last);
+            info.longName = extractNextString(res, last, last, "longName");
             
             // decimalPlace
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "decimalPlaces");
             info.decimalCount = atoi(token.c_str());
             
             // withdrawalDecimalPlace
-            token = extractNextString(res, last, last);;
+            token = extractNextString(res, last, last, "withdrawalDecimalPlace");
             info.withdrawalDecimalCount = atoi(token.c_str());
             
             list.push_back(info);
@@ -250,44 +244,44 @@ namespace VALR {
         while ((last = res.find("{", last)) != std::string::npos) {
             CurrencyPairInfo info;
             
-            // Symbol
-            info.symbol = extractNextString(res, last, last);
+            // symbol
+            info.symbol = extractNextString(res, last, last, "symbol");
             
             // Base currency
-            info.baseCurrency = extractNextString(res, last, last);
+            info.baseCurrency = extractNextString(res, last, last, "baseCurrency");
             
             // Quote currency
-            info.quoteCurrency = extractNextString(res, last, last);
+            info.quoteCurrency = extractNextString(res, last, last, "quoteCurrency");
             
             // Currency pair's short name
-            info.shortName = extractNextString(res, last, last);
+            info.shortName = extractNextString(res, last, last, "shortName");
             
             // isActive
-            token = extractNextString(res, last, ",", last);
+            token = extractNextString(res, last, ",", last, "isActive");
             info.isActive = (token == "true") ? true : false;
             
             // min base amount
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "minBaseAmount");
             info.baseMinTradable = atof(token.c_str());
             
             // max base amount
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "maxBaseAmount");
             info.baseMaxTradable = atof(token.c_str());
             
             // min quote amount
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "minQuoteAmount");
             info.quoteMinTradable = atof(token.c_str());
             
             // max quote amount
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "maxQuoteAmount");
             info.quoteMaxTradable = atof(token.c_str());
             
             // Tick size
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "tickSize");
             info.tickSize = atoi(token.c_str());
             
             // decimalPlace
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "baseDecimalPlaces");
             info.baseDecimalCount = atoi(token.c_str());
             
             list.push_back(info);
@@ -314,10 +308,10 @@ namespace VALR {
         
         while ((last = res.find("{", last)) != std::string::npos) {
             OrderTypeInfo info;
-            // Symbol
-            info.symbol = extractNextString(res, last, last);
-            // Base currency
-            token = extractNextStringBlock(res, last, "[", "]", last);
+            // currencyPair
+            info.symbol = extractNextString(res, last, last, "currencyPair");
+            // orderTypes
+            token = extractNextStringBlock(res, last, "[", "]", last, "orderTypes");
             /*remove all the " characters*/
             token.erase(remove( token.begin(), token.end(), '\"' ),token.end());
             info.orderTypes = token;
@@ -327,10 +321,9 @@ namespace VALR {
         last = 0;
         if (pair.length() > 0){
             OrderTypeInfo info;
-            // Symbol
+            // only returns an array of strings
             info.symbol = pair;
-            // Base currency
-            token = extractNextStringBlock(res, last, "[", "]", last);
+            token = extractNextStringBlock(res, last, "[", "]", last, nullptr);
             /*remove all the " characters*/
             token.erase(remove( token.begin(), token.end(), '\"' ),token.end());
             info.orderTypes = token;
@@ -365,43 +358,43 @@ namespace VALR {
             list.push_back(Ticker());
         
             // pair
-            list.back().pair = extractNextString(res, last, last);
+            list.back().pair = extractNextString(res, last, last, "currencyPair");
             
             // asks
             last = res.find("ask", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "askPrice");
             list.back().ask = atof(token.c_str());
             
             // bid
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "bidPrice");
             list.back().bid = atof(token.c_str());
             
             // last trade
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "lastTradedPrice");
             list.back().lastTrade = atof(token.c_str());
             
             // previous close
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "previousClosePrice");
             list.back().lastClosed = atof(token.c_str());
             
             // Base volume
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "baseVolume");
             list.back().baseVolume = atof(token.c_str());
             
             // high price
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "highPrice");
             list.back().high = atof(token.c_str());
             
             // low price
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "lowPrice");
             list.back().low = atof(token.c_str());
             
             // timestamp
-            std::string token = extractNextString(res, last, last);
+            std::string token = extractNextString(res, last, last, "created");
             list.back().timestamp = get_seconds_since_epoch(token);
             
             // Changed from previous
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "changeFromPrevious");
             list.back().changeFromPrevious = atof(token.c_str());
         }
         return list;
@@ -464,34 +457,34 @@ namespace VALR {
         while ((last = res.find("{", last)) != std::string::npos) {
             trades.push_back(Trade());
             // price
-            std::string token = extractNextString(res, last, last);
+            std::string token = extractNextString(res, last, last, "price");
             trades.back().price = atof(token.c_str());
             
             // volume (quantity)
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "quantity");
             trades.back().baseVolume = atof(token.c_str());
             
             // pair
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "currencyPair");
             trades.back().pair = token;
             
             // timestamp
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "tradedAt");
             trades.back().timestamp = get_seconds_since_epoch(token);
             
             // isBuy
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "takerSide");
             trades.back().isBuy = (token == "buy") ? true : false;
             
             // sequenceID
-            token = extractNextString(res, last, ",", last);
+            token = extractNextString(res, last, ",", last, "sequenceId");
             trades.back().sequence = atoll(token.c_str());
             
             // id
-            trades.back().id = extractNextString(res, last, last);;
+            trades.back().id = extractNextString(res, last, last, "id");
             
             // qupte volume
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "quoteVolume");
             trades.back().quoteVolume = atof(token.c_str());
         }
         
@@ -509,8 +502,8 @@ namespace VALR {
         std::stringstream ss;
         size_t last = 0;
         
-        ss << "epoch: " <<  extractNextString(res, last, ",", last) << std::endl;
-        ss << "string: " << extractNextString(res, last, last)       << std::endl;
+        ss << "epoch: " <<  extractNextString(res, last, ",", last, "epochTime") << std::endl;
+        ss << "string: " << extractNextString(res, last, last, "time")       << std::endl;
         
         return ss.str();
     }
@@ -528,7 +521,7 @@ namespace VALR {
         std::stringstream ss;
         size_t last = 0;
     
-        std::string token = extractNextString(res, last, last);
+        std::string token = extractNextString(res, last, last, "status");
         ss << "status: " << token << std::endl;
 
         

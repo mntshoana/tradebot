@@ -19,10 +19,10 @@ namespace VALR {
         size_t last = 0;
             
         //currency
-        std::string resultedAsset  =  extractNextString(res, last, last);
+        std::string resultedAsset  =  extractNextString(res, last, last, "currency");
             
         //address
-        std::string address = extractNextString(res, last, last);
+        std::string address = extractNextString(res, last, last, "address");
         
         return address;
     }
@@ -49,19 +49,19 @@ namespace VALR {
             AddressEntry entry;
         
             // id
-            entry.id = extractNextString(res, last, last);
+            entry.id = extractNextString(res, last, last, "id");
             
             // label
-            entry.label = extractNextString(res, last, last);
+            entry.label = extractNextString(res, last, last, "label");
             
             // currency
-            entry.asset = extractNextString(res, last, last);
+            entry.asset = extractNextString(res, last, last, "currency");
             
             // address
-            entry.address    = extractNextString(res, last, last);
+            entry.address = extractNextString(res, last, last, "address");
             
             // createdAt
-            entry.timestamp = extractNextString(res, last, last);
+            entry.timestamp = extractNextString(res, last, last, "createdAt");
             whitelistedAddresses.push_back(entry);
         }
         
@@ -85,26 +85,26 @@ namespace VALR {
         WithdrawalDetail info;
     
         // currency
-        info.asset = extractNextString(res, last, last);
+        info.asset = extractNextString(res, last, last, "curency");
         
         // minimumWithdrawAmount
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "minimumWithdrawAmount");
         info.min = atof(token.c_str());
         
         // withdrawalDecimalPlaces
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "withdrawalDecimalPlaces");
         info.decimals = atoi(token.c_str());
         
         // isActive
-        token = extractNextString(res, last, ",", last);
+        token = extractNextString(res, last, ",", last, "isActive");
         info.isActive = (token == "true" ? true : false);
         
         // withdrawCost
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "withdrawCost");
         info.fee = atof(token.c_str());
         
         // supportsPaymentReference
-        token = extractNextString(res, last, ",", last);
+        token = extractNextString(res, last, ",", last, "supportsPaymentReference");
         info.supportsReference = (token == "true" ? true : false);
     
         return info;
@@ -125,7 +125,7 @@ namespace VALR {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        std::string id = extractNextString(res, 0);
+        std::string id = extractNextString(res, 0, "id");
         
         return id;
     }
@@ -147,41 +147,41 @@ namespace VALR {
         WithdrawalInfo info;
 
         // currency
-        info.asset = extractNextString(res, last, last);
+        info.asset = extractNextString(res, last, last, "currency");
         
         // address
-        info.address = extractNextString(res, last, last);
+        info.address = extractNextString(res, last, last, "address");
         
         // amount
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "amount");
         info.amount = atof(token.c_str());
         
         // feeAmount
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "feeAmount");
         info.fee = atof(token.c_str());
         
         // transactionHash
-        info.transactionHash = extractNextString(res, last, last);
+        info.transactionHash = extractNextString(res, last, last, "transactionHash");
         
         // confirmations
-        token = extractNextString(res, last, ",", last);
+        token = extractNextString(res, last, ",", last, "confirmations");
         info.confirmations = atoi(token.c_str());
         
         // lastConfirmationAt
-        info.lastConfrimationAt = extractNextString(res, last, last);
+        info.lastConfrimationAt = extractNextString(res, last, last, "lastConfirmationAt");
         
         // uniqueId
-        info.id = extractNextString(res, last, last);
+        info.id = extractNextString(res, last, last, "uniqueId");
         
         // createdAt
-        info.timestamp = extractNextString(res, last, last);
+        info.timestamp = extractNextString(res, last, last, "createdAt");
         
         // verified
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "verified");
         info.isVerified = (token == "true" ? true : false);
         
         // status
-        info.status = extractNextString(res, last, last);
+        info.status = extractNextString(res, last, last, "status");
 
         return info;
     }
@@ -215,34 +215,34 @@ namespace VALR {
             DepositInfo info;
 
             // currencyCode
-            info.asset = extractNextString(res, last, last);
+            info.asset = extractNextString(res, last, last, "currencyCode");
             
             // receiveAddress
-            info.address = extractNextString(res, last, last);
+            info.address = extractNextString(res, last, last, "receiveAddress");
             
             // transactionHash
-            info.transactionHash = extractNextString(res, last, last);
+            info.transactionHash = extractNextString(res, last, last, "transactionHash");
             
             // amount
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "amount");
             info.amount = atof(token.c_str());
             
             // No fee
             info.fee = 0.0f;
             
             // createdAt
-            info.timestamp = extractNextString(res, last, last);
+            info.timestamp = extractNextString(res, last, last, "createdAt");
             
             // confirmations
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "confirmations");
             info.confirmations = atoi(token.c_str());
            
             // confirmed
-            token = extractNextString(res, last, ",",  last);
+            token = extractNextString(res, last, ",",  last, "confirmed");
             info.isVerified = (token == "true" ? true : false);
             
             // lastConfirmationAt
-            info.lastConfrimationAt = extractNextString(res, last, last);
+            info.lastConfrimationAt = extractNextString(res, last, last, "lastConfirmationAt");
             
             // no ID
             info.id = "";
@@ -284,41 +284,41 @@ namespace VALR {
             WithdrawalInfo info;
             
             // currency
-            info.asset = extractNextString(res, last, last);
+            info.asset = extractNextString(res, last, last, "currency");
             
             // address
-            info.address = extractNextString(res, last, last);
+            info.address = extractNextString(res, last, last, "address");
             
             // amount
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "amount");
             info.amount = atof(token.c_str());
             
             // feeAmount
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "feeAmount");
             info.fee = atof(token.c_str());
             
             // transactionHash
-            info.transactionHash = extractNextString(res, last, last);
+            info.transactionHash = extractNextString(res, last, last, "transactionHash");
             
             // confirmations
-            token = extractNextString(res, last, ",", last);
+            token = extractNextString(res, last, ",", last, "confirmations");
             info.confirmations = atoi(token.c_str());
             
             // lastConfirmationAt
-            info.lastConfrimationAt = extractNextString(res, last, last);
+            info.lastConfrimationAt = extractNextString(res, last, last, "lastConfirmationAt");
             
             // uniqueId
-            info.id = extractNextString(res, last, last);
+            info.id = extractNextString(res, last, last, "uniqueId");
             
             // createdAt
-            info.timestamp = extractNextString(res, last, last);
+            info.timestamp = extractNextString(res, last, last, "createdAt");
             
             // verified
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "verified");
             info.isVerified = (token == "true" ? true : false);
             
             // status
-            info.status = extractNextString(res, last, last);
+            info.status = extractNextString(res, last, last, "status");
             
             list.push_back(info);
         }
@@ -346,25 +346,25 @@ namespace VALR {
             BankInfo account;
             
             // id
-            account.id = extractNextString(res, last, last);
+            account.id = extractNextString(res, last, last, "id");
             
             // bank
-            account.bank = extractNextString(res, last, last);
+            account.bank = extractNextString(res, last, last, "bank");
             
             // accountHolder
-            account.accountHolder = extractNextString(res, last, last);
+            account.accountHolder = extractNextString(res, last, last, "accountHolder");
 
             // accountNumber
-            account.accountNumber = extractNextString(res, last, last);
+            account.accountNumber = extractNextString(res, last, last, "accountNumber");
             
             // branchCode
-            account.branchCode = extractNextString(res, last, last);
+            account.branchCode = extractNextString(res, last, last, "branchCode");
             
             // accountType
-            account.accountType = extractNextString(res, last, last);
+            account.accountType = extractNextString(res, last, last, "accountType");
            
             // createdAt
-            account.timestamp = extractNextString(res, last, last);
+            account.timestamp = extractNextString(res, last, last, "createdAt");
 
             list.push_back(account);
         }
@@ -386,7 +386,7 @@ namespace VALR {
         size_t last = 0;
         
         
-        std::string reference = extractNextString(res, last, last);
+        std::string reference = extractNextString(res, last, last, "reference");
            
         return reference;
     }
@@ -417,7 +417,7 @@ namespace VALR {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        std::string id = extractNextString(res, 0);
+        std::string id = extractNextString(res, 0, "id");
         
         return id;
     }
@@ -443,31 +443,31 @@ namespace VALR {
             InternationalBankInfo account;
             
             // id
-            account.id = extractNextString(res, last, last);
+            account.id = extractNextString(res, last, last, "id");
             
             // accountNumber
-            account.accountNumber = extractNextString(res, last, last);
+            account.accountNumber = extractNextString(res, last, last, "accountNumber");
             
             // peek next label
-            token = extractNextStringBlock(res, last, "\"", "\"");
+            token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
             if (token == "routingNumber")
-                account.routingNumber = extractNextString(res, last, last);
+                account.routingNumber = extractNextString(res, last, last, "routingNumber");
             else
                 account.routingNumber = "";
             
             // NB, the following variable contains a string that is left unmarshalled
-            account.billingDetails = extractNextStringBlock(res, last, "{", "}");
+            account.billingDetails = extractNextStringBlock(res, last, "{", "}", "billingDetails");
             // NB, the following variable contains a string that is left unmarshalled
-            account.bankAddress = extractNextStringBlock(res, last, "{", "}");
+            account.bankAddress = extractNextStringBlock(res, last, "{", "}", "bankAddress");
 
             // status
-            account.status = extractNextString(res, last, last);
+            account.status = extractNextString(res, last, last, "status");
             
             // type
-            account.type = extractNextString(res, last, last);
+            account.type = extractNextString(res, last, last, "type");
            
             // createdAt
-            account.timestamp = extractNextString(res, last, last);
+            account.timestamp = extractNextString(res, last, last, "createdAt");
 
             list.push_back(account);
         }
@@ -493,9 +493,9 @@ namespace VALR {
         // unmarshalling could be incorrect here, as I am not sure what to expect from server
         // make sure to print the result and compare with variables
         // print res
-        instructions.reference = extractNextString(res, last, last);
-        instructions.beneficiary = extractNextStringBlock(res, last, "{","}", last);
-        instructions.beneficiaryBank = extractNextStringBlock(res, last, "{","}",  last);
+        instructions.reference = extractNextString(res, last, last, "trackingReference");
+        instructions.beneficiary = extractNextStringBlock(res, last, "{","}", last, "beneficiary");
+        instructions.beneficiaryBank = extractNextStringBlock(res, last, "{","}",  last, "beneficiaryBank");
         
         return instructions;
     }

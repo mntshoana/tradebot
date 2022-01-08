@@ -49,10 +49,31 @@ std::string createJSONlabelUnquoted(std::string label, std::string key){
     return R"(")" + label + R"(":)" + key ;
 }
 
+void verifyLabel(const char* label, std::string source, size_t colonPos){
+    size_t length = strlen(label);
+    if (length <= 0)
+        throw std::invalid_argument("Expecting a valid json label but recieved an empty string!");
+    
+    int spaceAdjustment = 0;
+    while (source[colonPos-spaceAdjustment] != '"')
+           spaceAdjustment++;
+    while (source[colonPos-spaceAdjustment] != '"')
+           spaceAdjustment++;
+    
+    size_t pos = colonPos - length - spaceAdjustment;
+   // "asks" :
+    std::string expectedString = source.substr(pos, length);
+    if (strcmp(label, expectedString.c_str()) != 0)
+        throw std::invalid_argument("Expecting json label \"" + std::string(label) + "\" but encountered \"" + expectedString +"\"!");
+
+    return;
+}
+
 // only returns portion of string immediately following a colon
 //   this string will be within opening ["] and ending ["] delimiters
-std::string extractNextString(std::string source, size_t start, size_t& jumpTo) {
+std::string extractNextString(std::string source, size_t start, size_t& jumpTo, const char* label) {
     size_t posStart = source.find(":", start);
+    verifyLabel(label, source, posStart);
     if (posStart != std::string::npos){
         posStart = source.find("\"", posStart) + 1;
         size_t posEnd = source.find("\"", posStart);
@@ -63,15 +84,17 @@ std::string extractNextString(std::string source, size_t start, size_t& jumpTo) 
     return "";
 }
 
-std::string extractNextString(std::string source, size_t start) {
-    return extractNextString(source, start, start);
+std::string extractNextString(std::string source, size_t start, const char* label) {
+    return extractNextString(source, start, start, label);
 }
 
 // only returns portion of string immediately following a colon
 //   this string is not surrounded by any quotations marks.
 //   the ending position is marked by a delimiter
-std::string extractNextString(std::string source, size_t start, const char* readUntil, size_t& jumpTo) {
+std::string extractNextString(std::string source, size_t start, const char* readUntil, size_t& jumpTo, const char* label) {
     size_t posStart = source.find(":", start);
+    verifyLabel(label, source, posStart);
+
     if (posStart != std::string::npos) {
         posStart += 1;
         if (source[posStart] == ' ')
@@ -84,15 +107,22 @@ std::string extractNextString(std::string source, size_t start, const char* read
     return "";
 }
 
-std::string extractNextString(std::string source, size_t start, const char* readUntil){
-    return extractNextString(source, start, readUntil, start);
+std::string extractNextString(std::string source, size_t start, const char* readUntil, const char* label){
+    return extractNextString(source, start, readUntil, start, label);
 }
 
 //  returns portion of string immediately following a delimiter
 //   and ending by a delimiter
 std::string extractNextStringBlock(std::string source, size_t start,
-                                   const char* startDelim, const char* stopDelim, size_t& jumpTo) {
-        size_t posStart = source.find(startDelim, start);
+                                   const char* startDelim, const char* stopDelim, size_t& jumpTo, const char* label) {
+    size_t posStart = source.find(startDelim, start);
+    bool isNamelessJavaObject = (strcmp(startDelim, "{") == 0 && strcmp(stopDelim, "}") == 0 && label == nullptr);
+    bool isNamelessJavaArray = (strcmp(startDelim, "[") == 0 && strcmp(stopDelim, "]") == 0  && label == nullptr);
+    bool isNamelessJavaString = (strcmp(startDelim, "\"") == 0 && strcmp(stopDelim, "\"") == 0  && label == nullptr);
+    
+    if ( !( isNamelessJavaObject || isNamelessJavaArray || isNamelessJavaString)  )
+        verifyLabel(label, source, posStart);
+
     if (posStart != std::string::npos) {
         posStart += 1;
         size_t posEnd = source.find(stopDelim, posStart);
@@ -103,8 +133,8 @@ std::string extractNextStringBlock(std::string source, size_t start,
     return "";
 }
 std::string extractNextStringBlock(std::string source, size_t start,
-                                   const char* startDelim, const char* stopDelim ) {
-    return extractNextStringBlock(source, start, startDelim, stopDelim, start);
+                                   const char* startDelim, const char* stopDelim, const char* label ) {
+    return extractNextStringBlock(source, start, startDelim, stopDelim, start, label);
 }
 
 

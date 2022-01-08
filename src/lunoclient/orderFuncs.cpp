@@ -20,18 +20,15 @@ namespace Luno {
         size_t last = 0;
         
         // 30 day volume
-        last = res.find("thirty_day_volume", last);
-        std::string token = extractNextString(res, last, last);
+        std::string token = extractNextString(res, last, last, "thirty_day_volume");
         fee.thirtyDayVolume = atof(token.c_str());
         
         // maker fee
-        last = res.find("maker_fee", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "maker_fee");
         fee.maker = atof(token.c_str());
         
         // taker fee
-        last = res.find("taker_fee", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "taker_fee");
         fee.taker = atof(token.c_str());
         
         return fee;
@@ -80,65 +77,53 @@ namespace Luno {
             orders.push_back(UserOrder());
      
             // Order ID
-            last = res.find("order_id", last);
-            orders.back().orderID = extractNextString(res, last, last);
+            orders.back().orderID = extractNextString(res, last, last, "order_id");
             
             // Creation Timestamp
-            last = res.find("creation_", last);
-            std::string token = extractNextString(res, last, ",", last);
+            std::string token = extractNextString(res, last, ",", last, "creation_timestamp");
             orders.back().createdTime = atoll(token.c_str());
             
             // Expiration Timestamp
-            last = res.find("expiration_", last);
-            token = extractNextString(res, last, ",", last);
+            token = extractNextString(res, last, ",", last, "expiration_timestamp");
             orders.back().expirationTime = atoll(token.c_str());
             
             // Completion Timestamp
             last = res.find("completed_", last);
-            token = extractNextString(res, last, ",", last);
+            token = extractNextString(res, last, ",", last, "completed_timestamp");
             orders.back().completedTime = atoll(token.c_str());
             
             // Type
-            last = res.find("type", last);
-            orders.back().type = extractNextString(res, last, last);
+            orders.back().type = extractNextString(res, last, last, "type");
             
             // State
-            last = res.find("state", last);
-            orders.back().state = extractNextString(res, last, last);
+            orders.back().state = extractNextString(res, last, last, "state");
             
             // Price
-            last = res.find("limit_price", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "limit_price");
             orders.back().price = atof(token.c_str());
             
             // Volume
-            last = res.find("limit_volume", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "limit_volume");
             orders.back().volume = atof(token.c_str());
             
             // Base
-            last = res.find("base", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "base");
             orders.back().baseValue = atof(token.c_str());
             
             // Counter
-            last = res.find("counter", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "counter");
             orders.back().counterValue = atof(token.c_str());
             
             // Base Fee
-            last = res.find("fee_base", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "fee_base");
             orders.back().baseFee = atof(token.c_str());
             
             // Counter Fee
-            last = res.find("fee_counter", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "fee_counter");
             orders.back().counterFee = atof(token.c_str());
             
             // Pair
-            last = res.find("pair", last);
-            orders.back().pair = extractNextString(res, last, last);
+            orders.back().pair = extractNextString(res, last, last, "pair");
             
             if (orders.back().state != "PENDING" && orders.back().baseValue == 0.0f
                 && orders.back().counterValue == 0.0f)
@@ -189,60 +174,48 @@ namespace Luno {
                trades.push_back(UserTrade());
         
                // pair
-               last = res.find("pair", last);
-               trades.back().pair = extractNextString(res, last, last);
+               trades.back().pair = extractNextString(res, last, last, "pair");
                
                // sequence
-               last = res.find("sequ", last);
-               std::string token = extractNextString(res, last, ",", last);
+               std::string token = extractNextString(res, last, ",", last, "sequence");
                trades.back().sequence = atoll(token.c_str());
                
                // Order ID
-               last = res.find("order_id", last);
-               trades.back().orderID = extractNextString(res, last, last);
+               trades.back().orderID = extractNextString(res, last, last, "order_id");
                
                // Type
-               last = res.find("type", last);
-               trades.back().type = extractNextString(res, last, last);
+               trades.back().type = extractNextString(res, last, last, "type");
                
                // timestamp
-               last = res.find("timestamp", last);
-               token = extractNextString(res, last, ",", last);
+               token = extractNextString(res, last, ",", last, "timestamp");
                trades.back().timestamp = atoll(token.c_str());
                
                // price
-               last = res.find("price", last);
-               token = extractNextString(res, last, last);
+               token = extractNextString(res, last, last, "price");
                trades.back().price = atof(token.c_str());
                
                // volume
-               last = res.find("volume", last);
-               token = extractNextString(res, last, last);
+               token = extractNextString(res, last, last, "volume");
                trades.back().volume = atof(token.c_str());
                
                // base
-               last = res.find("base", last);
-               token = extractNextString(res, last, last);
+               token = extractNextString(res, last, last, "base");
                trades.back().baseValue = atof(token.c_str());
                
                // counter
-               last = res.find("counter", last);
-               token = extractNextString(res, last, last);
+               token = extractNextString(res, last, last, "counter");
                trades.back().counterValue = atof(token.c_str());
                
                // base fee
-               last = res.find("fee_base", last);
-               token = extractNextString(res, last, last);
+               token = extractNextString(res, last, last, "fee_base");
                trades.back().baseFee = atof(token.c_str());
                
                // counter fee
-               last = res.find("fee_counter", last);
-               token = extractNextString(res, last, last);
+               token = extractNextString(res, last, last, "fee_counter");
                trades.back().counterFee = atof(token.c_str());
                
                // is buy
-               last = res.find("is_buy", last);
-               token = extractNextString(res, last, "}", last);
+               token = extractNextString(res, last, "}", last, "is_buy");
                trades.back().isBuy = (token == "true") ? true : false;
            }
         return trades;
@@ -299,7 +272,8 @@ namespace Luno {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        std::string orderID = extractNextString(res, 0);
+        // order_id
+        std::string orderID = extractNextString(res, 0, "order_id");
         return orderID;
     }
 
@@ -334,14 +308,15 @@ namespace Luno {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        std::string orderID = extractNextString(res, 0);
+        // order_id
+        std::string orderID = extractNextString(res, 0, "order_id");
         return orderID;
     }
 
     // STOP ORDER
     //
     //
-    std::string LunoClient::cancelOrder(std::string orderId){
+    bool LunoClient::cancelOrder(std::string orderId){
         std::string uri = "https://api.mybitx.com/api/1/stoporder?order_id=" + orderId;
         
         std::string res = client.request("POST", uri.c_str(), true);
@@ -350,6 +325,8 @@ namespace Luno {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        return res;
+        // success
+        std::string token = extractNextString(res, 0, "}", "success");
+        return (token == "true" ? true : false);
     }
 }

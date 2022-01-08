@@ -22,32 +22,31 @@ namespace VALR {
         size_t last = 0;
         
         // label
-        keyInfo.label =  extractNextString(res, last, last);;
+        keyInfo.label =  extractNextString(res, last, last, "label");
         
         // permissions
-        last = res.find("permissions", last);
-        std::string permissions = extractNextStringBlock(res, last, "[", "]", last);
+        std::string permissions = extractNextStringBlock(res, last, "[", "]", last, "permissions");
         
         // addedAt
-        keyInfo.createdAt = extractNextString(res, last, last);
+        keyInfo.createdAt = extractNextString(res, last, last, "addedAt");
         
         // is sub account
-        std::string token = extractNextString(res, last, "}", last);
+        std::string token = extractNextString(res, last, "}", last, "isSubAccount");
         keyInfo.isSubAccount = (token == "true") ? true : false;
         
         // allowed Ip Address
-        keyInfo.allowedIP = extractNextString(res, last, last);
+        keyInfo.allowedIP = extractNextString(res, last, last, "allowedIpAddressCidr");
         
         // allowed Withdraw Address List
         std::string allowedWithdrawlist;
         last = res.find("allowedWithdrawAddressList", last);
         if (last != std::string::npos)
-            allowedWithdrawlist = extractNextStringBlock(res, last, "[", "]", last);
+            allowedWithdrawlist = extractNextStringBlock(res, last, "[", "]", last, "allowedWithdrawAddressList");
         
         last = 0;
         int count = 0;
         while ((last = permissions.find("\"", last)) != std::string::npos) {
-            token = extractNextStringBlock(permissions, last, "\"", "\"", last);
+            token = extractNextStringBlock(permissions, last, "\"", "\"", last, nullptr);
             
             keyInfo.permission += ((count++) ? ", ": "") +  token;
             
@@ -63,10 +62,10 @@ namespace VALR {
             keyInfo.allowedWithdraw += ((count++) ? "\n" : "");
             
             // currency (but preffer asset)
-            std::string asset = extractNextString(res, last, last);
+            std::string asset = extractNextString(res, last, last, "currency");
             
             // address
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "address");
             keyInfo.allowedWithdraw += asset + ": " + token;
         }
         allowedWithdrawlist.erase();
@@ -94,10 +93,10 @@ namespace VALR {
             Account acc;
         
             // volume
-            acc.label = extractNextString(res, last, last);
+            acc.label = extractNextString(res, last, last, "volume");
             
             // price
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "price");
             acc.id = atoll(token.c_str());
             
             subAccounts.push_back(acc);
@@ -124,7 +123,7 @@ namespace VALR {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        std::string subAccID = extractNextString(res, 0);
+        std::string subAccID = extractNextString(res, 0, "id");
 
         return subAccID;
     }
@@ -152,36 +151,35 @@ namespace VALR {
             // Accounts
             last = res.find(":", last) + 2; // get to colon marking "accounts:"
             //account:label
-            summary.account.label = extractNextString(res, last, last);
+            summary.account.label = extractNextString(res, last, last, "label");
             //account:id
-            std::string token = extractNextString(res, last, last);
+            std::string token = extractNextString(res, last, last, "id");
             summary.account.id = atoll(token.c_str());
             
-            //balance
-            last = res.find("balance", last);
-            std::string balanceList = extractNextStringBlock(res, last, "[", "]", last);
+            // balances
+            std::string balanceList = extractNextStringBlock(res, last, "[", "]", last, "balances");
             
             size_t tempLast = 0;
             while ((tempLast = balanceList.find("{", tempLast)) != std::string::npos) {
                 Balance balance;
                 
                 //balance:currency
-                balance.asset  =  extractNextString(balanceList, tempLast, tempLast);
+                balance.asset  =  extractNextString(balanceList, tempLast, tempLast, "currency");
                 
                 //balance:available
-                token = extractNextString(balanceList, tempLast, tempLast);
+                token = extractNextString(balanceList, tempLast, tempLast, "available");
                 balance.available = atof(token.c_str());
                 
                 //balance:reserved
-                token = extractNextString(balanceList, tempLast, tempLast);
+                token = extractNextString(balanceList, tempLast, tempLast, "reserved");
                 balance.reserved = atof(token.c_str());
                 
                 //balance:balance
-                token = extractNextString(balanceList, tempLast, tempLast);
+                token = extractNextString(balanceList, tempLast, tempLast, "balance");
                 balance.balance = atof(token.c_str());
                 
                 //balance:last Updated
-                token = extractNextString(balanceList, tempLast, tempLast);
+                token = extractNextString(balanceList, tempLast, tempLast, "updatedAt");
                 balance.lastUpdated = get_seconds_since_epoch(token);
                 
                 summary.balances.push_back(balance);
@@ -239,22 +237,22 @@ namespace VALR {
             Balance balance;
             
             //balance:currency
-            balance.asset  =  extractNextString(res, last, last);
+            balance.asset  =  extractNextString(res, last, last, "currency");
             
             //balance:available
-            std::string token = extractNextString(res, last, last);
+            std::string token = extractNextString(res, last, last, "available");
             balance.available = atof(token.c_str());
             
             //balance:reserved
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "reserved");
             balance.reserved = atof(token.c_str());
             
             //balance:balance
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "balance");
             balance.balance = atof(token.c_str());
             
             //balance:last Updated
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "updatedAt");
             balance.lastUpdated = get_seconds_since_epoch(token);
             
             balances.push_back(balance);
@@ -314,8 +312,7 @@ namespace VALR {
         while ((last = res.find("{", last)) != std::string::npos) {
             // Seperate the json data first
             
-            last = res.find("transactionType", last) + 1;
-            std::string type = extractNextStringBlock(res, last, "{", "}", last);
+            std::string type = extractNextStringBlock(res, last, "{", "}", last, "transactionType");
 
             std::string theRest, additionalInfo, transaID;
             
@@ -327,9 +324,9 @@ namespace VALR {
                     // first take everything between transaction type and aditional info
                     theRest = res.substr(last, index - last-1 - 16);
                     // then, separate Additional Info
-                    additionalInfo = extractNextStringBlock(res, index, "{", "}", last);
+                    additionalInfo = extractNextStringBlock(res, index, "{", "}", last, "additionalInfo");
                     // Lastly, take the ID too
-                    transaID = extractNextString(res, last, "}", last);
+                    transaID = extractNextString(res, last, "}", last, "id");
                     break;
                 }
                 else if (res[index] == '}'){
@@ -345,32 +342,36 @@ namespace VALR {
             TransactionInfo transaction;
             size_t tempPos = 0;
 
-            transaction.type = extractNextString(type, tempPos, tempPos);
-            transaction.description = extractNextString(type, tempPos, tempPos);
+            // type
+            transaction.type = extractNextString(type, tempPos, tempPos, "type");
+            // description
+            transaction.description = extractNextString(type, tempPos, tempPos, "description");
             
             tempPos = theRest.find("debitCurrency", 0);
             if (tempPos != std::string::npos){
-                transaction.debitAsset = extractNextString(theRest, tempPos, tempPos);
-                token = extractNextString(theRest, tempPos, tempPos);
+                // debitCurrency
+                transaction.debitAsset = extractNextString(theRest, tempPos, tempPos, "debitCurrency");
+                // debitValue
+                token = extractNextString(theRest, tempPos, tempPos, "debitValue");
                 transaction.debitValue = atof(token.c_str());
             }
             
             tempPos = theRest.find("creditCurrency", 0);
             if (tempPos != std::string::npos){
-                transaction.creditAsset = extractNextString(theRest, tempPos, tempPos);
-                token = extractNextString(theRest, tempPos, tempPos);
+                transaction.creditAsset = extractNextString(theRest, tempPos, tempPos, "creditCurrency");
+                token = extractNextString(theRest, tempPos, tempPos, "creditValue");
                 transaction.creditValue = atof(token.c_str());
             }
             
             tempPos = theRest.find("feeCurrency", 0);
             if (tempPos != std::string::npos){
-                transaction.feeAsset = extractNextString(theRest, tempPos, tempPos);
-                token = extractNextString(theRest, tempPos, tempPos);
+                transaction.feeAsset = extractNextString(theRest, tempPos, tempPos, "feeCurrency");
+                token = extractNextString(theRest, tempPos, tempPos, "feeValue");
                 transaction.feeValue = atof(token.c_str());
             }
             
             tempPos = theRest.find("eventAt", 0);
-            token = extractNextString(theRest, tempPos, tempPos);
+            token = extractNextString(theRest, tempPos, tempPos, "eventAt");
             transaction.timestamp = get_seconds_since_epoch(token);
             
             transaction.additionalInfo = additionalInfo;
@@ -378,7 +379,7 @@ namespace VALR {
             if (transaID != "")
                 transaction.id = transaID;
             else
-                transaction.id = extractNextString(theRest, tempPos, tempPos);
+                transaction.id = extractNextString(theRest, tempPos, tempPos, "id");
             
             history.push_back(transaction);
         }
@@ -409,34 +410,34 @@ namespace VALR {
             UserTrade trade;
 
             // price
-            std::string token = extractNextString(res, last, last);
+            std::string token = extractNextString(res, last, last, "price");
             trade.price = atof(token.c_str());
             
             // volume (quantity)
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "quantity");
             trade.baseVolume = atof(token.c_str());
             
             // pair
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "currencyPair");
             trade.pair = token;
             
             // timestamp
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "tradedAt");
             trade.timestamp = get_seconds_since_epoch(token);
             
             // isBuy
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "side");
             trade.isBuy = (token == "buy") ? true : false;
             
             // sequenceID
-            token = extractNextString(res, last, ",", last);
+            token = extractNextString(res, last, ",", last, "sequenceId");
             trade.sequence = atoll(token.c_str());
             
             // id
-            trade.id = extractNextString(res, last, last);
+            trade.id = extractNextString(res, last, last, "id");
             
             // orderId
-            trade.orderID = extractNextString(res, last, last);
+            trade.orderID = extractNextString(res, last, last, "orderId");
             
             // qupte volume
             trade.quoteVolume = trade.baseVolume * trade.price;

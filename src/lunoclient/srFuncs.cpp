@@ -55,6 +55,17 @@ namespace Luno {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
+        /*
+            size_t last = 0;
+         
+            // success
+            std::string token = extractNextString(res, last, ",", last, "success");
+            bool success = (token == "true" ? true : false);
+            std::string id = extractNextString(res, last, last, "withdrawal_id");
+            "withdrawal_id": "string"
+         
+            return (create type) { success, id }
+        */
         return res;
     }
 

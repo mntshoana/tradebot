@@ -51,41 +51,41 @@ namespace VALR {
         SimpleQuote quote;
         
         // currencyPair
-        quote.pair = extractNextString(res, last, last);
+        quote.pair = extractNextString(res, last, last, "currencyPair");
         
         // payAmount
-        std::string token = extractNextString(res, last, last);
+        std::string token = extractNextString(res, last, last, "payAmount");
         quote.amount = std::atof(token.c_str());
         
         // receiveAmount
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "receiveAmount");
         quote.willRecieve = std::atof(token.c_str());
         
         // fee
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "fee");
         quote.fee = std::atof(token.c_str());
         
         // feeCurrency
-        quote.feeAsset = extractNextString(res, last, last);
+        quote.feeAsset = extractNextString(res, last, last, "feeCurrency");
         
         // createdAt
-        quote.timestamp  = extractNextString(res, last, last);
+        quote.timestamp  = extractNextString(res, last, last, "createdAt");
         
         // id
-        quote.id  = extractNextString(res, last, last);
+        quote.id  = extractNextString(res, last, last, "id");
         
-        std::string matched = extractNextStringBlock(res, last, "[", "]", last);
+        std::string matched = extractNextStringBlock(res, last, "[", "]", last, "matched");
         
         last = 0;
         while ((last = matched.find("{", last)) != std::string::npos) {
             OrderMatched order;
             
             // price
-            token = extractNextString(matched, last, last);
+            token = extractNextString(matched, last, last, "price");
             order.price = std::atof(token.c_str());
             
             // quantity
-            token = extractNextString(matched, last, last);
+            token = extractNextString(matched, last, last, "quantity");
             order.volume = std::atof(token.c_str());
             
             quote.ordersMatched.push_back(order);
@@ -137,11 +137,11 @@ namespace VALR {
         
         ExcercisedQuote execution;
         // code
-        std::string token = extractNextString(res, last, last);
+        std::string token = extractNextString(res, last, last, "code");
         execution.code = atoi(token.c_str());
         
         // message
-        execution.message = extractNextString(res, last, last);
+        execution.message = extractNextString(res, last, last, "message");
         
         return execution;
     }
@@ -163,39 +163,39 @@ namespace VALR {
         SimpleOrderStatus orderStatus;
         
         // orderId
-        orderStatus.id = extractNextString(res, last, last);
+        orderStatus.id = extractNextString(res, last, last, "orderId");
         
         // success
-        std::string token = extractNextString(res, last, ",", last);
+        std::string token = extractNextString(res, last, ",", last, "success");
         orderStatus.success = (token == "true" ? true : false);
         
         // processing
-        token = extractNextString(res, last, ",", last);
+        token = extractNextString(res, last, ",", last, "processing");
         orderStatus.processing = (token == "true" ? true : false);
         
         // paidAmount
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "paidAmount");
         orderStatus.paidAmount = atof(token.c_str());
         
         // paidCurrency
-        orderStatus.paidAsset = extractNextString(res, last, last);
+        orderStatus.paidAsset = extractNextString(res, last, last, "paidCurrency");
         
         // receivedAmount
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "receivedAmount");
         orderStatus.receivedAmount = atof(token.c_str());
         
         // receivedCurrency
-        orderStatus.receivedAsset = extractNextString(res, last, last);
+        orderStatus.receivedAsset = extractNextString(res, last, last, "receivedCurrency");
         
         // feeAmount
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "feeAmount");
         orderStatus.fee = atof(token.c_str());
         
         // feeCurrency
-        orderStatus.feeAsset = extractNextString(res, last, last);
+        orderStatus.feeAsset = extractNextString(res, last, last, "feeCurrency");
         
         // feeCurrency
-        orderStatus.timestamp = extractNextString(res, last, last);
+        orderStatus.timestamp = extractNextString(res, last, last, "feeCurrency");
         
         return orderStatus;
     }
@@ -286,7 +286,7 @@ namespace VALR {
         
         // NOTE: recieving an id does not always mean that the order has been placed.
         // IT COULD STILL HAVE FAILED
-        std::string id = extractNextString(res, 0);
+        std::string id = extractNextString(res, 0, "id");
         
         return id;
     }
@@ -367,7 +367,7 @@ namespace VALR {
         
         // NOTE: recieving an id does not always mean that the order has been placed.
         // IT COULD STILL HAVE FAILED
-        std::string id = extractNextString(res, 0);
+        std::string id = extractNextString(res, 0, "id");
         
         return id;
     }
@@ -475,7 +475,7 @@ namespace VALR {
         
         // NOTE: recieving an id does not always mean that the order has been placed.
         // IT COULD STILL HAVE FAILED
-        std::string id = extractNextString(res, 0);
+        std::string id = extractNextString(res, 0, "id");
         
         return id;
     }
@@ -517,39 +517,40 @@ namespace VALR {
         BatchOrderOutcome results;
         size_t last = 0;
         
-        std::string list = extractNextStringBlock(res, last, "[", "]", last);
+        // outcomes
+        std::string list = extractNextStringBlock(res, last, "[", "]", last, "outcomes");
          
         // batchId
-        results.batchId = extractNextString(res, last, "}", last);
+        results.batchId = extractNextString(res, last, "}", last, "batchId");
         
         last = 0;
         while ((last = list.find("{", last)) != std::string::npos) {
             OrderOutcome singleOutcome;
             
             // accepted
-            std::string token = extractNextString(list, last, ",");
+            std::string token = extractNextString(list, last, ",", "accepted");
                 if (token == "true" || token == "false")
-                    token = extractNextString(list, last, ",", last);
+                    token = extractNextString(list, last, ",", last, "accepted");
                 else
-                    token = extractNextString(list, last, "}", last);
+                    token = extractNextString(list, last, "}", last, "accepted");
             singleOutcome.accepted = (token == "true" ? true : false);
             
             if (singleOutcome.accepted) {
-                token = extractNextStringBlock(list, last, "\"", "\"");
+                token = extractNextStringBlock(list, last, "\"", "\"", nullptr);
                 if (token == "orderId")
                     // orderId
-                    singleOutcome.orderId = extractNextString(list, last, last);
+                    singleOutcome.orderId = extractNextString(list, last, last, "orderId");
                     // recieving this id does not always mean that the order has been placed.
                     // IT COULD STILL HAVE FAILED
             } else {
-                std::string errorBlock = extractNextStringBlock(list, last, "{", "}", last);
+                std::string errorBlock = extractNextStringBlock(list, last, "{", "}", last, "error");
                 size_t pos = 0;
                 // code
-                token = extractNextString(errorBlock, pos, ",", pos);
+                token = extractNextString(errorBlock, pos, ",", pos, "code");
                 singleOutcome.errorCode = atoi(token.c_str());
                 
                 // message
-                singleOutcome.message = extractNextString(errorBlock, pos, pos);
+                singleOutcome.message = extractNextString(errorBlock, pos, pos, "message");
             }
 
             results.orders.push_back(singleOutcome);
@@ -578,58 +579,58 @@ namespace VALR {
         OrderIDOutcome orderStatus;
         
         // orderId
-        orderStatus.orderID = extractNextString(res, last, last);
+        orderStatus.orderID = extractNextString(res, last, last, "orderId");
         
         // orderStatusType
-        orderStatus.status = extractNextString(res, last, last);
+        orderStatus.status = extractNextString(res, last, last, "orderStatusType");
         
         // currencyPair
-        orderStatus.pair = extractNextString(res, last, last);
+        orderStatus.pair = extractNextString(res, last, last, "currencyPair");
         
         // originalPrice
-        std::string token = extractNextString(res, last, last);
+        std::string token = extractNextString(res, last, last, "originalPrice");
         orderStatus.price = atof(token.c_str());
         
         // remainingQuantity
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "remainingQuantity");
         orderStatus.volumeRemaining = atof(token.c_str());
         
         // originalQuantity
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "originalQuantity");
         orderStatus.volume = atof(token.c_str());
         
         // orderSide
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "orderSide");
         orderStatus.isBuy = (token == "buy" ? true : false);
         
         // orderType
-        orderStatus.orderType = extractNextString(res, last, last);
+        orderStatus.orderType = extractNextString(res, last, last, "orderType");
         
         // failedReason
-        orderStatus.message = extractNextString(res, last, last);
+        orderStatus.message = extractNextString(res, last, last, "failedReason");
 
-        token =  extractNextStringBlock(res, last, "\"", "\"");
+        token =  extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "customerOrderId"){
             // customerOrderId
-            orderStatus.customerOrderID = extractNextString(res, last, last);
+            orderStatus.customerOrderID = extractNextString(res, last, last, "customerOrderId");
             
             // orderUpdatedAt
-            orderStatus.lastUpdated = extractNextString(res, last, last);
+            orderStatus.lastUpdated = extractNextString(res, last, last, "orderUpdatedAt");
             
             // orderCreatedAt
-            orderStatus.timestamp = extractNextString(res, last, last);
+            orderStatus.timestamp = extractNextString(res, last, last, "orderCreatedAt");
         }
         else {
             // orderUpdatedAt
-            orderStatus.lastUpdated = extractNextString(res, last, last);
+            orderStatus.lastUpdated = extractNextString(res, last, last, "orderUpdatedAt");
             // orderCreatedAt
-            orderStatus.timestamp = extractNextString(res, last, last);
+            orderStatus.timestamp = extractNextString(res, last, last, "orderCreatedAt");
         }
         
-        token =  extractNextStringBlock(res, last, "\"", "\"");
+        token =  extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "timeInForce"){
             // timeInForce
-            orderStatus.timeInForce = extractNextString(res, last, last);
+            orderStatus.timeInForce = extractNextString(res, last, last, "timeInForce");
         }
         
         return orderStatus;
@@ -654,54 +655,54 @@ namespace VALR {
             OpenOrder order;
             
             // orderId
-            order.orderID = extractNextString(res, last, last);
+            order.orderID = extractNextString(res, last, last, "orderId");
             
             // side
-            std::string token = extractNextString(res, last, last);
+            std::string token = extractNextString(res, last, last, "side");
             order.isBuy = (token == "buy" ? true : false);
             
             // remainingQuantity
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "remainingQuantity");
             order.volumeRemaining = atof(token.c_str());
             
             // price
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "price");
             order.price = atof(token.c_str());
             
             // currencyPair
-            order.pair = extractNextString(res, last, last);
+            order.pair = extractNextString(res, last, last, "currencyPair");
             
             // createdAt
-            order.timestamp = extractNextString(res, last, last);
+            order.timestamp = extractNextString(res, last, last, "createdAt");
             
             // originalQuantity
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "originalQuantity");
             order.volume = atof(token.c_str());
             
             // filledPercentage
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "filledPercentage");
             order.filledPercentage = atof(token.c_str());
             
-            token =  extractNextStringBlock(res, last, "\"", "\"");
+            token =  extractNextStringBlock(res, last, "\"", "\"", nullptr);
             if (token == "stopPrice"){
                 // stopPrice
-                token = extractNextString(res, last, last);
+                token = extractNextString(res, last, last, "stopPrice");
                 order.stopPrice = atof(token.c_str());
             }
             
             // updatedAt
-            order.lastUpdated = extractNextString(res, last, last);
+            order.lastUpdated = extractNextString(res, last, last, "updatedAt");
             
             // status
-            order.status = extractNextString(res, last, last);
+            order.status = extractNextString(res, last, last, "status");
             
             // orderType
-            order.orderType = extractNextString(res, last, last);
+            order.orderType = extractNextString(res, last, last, "orderType");
             
-            token =  extractNextStringBlock(res, last, "\"", "\"");
+            token =  extractNextStringBlock(res, last, "\"", "\"", nullptr);
             if (token == "timeInForce"){
                 // timeInForce
-                order.message = extractNextString(res, last, last);
+                order.message = extractNextString(res, last, last, "timeInForce");
             }
             
             orders.push_back(order);
@@ -739,67 +740,67 @@ namespace VALR {
             OrderHistory order;
             
             // orderId
-            order.orderID = extractNextString(res, last, last);
+            order.orderID = extractNextString(res, last, last, "orderId");
             
-            std::string token =  extractNextStringBlock(res, last, "\"", "\"");
+            std::string token =  extractNextStringBlock(res, last, "\"", "\"", nullptr);
             if (token == "customerOrderId"){
                 // customerOrderId
-                order.customerOrderID = extractNextString(res, last, last);
+                order.customerOrderID = extractNextString(res, last, last, "customerOrderId");
             }
             
             // orderStatusType
-            order.status = extractNextString(res, last, last);
+            order.status = extractNextString(res, last, last, "orderStatusType");
             
             // currencyPair
-            order.pair = extractNextString(res, last, last);
+            order.pair = extractNextString(res, last, last, "currencyPair");
             
             // averagePrice
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "averagePrice");
             order.avgPrice = atof(token.c_str());
             
             // originalPrice
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "originalPrice");
             order.price = atof(token.c_str());
             
             // remainingQuantity
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "remainingQuantity");
             order.volumeRemaining = atof(token.c_str());
             
             // originalQuantity
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "originalQuantity");
             order.volume = atof(token.c_str());
             
             // total
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "total");
             order.total = atof(token.c_str());
             
             // totalFee
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "totalFee");
             order.totalFee = atof(token.c_str());
             
             // feeCurrency
-            order.feeAsset = extractNextString(res, last, last);
+            order.feeAsset = extractNextString(res, last, last, "feeCurrency");
             
             // orderSide
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "orderSide");
             order.isBuy = (token == "buy" ? true : false);
             
             // orderType
-            order.orderType = extractNextString(res, last, last);
+            order.orderType = extractNextString(res, last, last, "orderType");
             
             // failedReason
-            order.message = extractNextString(res, last, last);
+            order.message = extractNextString(res, last, last, "failedReason");
         
             // orderUpdatedAt
-            order.lastUpdated = extractNextString(res, last, last);
+            order.lastUpdated = extractNextString(res, last, last, "orderUpdatedAt");
             
             // orderCreatedAt
-            order.timestamp = extractNextString(res, last, last);
+            order.timestamp = extractNextString(res, last, last, "orderCreatedAt");
             
-            token =  extractNextStringBlock(res, last, "\"", "\"");
+            token =  extractNextStringBlock(res, last, "\"", "\"", nullptr);
             if (token == "timeInForce"){
                 // timeInForce
-                order.timeInForce = extractNextString(res, last, last);
+                order.timeInForce = extractNextString(res, last, last, "timeInForce");
             }
             
             orders.push_back(order);
@@ -828,67 +829,67 @@ namespace VALR {
         OrderHistory order;
         
         // orderId
-        order.orderID = extractNextString(res, last, last);
+        order.orderID = extractNextString(res, last, last, "orderId");
         
-        std::string token =  extractNextStringBlock(res, last, "\"", "\"");
+        std::string token =  extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "customerOrderId"){
             // customerOrderId
-            order.customerOrderID = extractNextString(res, last, last);
+            order.customerOrderID = extractNextString(res, last, last, "customerOrderId");
         }
         
         // orderStatusType
-        order.status = extractNextString(res, last, last);
+        order.status = extractNextString(res, last, last, "orderStatusType");
         
         // currencyPair
-        order.pair = extractNextString(res, last, last);
+        order.pair = extractNextString(res, last, last, "currencyPair");
         
         // averagePrice
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "averagePrice");
         order.avgPrice = atof(token.c_str());
         
         // originalPrice
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "originalPrice");
         order.price = atof(token.c_str());
         
         // remainingQuantity
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "remainingQuantity");
         order.volumeRemaining = atof(token.c_str());
         
         // originalQuantity
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "originalQuantity");
         order.volume = atof(token.c_str());
         
         // total
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "total");
         order.total = atof(token.c_str());
         
         // totalFee
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "totalFee");
         order.totalFee = atof(token.c_str());
         
         // feeCurrency
-        order.feeAsset = extractNextString(res, last, last);
+        order.feeAsset = extractNextString(res, last, last, "feeCurrency");
         
         // orderSide
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "orderSide");
         order.isBuy = (token == "buy" ? true : false);
         
         // orderType
-        order.orderType = extractNextString(res, last, last);
+        order.orderType = extractNextString(res, last, last, "orderType");
         
         // failedReason
-        order.message = extractNextString(res, last, last);
+        order.message = extractNextString(res, last, last, "failedReason");
     
         // orderUpdatedAt
-        order.lastUpdated = extractNextString(res, last, last);
+        order.lastUpdated = extractNextString(res, last, last, "orderUpdatedAt");
         
         // orderCreatedAt
-        order.timestamp = extractNextString(res, last, last);
+        order.timestamp = extractNextString(res, last, last, "orderCreatedAt");
         
-        token =  extractNextStringBlock(res, last, "\"", "\"");
+        token =  extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "timeInForce"){
             // timeInForce
-            order.timeInForce = extractNextString(res, last, last);
+            order.timeInForce = extractNextString(res, last, last, "timeInForce");
         }
         
         return order;
@@ -934,8 +935,8 @@ namespace VALR {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        // order was accepted.
-        // Use the other order status API to receive clearer status about this cancel request.
+        // order was accepted. (nothing to return)
+        // Do use the other order status API to receive clearer a status about this result of this cancel request.
         return;
     }
 }

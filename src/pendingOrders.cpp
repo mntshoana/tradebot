@@ -101,7 +101,7 @@ void PendingOrdersPanel::createItem (Luno::UserOrder& order)
     connect(but, &QPushButton::clicked, this, [this, order] () {
         auto it = std::find(orderIds.begin(), orderIds.end(), order.orderID);
         int index = it - orderIds.begin() + 1; // plus title row
-        std::string result = Luno::LunoClient::cancelOrder(order.orderID);
+        bool result = Luno::LunoClient::cancelOrder(order.orderID);
         
         QLayout *level = format->takeAt(index)->layout();
         while(!level->isEmpty()) {
@@ -113,8 +113,10 @@ void PendingOrdersPanel::createItem (Luno::UserOrder& order)
         orderIds.erase(it);
         
         // output
-        *text << "Cancelled order!";
-        *text << ("COMPLETE: " + result).c_str();
+        if (result)
+            *text << "Cancel order success!";
+        else
+            *text  << "Failed to cancel order id " + order.orderID;
     });
     
 }
@@ -155,7 +157,7 @@ void PendingOrdersPanel::popFrontOrder(){
     int displayedOrderListCount = list.size();
     displayedOrderListCount--; // Must exclude the title row
     if (orderIds.size() > 0 && orderIds.size() == displayedOrderListCount){
-        std::string result = Luno::LunoClient::cancelOrder(orderIds[0]);
+        bool result = Luno::LunoClient::cancelOrder(orderIds[0]);
         
         QLayout *level = format->takeAt(1)->layout();
         while(!level->isEmpty()) {
@@ -168,7 +170,9 @@ void PendingOrdersPanel::popFrontOrder(){
         orderIds.erase(orderIds.begin());
         
         // output
-        *text << "Cancelled order!";
-        *text << ("COMPLETE: " + result).c_str();
+        if (result)
+            *text << "Cancelled order success!";
+        else
+            *text << "Failed to cancel order!";
     }
 }

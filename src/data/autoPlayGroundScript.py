@@ -35,7 +35,7 @@ class Autoplayground():
         print("Autoplayground: Loading [" + sys.argv[1] + "]")
         try:
             self.data = pd.read_csv(sys.argv[1])
-        except pandas.io.common:
+        except pandas.io.common.EmptyDataError:
             print ("File is empty... waiting to load data")
             return
         self.data.columns = ['sequence', 'timestamp', 'price', 'volume', 'Buy?']

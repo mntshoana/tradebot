@@ -23,38 +23,31 @@ namespace Luno {
             withdrawals.push_back(Withdrawal());
             
             // id
-            last = res.find("id", last);
-            std::string token = extractNextString(res, last, last);
+            std::string token = extractNextString(res, last, last, "id");
             withdrawals.back().id = atoll(token.c_str());
                
             // status
-            last = res.find("status", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "status");
             withdrawals.back().status = token.c_str();
             
             // created_at
-            last = res.find("created_at", last);
-            token = extractNextString(res, last, ",", last);
+            token = extractNextString(res, last, ",", last, "created_at");
             withdrawals.back().createdTime = atoll(token.c_str());
 
             // type
-            last = res.find("type", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "type");
             withdrawals.back().type = token.c_str();
             
             // currency
-            last = res.find("currency", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "currency");
             withdrawals.back().currency = token.c_str();
             
             // amount
-            last = res.find("amount", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "amount");
             withdrawals.back().amount = atof(token.c_str());
                
             // fee
-            last = res.find("fee", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "fee");
             withdrawals.back().fee = atof(token.c_str());
         }
         
@@ -88,38 +81,31 @@ namespace Luno {
         
 
         // id
-        last = res.find("id", last);
-        std::string token = extractNextString(res, last, last);
+        std::string token = extractNextString(res, last, last, "id");
         withdrawal.id = atoll(token.c_str());
            
         // status
-        last = res.find("status", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "status");
         withdrawal.status = token.c_str();
         
         // created_at
-        last = res.find("created_at", last);
-        token = extractNextString(res, last, ",", last);
+        token = extractNextString(res, last, ",", last, "created_at");
         withdrawal.createdTime = atoll(token.c_str());
 
         // type
-        last = res.find("type", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "type");
         withdrawal.type = token.c_str();
         
         // currency
-        last = res.find("currency", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "currency");
         withdrawal.currency = token.c_str();
         
         // amount
-        last = res.find("amount", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "amount");
         withdrawal.amount = atof(token.c_str());
            
         // fee
-        last = res.find("fee", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "fee");
         withdrawal.fee = atof(token.c_str());
         
         return withdrawal;

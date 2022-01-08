@@ -127,8 +127,10 @@ namespace VALR {
         size_t last = 0;
      
         VALR_PAY_Result result;
-        result.id = extractNextString(res, last, last);
-        result.transactionID = extractNextString(res, last, last);
+        // identifier
+        result.id = extractNextString(res, last, last, "identifier");
+        // transactionId
+        result.transactionID = extractNextString(res, last, last, "transactionId");
         
         return result;
     }
@@ -152,18 +154,18 @@ namespace VALR {
         
         
         // maxPaymentAmount
-        std::string token = extractNextString(res, last, ",", last);
+        std::string token = extractNextString(res, last, ",", last, "maxPaymentAmount");
         info.maxAmount = atof(token.c_str());
         
         // minPaymentAmount
-        token = extractNextString(res, last, ",", last);
+        token = extractNextString(res, last, ",", last, "minPaymentAmount");
         info.minAmount = atof(token.c_str());
         
         // paymentCurrency
-        info.asset = extractNextString(res, last, last);
+        info.asset = extractNextString(res, last, last, "paymentCurrency");
         
         // limitType
-        info.limitedByWhat = extractNextString(res, last, last);
+        info.limitedByWhat = extractNextString(res, last, last, "limitType");
         
         
         return info;
@@ -183,7 +185,7 @@ namespace VALR {
         
         
         // payId
-        std::string id = extractNextString(res, 0);
+        std::string id = extractNextString(res, 0, "payId");
         
         return id;
     }
@@ -225,45 +227,45 @@ namespace VALR {
             VALR_PAY_History_Entry entry;
 
             // identifier
-            entry.paymentID = extractNextString(res, last, last);
+            entry.paymentID = extractNextString(res, last, last, "identifier");
             
             // otherPartyIdentifier
-            entry.otherPartysID = extractNextString(res, last, last);
+            entry.otherPartysID = extractNextString(res, last, last, "otherPartyIdentifier");
             
             // amount
-            std::string token = extractNextString(res, last, ",", last);
+            std::string token = extractNextString(res, last, ",", last, "amount");
             entry.amount = atof(token.c_str());
             
-            token = extractNextStringBlock(res, last, "\"", "\"");
+            token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
             if (token == "status"){
                 // status
-                entry.status = extractNextString(res, last, last);
+                entry.status = extractNextString(res, last, last, "status");
             }
             
             // timestamp
-            entry.timestamp = extractNextString(res, last, last);
+            entry.timestamp = extractNextString(res, last, last, "timestamp");
             
-            token = extractNextStringBlock(res, last, "\"", "\"");
+            token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
             if (token == "senderNote"){
                 // senderNote
-                entry.myReference = extractNextString(res, last, last);
+                entry.myReference = extractNextString(res, last, last, "senderNote");
             }
             
-            token = extractNextStringBlock(res, last, "\"", "\"");
+            token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
             if (token == "recipientNote"){
-                // senderNote
-                entry.beneficiaryReference = extractNextString(res, last, last);
+                // recipientNote
+                entry.beneficiaryReference = extractNextString(res, last, last, "recipientNote");
             }
             
             // transactionId
-            entry.transactionID = extractNextString(res, last, last);
+            entry.transactionID = extractNextString(res, last, last, "transactionId");
             
             // anonymous
-            token = extractNextString(res, last, ",", last);
+            token = extractNextString(res, last, ",", last, "anonymous");
             entry.isAnonymous = (token == "true" ? true : false);
             
             // type
-            entry.type = extractNextString(res, last, last);
+            entry.type = extractNextString(res, last, last, "type");
             if (entry.type == "CREDIT")
                 entry.type += " (incoming payment)";
             if (entry.type == "DEBIT")
@@ -294,45 +296,45 @@ namespace VALR {
         VALR_PAY_History_Entry entry;
 
         // identifier
-        entry.paymentID = extractNextString(res, last, last);
+        entry.paymentID = extractNextString(res, last, last, "identifier");
         
         // otherPartyIdentifier
-        entry.otherPartysID = extractNextString(res, last, last);
+        entry.otherPartysID = extractNextString(res, last, last, "otherPartyIdentifier");
         
         // amount
-        std::string token = extractNextString(res, last, ",", last);
+        std::string token = extractNextString(res, last, ",", last, "amount");
         entry.amount = atof(token.c_str());
         
-        token = extractNextStringBlock(res, last, "\"", "\"");
+        token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "status"){
             // status
-            entry.status = extractNextString(res, last, last);
+            entry.status = extractNextString(res, last, last, "status");
         }
         
         // timestamp
-        entry.timestamp = extractNextString(res, last, last);
+        entry.timestamp = extractNextString(res, last, last, "timestamp");
         
-        token = extractNextStringBlock(res, last, "\"", "\"");
+        token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "senderNote"){
             // senderNote
-            entry.myReference = extractNextString(res, last, last);
+            entry.myReference = extractNextString(res, last, last, "senderNote");
         }
         
-        token = extractNextStringBlock(res, last, "\"", "\"");
+        token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "recipientNote"){
             // senderNote
-            entry.beneficiaryReference = extractNextString(res, last, last);
+            entry.beneficiaryReference = extractNextString(res, last, last, "recipientNote");
         }
         
         // transactionId
-        entry.transactionID = extractNextString(res, last, last);
+        entry.transactionID = extractNextString(res, last, last, "transactionId");
         
         // anonymous
-        token = extractNextString(res, last, ",", last);
+        token = extractNextString(res, last, ",", last, "anonymous");
         entry.isAnonymous = (token == "true" ? true : false);
         
         // type
-        entry.type = extractNextString(res, last, last);
+        entry.type = extractNextString(res, last, last, "type");
         if (entry.type == "CREDIT")
             entry.type += " (incoming payment)";
         if (entry.type == "DEBIT")
@@ -360,62 +362,62 @@ namespace VALR {
 
         VALR_PAY_History_Entry entry;
         
-        std::string token = extractNextStringBlock(res, last, "\"", "\"");
+        std::string token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "identifier")
             // identifier
-            entry.paymentID = extractNextString(res, last, last);
+            entry.paymentID = extractNextString(res, last, last, "identifier");
         
-        token = extractNextStringBlock(res, last, "\"", "\"");
+        token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "otherPartyIdentifier")
             // otherPartyIdentifier
-            entry.otherPartysID = extractNextString(res, last, last);
+            entry.otherPartysID = extractNextString(res, last, last, "otherPartyIdentifier");
         
-        token = extractNextStringBlock(res, last, "\"", "\"");
+        token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "amount"){
             // amount
-            std::string token = extractNextString(res, last, ",", last);
+            std::string token = extractNextString(res, last, ",", last, "amount");
             entry.amount = atof(token.c_str());
         }
         
-        token = extractNextStringBlock(res, last, "\"", "\"");
+        token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "status"){
             // status
-            entry.status = extractNextString(res, last, last);
+            entry.status = extractNextString(res, last, last, "status");
         }
         
-        token = extractNextStringBlock(res, last, "\"", "\"");
+        token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "timestamp")
             // timestamp
-            entry.timestamp = extractNextString(res, last, last);
+            entry.timestamp = extractNextString(res, last, last, "timestamp");
         
-        token = extractNextStringBlock(res, last, "\"", "\"");
+        token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "senderNote"){
             // senderNote
-            entry.myReference = extractNextString(res, last, last);
+            entry.myReference = extractNextString(res, last, last, "senderNote");
         }
         
-        token = extractNextStringBlock(res, last, "\"", "\"");
+        token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "recipientNote"){
             // recipientNote
-            entry.beneficiaryReference = extractNextString(res, last, last);
+            entry.beneficiaryReference = extractNextString(res, last, last, "recipientNote");
         }
         
-        token = extractNextStringBlock(res, last, "\"", "\"");
+        token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "transactionId")
             // transactionId
-            entry.transactionID = extractNextString(res, last, last);
+            entry.transactionID = extractNextString(res, last, last, "transactionId");
         
-        token = extractNextStringBlock(res, last, "\"", "\"");
+        token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "anonymous"){
             // anonymous
-            token = extractNextString(res, last, ",", last);
+            token = extractNextString(res, last, ",", last, "anonymous");
             entry.isAnonymous = (token == "true" ? true : false);
         }
         
-        token = extractNextStringBlock(res, last, "\"", "\"");
+        token = extractNextStringBlock(res, last, "\"", "\"", nullptr);
         if (token == "type"){
             // type
-            entry.type = extractNextString(res, last, last);
+            entry.type = extractNextString(res, last, last, "type");
             if (entry.type == "CREDIT")
                 entry.type += " (incoming payment)";
             if (entry.type == "DEBIT")

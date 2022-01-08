@@ -45,7 +45,7 @@ namespace Luno {
         static std::string postMarketOrder(std::string pair, std::string action, float amount);
         static std::string getOrderDetails(std::string id);
         static std::string postLimitOrder(std::string pair, std::string action, float volume, float price);
-        static std::string cancelOrder(std::string orderId);
+        static bool cancelOrder(std::string orderId);
         // getOrder v2 and v3 (not needed)
         // getOrders v2 (not needed)
 

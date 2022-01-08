@@ -18,27 +18,24 @@ namespace Luno {
         size_t last = 0;
         
         // timestamp
-        last = res.find("timestamp", last);
-        std::string token = extractNextString(res, last, ",", last);
+        std::string token = extractNextString(res, last, ",", last, "timestamp");
         ob.timestamp = atoll(token.c_str());
         
         // asks and bids
-        last = res.find("asks", last);
-        std::string asks = extractNextStringBlock(res, last, "[", "]", last);
+        std::string asks = extractNextStringBlock(res, last, "[", "]", last, "asks");
 
-        last = res.find("bids", last);
-        std::string bids = extractNextStringBlock(res, last, "[", "]", last);
+        std::string bids = extractNextStringBlock(res, last, "[", "]", last, "bids");
         res.erase();
         
         last = 0;
         while ((last = asks.find("{", last)) != std::string::npos) {
             Order order;
             // price
-            token =  extractNextString(asks, last, last);
+            token =  extractNextString(asks, last, last, "price");
             order.price = atof(token.c_str());
             
             // volume
-            token = extractNextString(asks, last, last);
+            token = extractNextString(asks, last, last, "volume");
             order.volume = atof(token.c_str());
             
             ob.asks.push_back(order);
@@ -49,11 +46,11 @@ namespace Luno {
         while ((last = bids.find("{", last)) != std::string::npos) {
             Order order;
             // price
-            token = extractNextString(bids, last, last);
+            token = extractNextString(bids, last, last, "price");
             order.price = atof(token.c_str());
             
             // volume
-            token = extractNextString(bids, last, last);
+            token = extractNextString(bids, last, last, "volume");
             order.volume = atof(token.c_str());
             
             ob.bids.push_back(order);
@@ -75,28 +72,24 @@ namespace Luno {
         size_t last = 0;
         
         // timestamp
-        last = res.find("timestamp", last);
-        std::string token = extractNextString(res, last, ",", last);
+        std::string token = extractNextString(res, last, ",", last, "timestamp");
         ob.timestamp = atoll(token.c_str());
         
         // asks and bids
-        last = res.find("asks", last);
-        std::string asks = extractNextStringBlock(res, last, "[", "]", last);
-
-        last = res.find("bids", last);
-        std::string bids = extractNextStringBlock(res, last, "[", "]", last);
+        std::string asks = extractNextStringBlock(res, last, "[", "]", last, "asks");
+        std::string bids = extractNextStringBlock(res, last, "[", "]", last, "bids");
         res.erase();
         
         last = 0;
         while ((last = asks.find("{", last)) != std::string::npos) {
             Order order;
-            // price
             
-            token = extractNextString(asks, last, last);
+            // price
+            token = extractNextString(asks, last, last, "price");
             order.price = atof(token.c_str());
             
             // volume
-            token =  extractNextString(asks, last, last);
+            token =  extractNextString(asks, last, last, "volume");
             order.volume = atof(token.c_str());
             
             ob.asks.push_back(order);
@@ -107,11 +100,11 @@ namespace Luno {
         while ((last = bids.find("{", last)) != std::string::npos) {
             Order order;
             // price
-            token = extractNextString(bids, last, last);
+            token = extractNextString(bids, last, last, "price");
             order.price = atof(token.c_str());
             
             // volume
-            token = extractNextString(bids, last, last);
+            token = extractNextString(bids, last, last, "volume");
             order.volume = atof(token.c_str());
             
             ob.bids.push_back(order);
@@ -136,37 +129,30 @@ namespace Luno {
         size_t last = 0;
         
         // pair
-        last = res.find("pair", last);
-        ticker.pair = extractNextString(res, last, last);
+        ticker.pair = extractNextString(res, last, last, "pair");
         
         // timestamp
-        last = res.find("timestamp", last);
-        std::string token = extractNextString(res, last, ",", last);
+        std::string token = extractNextString(res, last, ",", last, "timestamp");
         ticker.timestamp = atoll(token.c_str());
         
         // bid
-        last = res.find("bid", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "bid");
         ticker.bid = atof(token.c_str());
         
         // asks
-        last = res.find("ask", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "ask");
         ticker.ask = atof(token.c_str());
         
         // last trade
-        last = res.find("last_trade", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "last_trade");
         ticker.lastTrade = atof(token.c_str());
         
         // rolling 24 hour volume
-        last = res.find("rolling_24_hour_volume", last);
-        token = extractNextString(res, last, last);
+        token = extractNextString(res, last, last, "rolling_24_hour_volume");
         ticker.rollingVolume = atof(token.c_str());
         
         // status
-        last = res.find("status", last);
-        ticker.status = extractNextString(res, last, last);
+        ticker.status = extractNextString(res, last, last, "status");
         
         return ticker;
     }
@@ -190,37 +176,30 @@ namespace Luno {
             tickers.push_back(Ticker());
         
             // pair
-            last = res.find("pair", last);
-            tickers.back().pair = extractNextString(res, last, last);
+            tickers.back().pair = extractNextString(res, last, last, "pair");
             
             // timestamp
-            last = res.find("timestamp", last);
-            std::string token = extractNextString(res, last, ",", last);
+            std::string token = extractNextString(res, last, ",", last, "timestamp");
             tickers.back().timestamp = atoll(token.c_str());
             
             // bid
-            last = res.find("bid", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "bid");
             tickers.back().bid = atof(token.c_str());
             
             // asks
-            last = res.find("ask", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "ask");
             tickers.back().ask = atof(token.c_str());
             
             // last trade
-            last = res.find("last_trade", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "last_trade");
             tickers.back().lastTrade = atof(token.c_str());
             
             // rolling 24 hour volume
-            last = res.find("rolling_24_hour_volume", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "rolling_24_hour_volume");
             tickers.back().rollingVolume = atof(token.c_str());
             
             // status
-            last = res.find("status", last);
-            tickers.back().status = extractNextString(res, last, last);
+            tickers.back().status = extractNextString(res, last, last, "status");
         }
         return tickers;
     }
@@ -239,35 +218,32 @@ namespace Luno {
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         std::vector<Trade> trades;
-        size_t last = 0;
-        last = res.find("[", last) + 1;
+        size_t last = res.find("[", 0);
+        
+        if (last == std::string::npos)
+            return trades;
         
         while ((last = res.find("{", last)) != std::string::npos) {
             trades.push_back(Trade());
            
             // sequence
-            last = res.find("sequence", last);
-            std::string token = extractNextString(res, last, ",", last);
+            std::string token = extractNextString(res, last, ",", last, "sequence");
             trades.back().sequence = atoll(token.c_str());
                
             // timestamp
-            last = res.find("timestamp", last);
-            token = extractNextString(res, last, ",", last);
+            token = extractNextString(res, last, ",", last, "timestamp");
             trades.back().timestamp = atoll(token.c_str());
             
             // price
-            last = res.find("price", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "price");
             trades.back().price = atof(token.c_str());
                
             // volume
-            last = res.find("volume", last);
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "volume");
             trades.back().volume = atof(token.c_str());
                
             // isBuy
-            last = res.find("is_buy", last);
-            token = extractNextString(res, last,"}" , last);
+            token = extractNextString(res, last,"}" , last, "is_buy");
             trades.back().isBuy = (token == "true") ? true : false;
         }
         
@@ -299,41 +275,41 @@ namespace Luno {
         size_t last = 0;
 
         // pair
-        data.pair = extractNextString(res, last, last);
+        data.pair = extractNextString(res, last, last, "pair");
         
         // duration
-        std::string token = extractNextString(res, last, ",", last);
+        std::string token = extractNextString(res, last, ",", last, "duration");
         data.duration = atoi(token.c_str());
         
         // candles
-        std::string candles = extractNextStringBlock(res, last, "[", "]", last);
+        std::string candles = extractNextStringBlock(res, last, "[", "]", last, "candles");
         last = 0;
         
         while ((last = candles.find("{", last)) != std::string::npos) {
             Candle candle;
            
             // timestamp
-            token = extractNextString(candles, last, ",", last);
+            token = extractNextString(candles, last, ",", last, "timestamp");
             candle.timestamp = atoll(token.c_str());
             
             // close
-            token = extractNextString(candles, last, last);
+            token = extractNextString(candles, last, last, "close");
             candle.close = atof(token.c_str());
             
             // high
-            token = extractNextString(candles, last, last);
+            token = extractNextString(candles, last, last, "high");
             candle.high = atof(token.c_str());
             
             // low
-            token = extractNextString(candles, last, last);
+            token = extractNextString(candles, last, last, "low");
             candle.low = atof(token.c_str());
             
             // open
-            token = extractNextString(candles, last, last);
+            token = extractNextString(candles, last, last, "open");
             candle.open = atof(token.c_str());
             
             // volume
-            token = extractNextString(candles, last, last);
+            token = extractNextString(candles, last, last, "volume");
             candle.volume = atof(token.c_str());
             
             data.candles.push_back(candle);
@@ -358,49 +334,50 @@ namespace Luno {
         std::vector<CurrencyPairInfo> data;
         size_t last = 0;
 
-        res = extractNextStringBlock(res, last, "[", "]");
+        // markets
+        res = extractNextStringBlock(res, last, "[", "]", "markets");
         std::string token;
         
         while ((last = res.find("{", last)) != std::string::npos && last < res.size()) {
             CurrencyPairInfo info;
-            // Symbol
-            info.symbol = extractNextString(res, last, last);
+            // market_id
+            info.symbol = extractNextString(res, last, last, "market_id");
             
             // trading_status
-            info.tradeStatus = extractNextString(res, last, last);
+            info.tradeStatus = extractNextString(res, last, last, "trading_status");
             
-            // Base currency
-            info.baseCurrency = extractNextString(res, last, last);
+            // base_currency
+            info.baseCurrency = extractNextString(res, last, last, "base_currency");
             
-            // Quote currency
-            info.quoteCurrency = extractNextString(res, last, last);
+            // counter_currency
+            info.quoteCurrency = extractNextString(res, last, last, "counter_currency");
             
             // min_volume
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "min_price");
             info.baseMin = atof(token.c_str());
             
             // max_volume
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "max_volume");
             info.baseMax = atof(token.c_str());
             
             // volume_scale
-            token = extractNextString(res, last, ",", last);
+            token = extractNextString(res, last, ",", last, "volume_scale");
             info.baseDecimalCount = atoi(token.c_str());
             
             // min_price
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "min_price");
             info.quoteMin = atof(token.c_str());
                       
             // max_price
-            token = extractNextString(res, last, last);
+            token = extractNextString(res, last, last, "max_price");
             info.quoteMax = atof(token.c_str());
             
             // price_scale
-            token = extractNextString(res, last, ",", last);
+            token = extractNextString(res, last, ",", last, "price_scale");
             info.quoteDecimalCount = atoi(token.c_str());
             
             // fee_scale
-            token = extractNextString(res, last, "}", last);
+            token = extractNextString(res, last, "}", last, "fee_scale");
             info.feeDecimalCount = atoi(token.c_str());
 
             
