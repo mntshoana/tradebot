@@ -57,11 +57,9 @@ void verifyLabel(const char* label, std::string source, size_t colonPos){
     int spaceAdjustment = 0;
     while (source[colonPos-spaceAdjustment] != '"')
            spaceAdjustment++;
-    while (source[colonPos-spaceAdjustment] != '"')
-           spaceAdjustment++;
     
     size_t pos = colonPos - length - spaceAdjustment;
-   // "asks" :
+   
     std::string expectedString = source.substr(pos, length);
     if (strcmp(label, expectedString.c_str()) != 0)
         throw std::invalid_argument("Expecting json label \"" + std::string(label) + "\" but encountered \"" + expectedString +"\"!");

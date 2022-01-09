@@ -35,8 +35,8 @@ HEADERS += tradeBot.hpp \
             textPanel.hpp \
             workspacePanel.hpp \
             window.hpp
-SOURCES += jobManager.cpp
-HEADERS += jobManager.hpp
+SOURCES += job.cpp jobManager.cpp
+HEADERS += job.hpp jobManager.hpp
 SOURCES += lunoclient/lunoTypes.cpp  \
             lunoclient/marketFuncs.cpp lunoclient/orderFuncs.cpp \
             lunoclient/transferFuncs.cpp lunoclient/srFuncs.cpp \

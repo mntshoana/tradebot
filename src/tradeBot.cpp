@@ -2,14 +2,11 @@
 
 // Constructor
 TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EXCHANGE) {
-    current = home = new HomeView(this, LUNO_EXCHANGE); // active home screen window
+    current = home = new LunoHomeView(this); // active home screen window
     
     // on update event
     connect(this, &TradeBot::finishedUpdate,
             this, &TradeBot::OnFinishedUpdate);
-    
-    timestamp = new unsigned long long();
-    
     
     timer = new QTimer(this);
     timer->setSingleShot(true);
@@ -17,57 +14,19 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
     timerCount = new size_t(0); // counts the timeouts triggered by timer
     timer->start(100);
     
-    path = absolutePath();//"../../src/data/";
-    size_t pos = path.find_last_of("/", path.length()-1);
-    pos = path.find_last_of("/", pos-1);
-    pos = path.find_last_of("/", pos-1);
-    path = path.substr(0, pos) + "/src/data/";
     
-    closing = false;
     
     connect(qApp, &QApplication::aboutToQuit, this, [this] (){
-        closing=true;
+        home->closing=true;
         Cleanup();
     });
     
     // begin job manager
-    Task* job = new Task( [this]() {
-        Luno::OrderBook orderBook = Luno::LunoClient::getOrderBook("XBTZAR");
-        std::vector<Luno::UserOrder>* currentOrders = &(home->workPanel->pendingOrders->openUserOrders);
-        home->livePanel->orderview << orderBook.FormatHTMLWith(currentOrders);
-    });
-    job->updateWaitTime(2);
-    job->setRepeat(true);
-    manager.enqueue(job);
+    manager.enqueue(home->toUpdateOrderBook());
     
-    
-    /*
-     Task* job1 = new Task( [this]() {
-        VALR::OrderBook orderBook = VALR::VALRClient::getFullOrderBook("BTCZAR");
-        std::vector<VALR::OrderBook>* currentOrders; // = &(home->workPanel->pendingOrders->openUserOrders);
-        home->livePanel->orderview << orderBook.FormatHTMLWith(currentOrders);
-     });
-     
-     job1->updateWaitTime(2);
-     job1->setAsFast();
-     manager.enqueue(job1);
-     */
-    
-    /*std::vector<std::string> batch;
-    batch.push_back(VALR::VALRClient::formMarketPayload("BTCZAR", "ASK", 100, false, true));
-    batch.push_back(VALR::VALRClient::formLimitPayload("BTCZAR", "BID", 0.002, 100000, true));
-    batch.push_back(VALR::VALRClient::formLimitPayload("ETHZAR", "ASK", 0.2, 32000, true));
-    batch.push_back(VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.002, 100000, 110000, false, true));
-    batch.push_back(VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.0003, 1150000, 110000, true, true));
-    batch.push_back(VALR::VALRClient::formStopLimitPayload("BTCZAR", "ASK", 0.00000002, 100000, 110000, true, true));
-    batch.push_back(VALR::VALRClient::formCancelOrderPayload("ETHZAR", "e5886f2d-191b-4330-a221-c7b41b0bc553", false, true));
-   
-    std::string batchPayload = VALR::VALRClient::packBatchPayloadFromList(batch);
-
-    *home->workPanel->text  << VALR::VALRClient::postBatchOrders(batchPayload);
-    */
-    
+    // # only testing
     //*home->workPanel->text  << Luno::LunoClient::listBeneficiaries();
+    
     installEventFilter(this);
 }
 
@@ -77,7 +36,7 @@ void TradeBot::Cleanup(){
     
     delete timer;
     delete timerCount;
-    delete timestamp;
+
     if (home)
         delete home;
     
@@ -88,14 +47,11 @@ void TradeBot::Cleanup(){
 
 void TradeBot::OnFinishedUpdate(){
     if (*timerCount == 0){
-        Task* job = new Task( [this]() {downloadTicks("XBTZAR");}, false);
-        job->updateWaitTime(3);
-        job->setRepeat(true);
-        manager.enqueue(job);
+        manager.enqueue(home->toDownloadTicks());
     }
     
     *timerCount = *timerCount +1;
-    if (!closing)
+    if (!home->closing)
         timer->start(1000);
 }
 void TradeBot::OnUpdate() {
@@ -105,9 +61,9 @@ void TradeBot::OnUpdate() {
     }
     
     if (*timerCount == 0) { // Initiate ticks
-        home->livePanel->tradeview->setHtml(lastTrades().c_str());
+        home->livePanel->tradeview->setHtml(home->lastTrades().c_str());
         thread = std::thread([this]{
-            loadLocalTicks();
+            home->loadLocalTicks();
             emit finishedUpdate();
         });
         thread.detach();
@@ -132,7 +88,7 @@ void TradeBot::OnUpdate() {
     }
     else if (*timerCount % 2 == 1 ){
         auto y = home->livePanel->tradeview->verticalScrollBar()->value();
-        home->livePanel->tradeview->setHtml(lastTrades().c_str());
+        home->livePanel->tradeview->setHtml(home->lastTrades().c_str());
         home->livePanel->tradeview->verticalScrollBar()->setValue(y);
         
         emit finishedUpdate();
@@ -142,130 +98,7 @@ void TradeBot::OnUpdate() {
     }
 }
 
-void TradeBot::loadLocalTicks(){
-    
-    file.open(path + "XBTZAR.csv" , std::ios::in);
-    
-    if (file.good()){
-        file >> home->moreticks; // <- may take extremely long
-        file.close();
-        
-        if (!closing && home->moreticks.size() > 0) {
-            unsigned long long now = QDateTime::currentMSecsSinceEpoch();
-            size_t i  = 0;
-            while (i < home->moreticks.size()
-            && (home->moreticks[i].timestamp  <= (now - 60 * 60 * 1000))){
-                i++;
-            }
-                
-            home->ticks.insert(home->ticks.end(), home->moreticks.begin() + i, home->moreticks.end());
-            
-            home->moreticks.clear();
-            
-            
-            for (int i = 0; home->ticks.size() > 0 && i < (int)home->ticks.size()-2; i++){
-                // ensure ordered oldest to newest
-                if (home->ticks[i].sequence +1 != home->ticks[i+1].sequence){
-                    do {
-                        home->ticks.pop_back();
-                    } while (i < (int)home->ticks.size() - 2);
-                }
-            }
-              
-            // empty file and replace content
-            file.open(path + "XBTZAR.csv", std::ofstream::out | std::ofstream::trunc);
-            file << home->ticks;
-            file.close();
-            
-        }
-        if (!closing && home->ticks.size() > 0){
-            *timestamp = home->ticks.back().timestamp;
-        }
-        else
-            *timestamp = QDateTime::currentMSecsSinceEpoch();
-    }
-    else {
-        *timestamp = QDateTime::currentMSecsSinceEpoch();
-        file.clear();
-    }
-}
 
-void TradeBot::downloadTicks(std::string pair){
-    home->moreticks = Luno::LunoClient::getTrades(pair, *timestamp); // order = newest to oldest
-    while (home->ticks.size() > 0
-            && home->moreticks.size() > 0
-            && home->moreticks.back().sequence <= home->ticks.back().sequence)
-        home->moreticks.pop_back();
-    
-    std::reverse(home->moreticks.begin(), home->moreticks.end()); // order = oldest to newest
-    
-    for (int i = 0; home->moreticks.size() > 0 && i < ((int) home->moreticks.size()) -2; i++){
-        // ensure ordered oldest to newest sequence is in tact
-        if (home->moreticks[i].sequence +1 != home->moreticks[i+1].sequence){
-            do {
-                home->moreticks.pop_back();
-            } while (i < ((int) home->moreticks.size()) -2);
-        }
-    }
-    
-    if (home->moreticks.size() > 0){
-        home->ticks.insert(home->ticks.end(), home->moreticks.begin(), home->moreticks.end());
-        *timestamp = home->ticks.back().timestamp;
-        file.open( path + pair + ".csv", std::ios::out | std::ios::app);
-        if (file.good()){
-            file << home->moreticks;
-            file.close();
-        }
-        else {
-            file.clear();
-            *TextPanel::textPanel << std::string("[Error] : At ")
-                            + __FILE__ + ": line " + std::to_string(__LINE__)
-                        + ". Couldn't write ticks to file.";
-        }
-        home->moreticks.clear();
-    }
-}
-
-std::string TradeBot::lastTrades() {
-    std::stringstream ss;
-    ss << std::fixed;
-    ss << R"html(
-            <style>
-            table {width: 100%;}
-            tr { padding: 15px;}
-            a {
-                color: inherit;
-                text-decoration: none;
-            }
-            td {
-                padding: 2px 1px 1px 1px;
-                text-align: center;
-                font-size: 14px;
-                font-weight: 700;
-            }
-            .Ask a {color: rgb(192, 51, 35);}
-            .Bid a {color: rgb(54, 136, 87);}
-            </style>
-            <table width=100%>
-    )html";
-    
-    
-    for (int i = home->ticks.size() -1, limit = 1000; i >= 0 && limit >= 0; i--, limit--){
-        ss << "\n<tr> <a href=\"" << home->ticks[i].price << "\">";
-        ss << "\n<td>" << QDateTime::fromMSecsSinceEpoch(home->ticks[i].timestamp).toString("hh:mm").toStdString() << "</td>";
-        ss << (home->ticks[i].isBuy ? "\n<td class=Ask>" : "\n<td class=Bid>" ) ;
-        ss << std::setprecision(0);
-        ss << "<a href=\"" << home->ticks[i].price << "\">";
-        ss  << home->ticks[i].price;
-        ss << "</a></td>";
-        ss << "\n<td>" << std::setprecision(6)<< home->ticks[i].volume << "</td>";
-        ss << "\n</a></tr>";
-        
-    }
-    ss << "</table>\n";
-    
-    return ss.str();
-}
 
 bool TradeBot::eventFilter(QObject *obj, QEvent *event){
     if (event->type() == QEvent::KeyPress){
