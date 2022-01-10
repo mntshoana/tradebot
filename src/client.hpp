@@ -56,4 +56,6 @@ std::string extractNextStringBlock(std::string source, size_t start,
 std::string extractNextStringBlock(std::string source, size_t start,
                                    const char* startDelim, const char* stopDelim,
                                    const char* label );
+
+
 #endif /* client_hpp */

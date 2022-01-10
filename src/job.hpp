@@ -10,6 +10,7 @@ protected:
     std::function<void (void)> lamdaFunction;
     int recommendedWait;
     bool fastTrack;
+    bool alwaysExecute = false;
 public:
     bool repeat;
     int wait;
@@ -19,6 +20,8 @@ public:
     void updateWaitTime(int time);
     void setAsFast();
     void setAsSlow();
+    void setToAlwaysExecute();
+    bool isSetToAlwaysExecute();
     void setRepeat(bool status);
     bool isFast();
     void resetTimer();

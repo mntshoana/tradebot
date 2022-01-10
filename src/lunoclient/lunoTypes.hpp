@@ -1,7 +1,7 @@
 #ifndef lunoTypes_h
 #define lunoTypes_h
 
-
+#include "clientInterface.hpp"
 #include "textPanel.hpp"
 #include <string>
 #include <iomanip>
@@ -111,7 +111,7 @@ namespace Luno {
         std::string toString()const;
     };
 
-    class UserOrder {
+    class UserOrder : public OrderType {
     public:
         UserOrder(){}
         std::string orderID;
@@ -128,7 +128,15 @@ namespace Luno {
         float counterFee;
         std::string pair;
         
-        std::string toString()const;
+        std::string toString() const;
+
+        virtual std::string getType() const;
+        virtual std::string getID() const;
+        virtual long long getTimestamp() const;
+        virtual float getPrice() const;
+        virtual float getVolume() const;
+        virtual float getBaseValue() const;
+        virtual float getQuoteValue() const;
     };
     
 

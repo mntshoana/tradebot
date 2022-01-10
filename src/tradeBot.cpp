@@ -6,11 +6,15 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
     
     // on update event
     connect(this, &TradeBot::finishedUpdate,
-            this, &TradeBot::OnFinishedUpdate);
+            this, &TradeBot::onFinishedUpdate);
+    
+    // on enqueueUserOrder
+    connect(home->livePanel->livetrade, &TradePanel::enqueueUserOrder,
+            this, &TradeBot::onEnqueueUserOrder);
     
     timer = new QTimer(this);
     timer->setSingleShot(true);
-    connect(timer, &QTimer::timeout, this, &TradeBot::OnUpdate);
+    connect(timer, &QTimer::timeout, this, &TradeBot::onUpdate);
     timerCount = new size_t(0); // counts the timeouts triggered by timer
     timer->start(100);
     
@@ -18,11 +22,12 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
     
     connect(qApp, &QApplication::aboutToQuit, this, [this] (){
         home->closing=true;
-        Cleanup();
+        cleanup();
     });
     
     // begin job manager
     manager.enqueue(home->toUpdateOrderBook());
+    manager.enqueue(home->toUpdateOpenUserOrders());
     
     // # only testing
     //*home->workPanel->text  << Luno::LunoClient::listBeneficiaries();
@@ -30,7 +35,7 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
     installEventFilter(this);
 }
 
-void TradeBot::Cleanup(){
+void TradeBot::cleanup(){
     Client::abort = true;
     manager.stop();
     
@@ -45,7 +50,7 @@ void TradeBot::Cleanup(){
     emit close();
 }
 
-void TradeBot::OnFinishedUpdate(){
+void TradeBot::onFinishedUpdate(){
     if (*timerCount == 0){
         manager.enqueue(home->toDownloadTicks());
     }
@@ -54,7 +59,12 @@ void TradeBot::OnFinishedUpdate(){
     if (!home->closing)
         timer->start(1000);
 }
-void TradeBot::OnUpdate() {
+
+void TradeBot::onEnqueueUserOrder(std::string orderID){
+    manager.enqueue(home->toAppendOpenUserOrder(orderID));
+}
+
+void TradeBot::onUpdate() {
     timer->stop();
     if (*timerCount > 60) {
         *timerCount = 1;
@@ -74,8 +84,6 @@ void TradeBot::OnUpdate() {
         current->updateTheme();
     
         if (*timerCount % 10 == 0){
-            home->workPanel->pendingOrders->clearItems();
-            home->workPanel->pendingOrders->addOrders(); 
           //  home->workPanel->autoPlayground->runScript();
         }
             
@@ -133,4 +141,10 @@ bool TradeBot::eventFilter(QObject *obj, QEvent *event){
         }
     }
     return QObject::eventFilter(obj, event);
+}
+
+
+void TradeBot::enqueueJob(Task* job){
+    manager.enqueue(job);
+    return;
 }

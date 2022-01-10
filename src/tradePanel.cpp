@@ -1,4 +1,5 @@
 #include "tradePanel.hpp"
+#include "tradeBot.hpp"
 
 TradePanel::TradePanel(QWidget* parent, int exchange){
     TextPanel::init(this);
@@ -108,12 +109,12 @@ void TradePanel::executeTrade(){
         }
     try {
         // output
-        std::string result = Luno::LunoClient::postLimitOrder("XBTZAR", action, amount, price);
+        std::string ordrID = Luno::LunoClient::postLimitOrder("XBTZAR", action, amount, price);
         *text << std::string(action) + " order at price: " + std::to_string(price);
         *text << "   Amount: " + std::to_string(amount);
         *text << "   Valued: " + std::to_string(amount * price);
-        *text << "COMPLETE: " + result;
-        
+        *text << "COMPLETE: " + ordrID;
+        emit enqueueUserOrder(ordrID);
     } catch (ResponseEx ex){
         *text << " [Error] Unable to place order! at " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
         *text << ex.String();

@@ -1,7 +1,6 @@
 #include "window.hpp"
 #include <QTimer>
 
-
 HomeView::HomeView (QWidget *parent, int exchange) : QWidget(parent) {
     this->timestamp = new unsigned long long();
     this->exchange = exchange;
@@ -109,11 +108,44 @@ void LunoHomeView::lightTheme() {
 Task* LunoHomeView::toUpdateOrderBook() {
     Task* job = new Task( [this]() {
         Luno::OrderBook orderBook = Luno::LunoClient::getOrderBook("XBTZAR");
-        std::vector<Luno::UserOrder>* currentOpenOrders = &(workPanel->pendingOrders->openUserOrders);
-        livePanel->orderview << orderBook.FormatHTMLWith(currentOpenOrders);
+        livePanel->orderview << orderBook.FormatHTMLWith(&lunoOrders);
     });
     job->updateWaitTime(2);
     job->setRepeat(true);
+    return job;
+}
+
+Task* LunoHomeView::toUpdateOpenUserOrders() {
+    Task* job = new Task( [this]() {
+        workPanel->pendingOrders->clearItems();
+        lunoOrders = Luno::LunoClient::getUserOrders("XBTZAR", "PENDING");
+        
+        std::vector<OrderType*> temp;
+        std::for_each(lunoOrders.begin(), lunoOrders.end(), [this, &temp](Luno::UserOrder& entry){
+            temp.push_back( &entry);
+        });
+        workPanel->pendingOrders->addOrders(&temp);
+        temp.clear();
+    });
+    job->updateWaitTime(5);
+    job->wait = 0; // execute one time immediately before waiting
+    job->setRepeat(true);
+    return job;
+}
+
+Task* LunoHomeView::toAppendOpenUserOrder(std::string orderID) {
+    Task* job = new Task( [this, orderID]() {
+        std::string details = Luno::LunoClient::getOrderDetails(orderID);
+        TextPanel::textPanel << details;
+        // TODO: Update open order menu
+        /*std::vector<OrderType*> temp;
+        std::for_each(lunoOrders.begin(), lunoOrders.end(), [this, &temp](Luno::UserOrder& entry){
+            temp.push_back( &entry);
+        });
+        workPanel->pendingOrders->addOrders(&temp);
+        temp.clear();*/
+    });
+    
     return job;
 }
 

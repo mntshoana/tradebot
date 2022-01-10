@@ -1,6 +1,7 @@
 #ifndef valrTypes_h
 #define valrTypes_h
 
+#include "clientInterface.hpp"
 #include "textPanel.hpp"
 #include <string>
 #include <iomanip>

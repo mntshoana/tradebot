@@ -9,6 +9,9 @@
 #include <QPaintEvent>
 #include <QStyleOption>
 
+#include <chrono>
+#include <thread>
+
 #include "lunoclient.hpp"
 #include "valrclient.hpp"
 #include "textPanel.hpp"
@@ -22,12 +25,12 @@ private:
 public:
     QVBoxLayout *format;
     QHBoxLayout *line;
-    std::vector<Luno::UserOrder> openUserOrders;
+    bool criticalUpdate;
     
     void clearItems();
-    void createItem (Luno::UserOrder&);
+    void createItem (OrderType&);
     void createTitle ();
-    void addOrders ();
+    void addOrders (std::vector<OrderType*>* openUserOrders);
     PendingOrdersPanel(QWidget* parent = nullptr);
     void paintEvent(QPaintEvent *);
     

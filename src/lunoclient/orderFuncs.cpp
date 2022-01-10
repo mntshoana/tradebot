@@ -71,8 +71,9 @@ namespace Luno {
         
         std::vector<UserOrder> orders;
         size_t last = 0;
-        last = res.find("[", last) + 1;
+        res = extractNextStringBlock(res, 0, "[", "]", last, "orders");
         
+        last = 0;
         while ((last = res.find("{", last)) != std::string::npos) {
             orders.push_back(UserOrder());
      
@@ -129,8 +130,7 @@ namespace Luno {
                 && orders.back().counterValue == 0.0f)
                 orders.pop_back();
         }
-        return orders;
-    }
+        return orders;    }
 
     // GET USER TRADES
     //

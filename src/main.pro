@@ -53,7 +53,7 @@ HEADERS += valrclient/valrTypes.hpp valrclient/valrclient.hpp
 SOURCES += client.cpp \
             sha512.cpp
 HEADERS += client.hpp \
-            sha512.hpp hmac.hpp
+            clientInterface.hpp sha512.hpp hmac.hpp
 SOURCES += exceptions.cpp
 HEADERS += exceptions.hpp
 SOURCES += objectivec.mm

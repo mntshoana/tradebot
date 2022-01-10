@@ -11,8 +11,8 @@ PendingOrdersPanel::PendingOrdersPanel(QWidget* parent) : QWidget(parent) {
     format->setAlignment(Qt::AlignTop);
     setLayout(format);
     
+    criticalUpdate = false;
     createTitle();
-    addOrders();
 }
 
 void PendingOrdersPanel::clearItems(){
@@ -26,7 +26,6 @@ void PendingOrdersPanel::clearItems(){
     }
     orderIds.clear();
     createTitle();
-    addOrders();
 }
 
 void PendingOrdersPanel::createTitle (){
@@ -56,19 +55,19 @@ void PendingOrdersPanel::createTitle (){
     format->addLayout(line);
 }
 
-void PendingOrdersPanel::createItem (Luno::UserOrder& order)
+void PendingOrdersPanel::createItem (OrderType& order)
 {
-    QLabel *lblDate = new QLabel ( QDateTime::fromMSecsSinceEpoch(order.createdTime).toString("ddd MMMM d yyyy hh:mm") );
-    QLabel *lblType = new QLabel ( QString::fromStdString(order.type ) );
-    QLabel *lblPrice = new QLabel ( QString::fromStdString(std::to_string(order.price) ) );
-    QLabel *lblVolume = new QLabel ( QString::fromStdString(std::to_string(order.volume) ) );
+    QLabel *lblDate = new QLabel ( QDateTime::fromMSecsSinceEpoch(order.getTimestamp()).toString("ddd MMMM d yyyy hh:mm") );
+    QLabel *lblType = new QLabel ( QString::fromStdString(order.getType() ) );
+    QLabel *lblPrice = new QLabel ( QString::fromStdString(std::to_string(order.getPrice()) ) );
+    QLabel *lblVolume = new QLabel ( QString::fromStdString(std::to_string(order.getVolume()) ) );
     
     std::stringstream ss;
-    ss << " ( at R" << (std::trunc(order.price * order.volume * 100) / 100) << ")";
+    ss << " ( at R" << (std::trunc(order.getPrice() * order.getVolume() * 100) / 100) << ")";
     QLabel *lblValue = new QLabel ( QString::fromStdString(ss.str() ) );
     
     ss.str("");
-    ss << order.baseValue << " [" << order.baseValue / order.volume * 100 << "%]";
+    ss << order.getBaseValue() << " [" << order.getBaseValue() / order.getVolume() * 100 << "%]";
     QLabel *lblFill = new QLabel ( QString::fromStdString(ss.str() ) );
     
     QPushButton *but = new QPushButton ( "Cancel" );
@@ -98,10 +97,10 @@ void PendingOrdersPanel::createItem (Luno::UserOrder& order)
     
     format->addLayout(line);
 
-    connect(but, &QPushButton::clicked, this, [this, order] () {
-        auto it = std::find(orderIds.begin(), orderIds.end(), order.orderID);
+    connect(but, &QPushButton::clicked, this, [this, &order] () {
+        auto it = std::find(orderIds.begin(), orderIds.end(), order.getID());
         int index = it - orderIds.begin() + 1; // plus title row
-        bool result = Luno::LunoClient::cancelOrder(order.orderID);
+        bool result = Luno::LunoClient::cancelOrder(order.getID());
         
         QLayout *level = format->takeAt(index)->layout();
         while(!level->isEmpty()) {
@@ -116,30 +115,25 @@ void PendingOrdersPanel::createItem (Luno::UserOrder& order)
         if (result)
             *text << "Cancel order success!";
         else
-            *text  << "Failed to cancel order id " + order.orderID;
+            *text  << "Failed to cancel order id " + order.getID();
     });
     
 }
 
-void PendingOrdersPanel::addOrders (){
-    try{
-        openUserOrders = Luno::LunoClient::getUserOrders("XBTZAR", "PENDING");
-        for (Luno::UserOrder& order : openUserOrders){
-            bool exists = false;
-            for (std::string& id : orderIds){
-                if (order.orderID == id){
-                    exists = true;
-                    break;
-                }
-            }
-            
-            if (!exists){
-                orderIds.push_back(order.orderID);
-                createItem( order);
+void PendingOrdersPanel::addOrders (std::vector<OrderType*>* openUserOrders){
+    for (OrderType* order : *openUserOrders){
+        bool exists = false;
+        for (std::string& id : orderIds){
+            if (order->getID() == id){
+                exists = true;
+                break;
             }
         }
-    } catch (ResponseEx ex){
-            *text << ex.String().c_str();
+        
+        if (!exists){
+            orderIds.push_back(order->getID());
+            createItem( *order);
+        }
     }
 }
 

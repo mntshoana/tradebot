@@ -85,13 +85,23 @@ void JobManager::onUpdate(){
         }
         // complete task
         job->performJob();
+        
+        // note, only api calls are time constrained
+        bool noEffectOnTime = job->isSetToAlwaysExecute();
+        
         if (job->repeat){
             job->resetTimer();
             backOfTheQueue.push(job);
         }
+        
+        
         else
             delete job;
-        count--;
+        
+        if (noEffectOnTime)
+            continue;
+        else
+            count--;
     }
     while (!fasterQueue.empty()){
         temporaryQueue.push(fasterQueue.front());

@@ -34,11 +34,15 @@ private:
     
     
     bool eventFilter(QObject *obj, QEvent *event)override;
+    void enqueueJob(Task* job);
+    
+    public slots:
+    void onEnqueueUserOrder(std::string orderID);
     
     private slots:
-    void OnFinishedUpdate();
-    void OnUpdate();
-    void Cleanup();
+    void onFinishedUpdate();
+    void onUpdate();
+    void cleanup();
     
     signals:
     void finishedUpdate();

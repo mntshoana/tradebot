@@ -25,6 +25,13 @@ void Task::setAsFast() {
 void Task::setAsSlow() { 
     fastTrack = false;
 }
+void Task::setToAlwaysExecute() {
+    fastTrack = true;
+    alwaysExecute = true;
+}
+bool Task::isSetToAlwaysExecute() {
+    return alwaysExecute;
+}
 bool Task::isFast() {
     return fastTrack;
 }

@@ -46,11 +46,18 @@ public:
     virtual void loadLocalTicks() {/*does nothing*/};
     virtual std::string lastTrades() { return "This is just a HomeView template!";}
     virtual Task* toUpdateOrderBook() { return new Task( []() {/*does nothing*/});}
-    virtual Task* toDownloadTicks(std::string pair = "DEFAULT") { return new Task( []() {/*does nothing*/});}
+    virtual Task* toUpdateOpenUserOrders() { return new Task( []() {/*does nothing*/});}
+    virtual Task* toAppendOpenUserOrder(std::string ) { return new Task( []() {/*does nothing*/});}
+    virtual Task* toDownloadTicks(std::string = "DEFAULT") { return new Task( []() {/*does nothing*/});}
         
 };
 
 class LunoHomeView : public HomeView {
+private:
+    void downloadTicks(std::string pair);
+    
+    std::vector<Luno::Trade> ticks, moreticks;
+    std::vector<Luno::UserOrder> lunoOrders;
 protected:
     virtual void darkTheme() override;
     virtual void lightTheme() override;
@@ -59,26 +66,25 @@ public:
     LunoHomeView (QWidget *parent = nullptr);
     virtual ~LunoHomeView();
     
-    std::vector<Luno::Trade> ticks, moreticks;
-    
     virtual void loadLocalTicks() override;
-    void downloadTicks(std::string pair);
     virtual std::string lastTrades() override;
     
     virtual Task* toUpdateOrderBook() override;
+    virtual Task* toUpdateOpenUserOrders() override;
+    virtual Task* toAppendOpenUserOrder(std::string orderID) override;
     virtual Task* toDownloadTicks(std::string pair = "XBTZAR") override;
 };
 
 class VALRHomeView : public HomeView {
 private:
+    std::vector<VALR::Trade> ticks, moreticks;
+protected:
     virtual void darkTheme() override;
     virtual void lightTheme() override;
     
 public:
     VALRHomeView (QWidget *parent = nullptr);
     virtual ~VALRHomeView();
-    
-    std::vector<VALR::Trade> ticks, moreticks;
     
     virtual Task* toUpdateOrderBook() override;
     virtual Task* toDownloadTicks(std::string pair = "BTCZAR") override;

@@ -33,11 +33,16 @@ public:
     
     void setGeometry(int ax, int ay, int aw, int ah);
     
+    signals:
+    void enqueueUserOrder(std::string orderID);
     
     public slots:
         void clickedLink(const QUrl& url);
+    
     private slots:
         void changeIsBuy(const QUrl& url);
         void executeTrade();
+    
+    
 };
 #endif
