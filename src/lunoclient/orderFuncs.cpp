@@ -280,7 +280,7 @@ namespace Luno {
     // GET ORDER DETAILS
     //
     //
-    std::string LunoClient::getOrderDetails(std::string id){
+    UserOrder LunoClient::getOrderDetails(std::string id){
         std::string uri = "https://api.mybitx.com/api/1/orders/" + id;
         std::string res = client.request("GET", uri.c_str(), true);
         
@@ -288,7 +288,60 @@ namespace Luno {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
-        return res;
+        UserOrder order;
+        size_t last = 0;
+
+        // Order ID
+        order.orderID = extractNextString(res, last, last, "order_id");
+ 
+        // Creation Timestamp
+        std::string token = extractNextString(res, last, ",", last, "creation_timestamp");
+        order.createdTime = atoll(token.c_str());
+        
+        // Expiration Timestamp
+        token = extractNextString(res, last, ",", last, "expiration_timestamp");
+        order.expirationTime = atoll(token.c_str());
+        
+        
+        // Completion Timestamp
+        last = res.find("completed_", last);
+        token = extractNextString(res, last, ",", last, "completed_timestamp");
+        order.completedTime = atoll(token.c_str());
+        
+        // Type
+        order.type = extractNextString(res, last, last, "type");
+        
+        // State
+        order.state = extractNextString(res, last, last, "state");
+        
+        // Price
+        token = extractNextString(res, last, last, "limit_price");
+        order.price = atof(token.c_str());
+        
+        // Volume
+        token = extractNextString(res, last, last, "limit_volume");
+        order.volume = atof(token.c_str());
+        
+        // Base
+        token = extractNextString(res, last, last, "base");
+        order.baseValue = atof(token.c_str());
+        
+        // Counter
+        token = extractNextString(res, last, last, "counter");
+        order.counterValue = atof(token.c_str());
+        
+        // Base Fee
+        token = extractNextString(res, last, last, "fee_base");
+        order.baseFee = atof(token.c_str());
+        
+        // Counter Fee
+        token = extractNextString(res, last, last, "fee_counter");
+        order.counterFee = atof(token.c_str());
+ 
+        // Pair
+        order.pair = extractNextString(res, last, last, "pair");
+        
+        return order;
     }
     // POST LIMIT ORDER
     //

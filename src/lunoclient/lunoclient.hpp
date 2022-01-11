@@ -43,7 +43,7 @@ namespace Luno {
                                              bool sort = false,
                                              int limit = 0);
         static std::string postMarketOrder(std::string pair, std::string action, float amount);
-        static std::string getOrderDetails(std::string id);
+        static UserOrder getOrderDetails(std::string id);
         static std::string postLimitOrder(std::string pair, std::string action, float volume, float price);
         static bool cancelOrder(std::string orderId);
         // getOrder v2 and v3 (not needed)

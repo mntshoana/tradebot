@@ -135,15 +135,15 @@ Task* LunoHomeView::toUpdateOpenUserOrders() {
 
 Task* LunoHomeView::toAppendOpenUserOrder(std::string orderID) {
     Task* job = new Task( [this, orderID]() {
-        std::string details = Luno::LunoClient::getOrderDetails(orderID);
+        Luno::UserOrder details = Luno::LunoClient::getOrderDetails(orderID);
+        
         TextPanel::textPanel << details;
-        // TODO: Update open order menu
-        /*std::vector<OrderType*> temp;
-        std::for_each(lunoOrders.begin(), lunoOrders.end(), [this, &temp](Luno::UserOrder& entry){
-            temp.push_back( &entry);
-        });
+        std::vector<OrderType*> temp;
+        
+        temp.push_back( &details);
+        
         workPanel->pendingOrders->addOrders(&temp);
-        temp.clear();*/
+        temp.clear();
     });
     
     return job;
