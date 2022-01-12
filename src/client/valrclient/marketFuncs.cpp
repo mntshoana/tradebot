@@ -108,7 +108,7 @@ namespace VALR {
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
         OrderBook ob;
-        size_t last = 0, next = 0;
+        size_t last = 0;
         
         std::string token;
         

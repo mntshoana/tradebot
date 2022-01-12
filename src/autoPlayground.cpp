@@ -45,7 +45,7 @@ AutoPlaygroundPanel::~AutoPlaygroundPanel(){
 }
 
 int AutoPlaygroundPanel::runScript() {
-    int length;
+    int length = -1;
     
     if (POSIX_ENVIRONMENT){
         // Shared memory

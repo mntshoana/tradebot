@@ -4,8 +4,8 @@
 #include <QScrollBar>
 
 
-#include "lunoclient.hpp"
-#include "valrclient.hpp"
+#include "client/lunoclient/lunoclient.hpp"
+#include "client/valrclient/valrclient.hpp"
 #include "tradePanel.hpp"
 
 #include "orderPanel.hpp"

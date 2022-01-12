@@ -37,23 +37,27 @@ HEADERS += tradeBot.hpp \
             window.hpp
 SOURCES += job.cpp jobManager.cpp
 HEADERS += job.hpp jobManager.hpp
-SOURCES += lunoclient/lunoTypes.cpp  \
-            lunoclient/marketFuncs.cpp lunoclient/orderFuncs.cpp \
-            lunoclient/transferFuncs.cpp lunoclient/srFuncs.cpp \
-            lunoclient/quoteFuncs.cpp lunoclient/accountFuncs.cpp \
-            lunoclient/beneficiariesFuncs.cpp
-HEADERS += lunoclient/lunoTypes.hpp lunoclient/lunoclient.hpp
-SOURCES +=  valrclient/valrTypes.cpp \
-            valrclient/marketFuncs.cpp \
-            valrclient/accountFuncs.cpp \
-            valrclient/walletFuncs.cpp \
-            valrclient/orderFuncs.cpp \
-            valrclient/payService.cpp
-HEADERS += valrclient/valrTypes.hpp valrclient/valrclient.hpp
-SOURCES += client.cpp \
-            sha512.cpp
+SOURCES += client/lunoclient/lunoTypes.cpp  \
+            client/lunoclient/marketFuncs.cpp \
+            client/lunoclient/orderFuncs.cpp \
+            client/lunoclient/transferFuncs.cpp \
+            client/lunoclient/srFuncs.cpp \
+            client/lunoclient/quoteFuncs.cpp \
+            client/lunoclient/accountFuncs.cpp \
+            client/lunoclient/beneficiariesFuncs.cpp
+HEADERS += client/lunoclient/lunoTypes.hpp client/lunoclient/lunoclient.hpp
+SOURCES +=  client/valrclient/valrTypes.cpp \
+            client/valrclient/marketFuncs.cpp \
+            client/valrclient/accountFuncs.cpp \
+            client/valrclient/walletFuncs.cpp \
+            client/valrclient/orderFuncs.cpp \
+            client/valrclient/payService.cpp
+HEADERS += client/valrclient/valrTypes.hpp \
+            client/valrclient/valrclient.hpp
+SOURCES += client/client.cpp \
+            client/sha512.cpp
 HEADERS += client.hpp \
-            clientInterface.hpp sha512.hpp hmac.hpp
+            client/clientInterface.hpp client/sha512.hpp client/hmac.hpp
 SOURCES += exceptions.cpp
 HEADERS += exceptions.hpp
 SOURCES += objectivec.mm

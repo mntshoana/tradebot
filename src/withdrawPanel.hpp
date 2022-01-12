@@ -13,8 +13,8 @@
 #include <QLayout>
 #include <QStyleOption>
 
-#include "lunoclient.hpp"
-#include "valrclient.hpp"
+#include "client/lunoclient/lunoclient.hpp"
+#include "client/valrclient/valrclient.hpp"
 #include "lineBlock.hpp"
 #include "textPanel.hpp"
 

@@ -121,7 +121,7 @@ Task* LunoHomeView::toUpdateOpenUserOrders() {
         lunoOrders = Luno::LunoClient::getUserOrders("XBTZAR", "PENDING");
         
         std::vector<OrderType*> temp;
-        std::for_each(lunoOrders.begin(), lunoOrders.end(), [this, &temp](Luno::UserOrder& entry){
+        std::for_each(lunoOrders.begin(), lunoOrders.end(), [&temp](Luno::UserOrder& entry){
             temp.push_back( &entry);
         });
         workPanel->pendingOrders->addOrders(&temp);
