@@ -1,8 +1,8 @@
 #include "tradeBot.hpp"
 
 // Constructor
-TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EXCHANGE) {
-    current = home = new LunoHomeView(this); // active home screen window
+TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, VALR_EXCHANGE) {
+    current = home = new VALRHomeView(this); // active home screen window
     
     // on update event
     connect(this, &TradeBot::finishedUpdate,

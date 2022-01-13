@@ -49,12 +49,6 @@ namespace Luno {
         // getOrder v2 and v3 (not needed)
         // getOrders v2 (not needed)
 
-        /* Quotes Functions */
-        // Create quote
-        // Get quote
-        // Excercise quote
-        // Discard quote
-
         /* Send and Receive Functions */
         static std::string getRecieveAddress(std::string asset, std::string name = "");
         static std::string createRecieveAddress(std::string asset, std::string name = "");

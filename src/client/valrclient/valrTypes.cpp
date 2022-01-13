@@ -348,6 +348,28 @@ namespace VALR {
         return ss.str();
     }
 
+    float UserOrder::getPrice() const{
+        return price;
+    }
+    float UserOrder::getVolume() const{
+        return volume;
+    }
+    std::string UserOrder::getID() const{
+        return orderID;
+    }
+    float UserOrder::getBaseValue() const{
+        return baseValue;
+    }
+    float UserOrder::getQuoteValue() const{
+        return counterValue;
+    }
+    long long UserOrder::getTimestamp() const{
+        return createdTime;
+    }
+    std::string UserOrder::getType() const{
+        return type;
+    }
+
     std::string UserTrade::toString() const{
         std::stringstream ss;
         ss << Trade::toString();

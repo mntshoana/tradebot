@@ -1,7 +1,8 @@
 #ifndef JobManager_hpp
 #define JobManager_hpp
 
-#include "window.hpp"
+#include "job.hpp"
+#include "client.hpp"
 
 #include <queue>
 

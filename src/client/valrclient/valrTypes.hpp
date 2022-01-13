@@ -178,7 +178,7 @@ namespace VALR {
     declarePrintable(Fee);
     declarePrintableList(Fee);
 */
-    class UserOrder {
+    class UserOrder : public OrderType {
     public:
         UserOrder(){}
         std::string orderID;
@@ -196,6 +196,14 @@ namespace VALR {
         std::string pair;
         
         std::string toString() const;
+        
+        virtual std::string getType() const;
+        virtual std::string getID() const;
+        virtual long long getTimestamp() const;
+        virtual float getPrice() const;
+        virtual float getVolume() const;
+        virtual float getBaseValue() const;
+        virtual float getQuoteValue() const;
     };
 
     class UserTrade : public Trade {

@@ -45,7 +45,7 @@ public:
     
     virtual void loadLocalTicks() {/*does nothing*/};
     virtual std::string lastTrades() { return "This is just a HomeView template!";}
-    virtual Task* toUpdateOrderBook() { return new Task( []() {/*does nothing*/});}
+    virtual Task* toUpdateOrderBook(std::string = "DEFAULT") { return new Task( []() {/*does nothing*/});}
     virtual Task* toUpdateOpenUserOrders() { return new Task( []() {/*does nothing*/});}
     virtual Task* toAppendOpenUserOrder(std::string ) { return new Task( []() {/*does nothing*/});}
     virtual Task* toDownloadTicks(std::string = "DEFAULT") { return new Task( []() {/*does nothing*/});}
@@ -69,15 +69,18 @@ public:
     virtual void loadLocalTicks() override;
     virtual std::string lastTrades() override;
     
-    virtual Task* toUpdateOrderBook() override;
+    virtual Task* toUpdateOrderBook(std::string pair) override;
     virtual Task* toUpdateOpenUserOrders() override;
     virtual Task* toAppendOpenUserOrder(std::string orderID) override;
-    virtual Task* toDownloadTicks(std::string pair = "XBTZAR") override;
+    virtual Task* toDownloadTicks(std::string pair) override;
 };
 
 class VALRHomeView : public HomeView {
 private:
+    void downloadTicks(std::string pair);
+    
     std::vector<VALR::Trade> ticks, moreticks;
+    std::vector<VALR::UserOrder> lunoOrders;
 protected:
     virtual void darkTheme() override;
     virtual void lightTheme() override;
@@ -86,7 +89,12 @@ public:
     VALRHomeView (QWidget *parent = nullptr);
     virtual ~VALRHomeView();
     
-    virtual Task* toUpdateOrderBook() override;
-    virtual Task* toDownloadTicks(std::string pair = "BTCZAR") override;
+    virtual void loadLocalTicks() override;
+    virtual std::string lastTrades() override;
+    
+    virtual Task* toUpdateOrderBook(std::string pair) override;
+    virtual Task* toUpdateOpenUserOrders() override;
+    virtual Task* toAppendOpenUserOrder(std::string orderID) override;
+    virtual Task* toDownloadTicks(std::string pair) override;
 };
 #endif /* Window_hpp */

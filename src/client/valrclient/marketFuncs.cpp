@@ -41,8 +41,8 @@ namespace VALR {
             // ignore "side":"..."
             last = asks.find(":", last) + 2;
             
-            // volume
-            token = extractNextString(asks, last, last, "volume");
+            // quantity
+            token = extractNextString(asks, last, last, "quantity");
             order.volume = atof(token.c_str());
             
             // price
@@ -67,8 +67,8 @@ namespace VALR {
             // ignore "side":"..."
             last = bids.find(":", last) + 2;
             
-            // volume
-            token = extractNextString(bids, last, last, "volume");
+            // quantity
+            token = extractNextString(bids, last, last, "quantity");
             order.volume = atof(token.c_str());
             
             // price
@@ -129,8 +129,8 @@ namespace VALR {
             // ignore "side":"..."
             last = asks.find(":", last) + 2;
             
-            // volume
-            token = extractNextString(asks, last, last, "volume");
+            // quantity
+            token = extractNextString(asks, last, last, "quantity");
             order.volume = atof(token.c_str());
             
             // price
@@ -158,8 +158,8 @@ namespace VALR {
             // ignore "side":"..."
             last = bids.find(":", last) + 2;
             
-            // volume
-            token = extractNextString(bids, last, last, "volume");
+            // quantity
+            token = extractNextString(bids, last, last, "quantity");
             order.volume = atof(token.c_str());
             
             // price
