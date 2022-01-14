@@ -80,7 +80,7 @@ private:
     void downloadTicks(std::string pair);
     
     std::vector<VALR::Trade> ticks, moreticks;
-    std::vector<VALR::UserOrder> lunoOrders;
+    std::vector<VALR::UserOrder> valrOrders;
 protected:
     virtual void darkTheme() override;
     virtual void lightTheme() override;

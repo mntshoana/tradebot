@@ -325,12 +325,7 @@ Task* VALRHomeView::toUpdateOrderBook(std::string pair) {
         pair = "BTCZAR";
     Task* job = new Task( [this, pair]() {
         VALR::OrderBook orderBook = VALR::VALRClient::getOrderBook(pair, true);
-        /*
-        // TODO: Preferred method should use list of currently open orders
-        std::vector<VALR::OrderBook>* currentOrders; // = &(workPanel->pendingOrders->openUserOrders);
-        livePanel->orderview << orderBook.FormatHTMLWith(currentOrders);
-         */
-        livePanel->orderview << orderBook.FormatHTML();
+        livePanel->orderview << orderBook.FormatHTMLWith(&valrOrders);
     });
     
     job->updateWaitTime(2);
@@ -430,7 +425,7 @@ void VALRHomeView::loadLocalTicks(){
 }
 
 void VALRHomeView::downloadTicks(std::string pair){
-    *TextPanel::textPanel << "TO DO LOAD LOCAL TICKS";
+    *TextPanel::textPanel << "TO DO DOWNLOAD LOCAL TICKS";
     /*
     moreticks = Luno::LunoClient::getTrades(pair, *timestamp); // order = newest to oldest
     while (ticks.size() > 0
