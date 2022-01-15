@@ -43,7 +43,7 @@ public:
     virtual void updateTheme();
     virtual void forceDarkTheme();
     
-    virtual void loadLocalTicks() {/*does nothing*/};
+    virtual void loadLocalTicks(std::string = "DEFAULT") {/*does nothing*/};
     virtual std::string lastTrades() { return "This is just a HomeView template!";}
     virtual Task* toUpdateOrderBook(std::string = "DEFAULT") { return new Task( []() {/*does nothing*/});}
     virtual Task* toUpdateOpenUserOrders() { return new Task( []() {/*does nothing*/});}
@@ -66,7 +66,7 @@ public:
     LunoHomeView (QWidget *parent = nullptr);
     virtual ~LunoHomeView();
     
-    virtual void loadLocalTicks() override;
+    virtual void loadLocalTicks(std::string pair) override;
     virtual std::string lastTrades() override;
     
     virtual Task* toUpdateOrderBook(std::string pair) override;
@@ -89,7 +89,7 @@ public:
     VALRHomeView (QWidget *parent = nullptr);
     virtual ~VALRHomeView();
     
-    virtual void loadLocalTicks() override;
+    virtual void loadLocalTicks(std::string pair) override;
     virtual std::string lastTrades() override;
     
     virtual Task* toUpdateOrderBook(std::string pair) override;

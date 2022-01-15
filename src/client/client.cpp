@@ -75,6 +75,10 @@ std::string extractNextString(std::string source, size_t start, size_t& jumpTo, 
     if (posStart != std::string::npos){
         posStart = source.find("\"", posStart) + 1;
         size_t posEnd = source.find("\"", posStart);
+        // a little margin for error
+        size_t posAbruptEnd = source.find(",", posStart); // missing closing quote
+        if (posAbruptEnd < posEnd)
+            posEnd = posAbruptEnd;
         jumpTo = posEnd + 1;
         return source.substr(posStart, posEnd-posStart);
     }
@@ -117,9 +121,9 @@ std::string extractNextStringBlock(std::string source, size_t start,
     
     if ( !( posStart == std::string::npos)) {
      
-        bool isNamelessJavaObject = (strcmp(startDelim, "{") == 0 && strcmp(stopDelim, "}") == 0 && label == nullptr);
-        bool isNamelessJavaArray = (strcmp(startDelim, "[") == 0 && strcmp(stopDelim, "]") == 0  && label == nullptr);
-        bool isNamelessJavaString = (strcmp(startDelim, "\"") == 0 && strcmp(stopDelim, "\"") == 0  && label == nullptr);
+        bool isNamelessJavaObject = (strcmp(startDelim, "{") == 0 && strcmp(stopDelim, "}") == 0 && (label == nullptr || strlen(label) == 0));
+        bool isNamelessJavaArray = (strcmp(startDelim, "[") == 0 && strcmp(stopDelim, "]") == 0  && (label == nullptr || strlen(label) == 0));
+        bool isNamelessJavaString = (strcmp(startDelim, "\"") == 0 && strcmp(stopDelim, "\"") == 0  && (label == nullptr || strlen(label) == 0));
         
         if ( !( isNamelessJavaObject || isNamelessJavaArray || isNamelessJavaString)  )
             verifyLabel(label, source, posStart);

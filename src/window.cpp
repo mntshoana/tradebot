@@ -151,9 +151,11 @@ Task* LunoHomeView::toAppendOpenUserOrder(std::string orderID) {
     return job;
 }
 
-void LunoHomeView::loadLocalTicks(){
+void LunoHomeView::loadLocalTicks(std::string pair){
+    if (pair == "DEFAULT")
+        pair = "XBTZAR";
     
-    file.open(path + "XBTZAR.csv" , std::ios::in);
+    file.open(path + "luno_" + pair + ".csv" , std::ios::in);
     
     if (file.good()){
         file >> moreticks; // <- may take extremely long
@@ -182,7 +184,7 @@ void LunoHomeView::loadLocalTicks(){
             }
               
             // empty file and replace content
-            file.open(path + "XBTZAR.csv", std::ofstream::out | std::ofstream::trunc);
+            file.open(path + "luno_" + pair + ".csv", std::ofstream::out | std::ofstream::trunc);
             file << ticks;
             file.close();
             
@@ -220,7 +222,7 @@ void LunoHomeView::downloadTicks(std::string pair){
     if (moreticks.size() > 0){
         ticks.insert(ticks.end(), moreticks.begin(), moreticks.end());
         *timestamp = ticks.back().timestamp;
-        file.open( path + pair + ".csv", std::ios::out | std::ios::app);
+        file.open( path + "luno_" + pair + ".csv", std::ios::out | std::ios::app);
         if (file.good()){
             file << moreticks;
             file.close();
@@ -375,10 +377,13 @@ Task* VALRHomeView::toAppendOpenUserOrder(std::string orderID) {
     return job;
 }
 
-void VALRHomeView::loadLocalTicks(){
+void VALRHomeView::loadLocalTicks(std::string pair){
+    if (pair == "DEFAULT")
+        pair = "BTCZAR";
+    
     *TextPanel::textPanel << "TO DO LOAD LOCAL TICKS";
     /*
-    file.open(path + "XBTZAR.csv" , std::ios::in);
+    file.open(path + "valr_" + pair + ".csv" , std::ios::in);
     
     if (file.good()){
         file >> moreticks; // <- may take extremely long
@@ -407,7 +412,7 @@ void VALRHomeView::loadLocalTicks(){
             }
               
             // empty file and replace content
-            file.open(path + "XBTZAR.csv", std::ofstream::out | std::ofstream::trunc);
+            file.open(path + "valr_" + pair + ".csv", std::ofstream::out | std::ofstream::trunc);
             file << ticks;
             file.close();
             
@@ -424,10 +429,9 @@ void VALRHomeView::loadLocalTicks(){
     }*/
 }
 
-void VALRHomeView::downloadTicks(std::string pair){
-    *TextPanel::textPanel << "TO DO DOWNLOAD LOCAL TICKS";
-    /*
-    moreticks = Luno::LunoClient::getTrades(pair, *timestamp); // order = newest to oldest
+void VALRHomeView::downloadTicks(std::string pair){    
+    moreticks = VALR::VALRClient::getTrades(pair, true, *timestamp); // order = newest to oldest
+    
     while (ticks.size() > 0
             && moreticks.size() > 0
             && moreticks.back().sequence <= ticks.back().sequence)
@@ -447,7 +451,7 @@ void VALRHomeView::downloadTicks(std::string pair){
     if (moreticks.size() > 0){
         ticks.insert(ticks.end(), moreticks.begin(), moreticks.end());
         *timestamp = ticks.back().timestamp;
-        file.open( path + pair + ".csv", std::ios::out | std::ios::app);
+        file.open( path + "valr_" + pair + ".csv", std::ios::out | std::ios::app);
         if (file.good()){
             file << moreticks;
             file.close();
@@ -460,7 +464,7 @@ void VALRHomeView::downloadTicks(std::string pair){
         }
         moreticks.clear();
     }
-     */
+     
 }
 
 std::string VALRHomeView::lastTrades() {
@@ -507,7 +511,7 @@ std::string VALRHomeView::lastTrades() {
 Task* VALRHomeView::toDownloadTicks(std::string pair) {
     if (pair == "DEFAULT")
         pair = "BTCZAR";
-    Task* job = new Task( []() {/*downloadTicks(pair);}, false*/});
+    Task* job = new Task( [this, pair]() {downloadTicks(pair);}, true);
     job->updateWaitTime(3);
     job->setRepeat(true);
     return job;

@@ -453,39 +453,54 @@ namespace VALR {
         std::vector<Trade> trades;
         size_t last = 0;
         last = res.find("[", last) + 1;
+        res = extractNextStringBlock(res, 0, "[", "]", last, nullptr);
         
-        while ((last = res.find("{", last)) != std::string::npos) {
-            trades.push_back(Trade());
+        last = 0;
+        while (last < res.length() && (last = res.find("{", last)) != std::string::npos) {
+            Trade trade;
+            std::string tradeString;
+            try { // For some reason, returns inconsistently corrupt data (maybe it is being update)
+            tradeString = extractNextStringBlock(res, last, "{", "}", last, "");
+            size_t pos = 0;
             // price
-            std::string token = extractNextString(res, last, last, "price");
-            trades.back().price = atof(token.c_str());
+            std::string token = extractNextString(tradeString, pos, pos, "price");
+            trade.price = atof(token.c_str());
             
             // volume (quantity)
-            token = extractNextString(res, last, last, "quantity");
-            trades.back().baseVolume = atof(token.c_str());
+            token = extractNextString(tradeString, pos, pos, "quantity");
+            trade.baseVolume = atof(token.c_str());
             
             // pair
-            token = extractNextString(res, last, last, "currencyPair");
-            trades.back().pair = token;
+            token = extractNextString(tradeString, pos, pos, "currencyPair");
+            trade.pair = token;
             
             // timestamp
-            token = extractNextString(res, last, last, "tradedAt");
-            trades.back().timestamp = get_seconds_since_epoch(token);
+            token = extractNextString(tradeString, pos, pos, "tradedAt");
+            trade.timestamp = get_seconds_since_epoch(token);
             
             // isBuy
-            token = extractNextString(res, last, last, "takerSide");
-            trades.back().isBuy = (token == "buy") ? true : false;
+            token = extractNextString(tradeString, pos, pos, "takerSide");
+            trade.isBuy = (token == "buy") ? true : false;
             
             // sequenceID
-            token = extractNextString(res, last, ",", last, "sequenceId");
-            trades.back().sequence = atoll(token.c_str());
+            token = extractNextString(tradeString, pos, ",", pos, "sequenceId");
+            trade.sequence = atoll(token.c_str());
             
             // id
-            trades.back().id = extractNextString(res, last, last, "id");
+            trade.id = extractNextString(tradeString, pos, pos, "id");
             
             // qupte volume
-            token = extractNextString(res, last, last, "quoteVolume");
-            trades.back().quoteVolume = atof(token.c_str());
+            token = extractNextString(tradeString, pos, pos, "quoteVolume");
+            trade.quoteVolume = atof(token.c_str());
+            
+            
+            trades.push_back(trade);
+            }
+            catch (std::invalid_argument exception){
+                *TextPanel::textPanel << exception.what();
+                *TextPanel::textPanel << "last: " + std::to_string(last) + " res.length: " + std::to_string(res.length()) ;
+                *TextPanel::textPanel << tradeString;
+            }
         }
         
         return trades;
