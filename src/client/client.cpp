@@ -30,8 +30,9 @@ long long get_seconds_since_epoch(std::string time) {
 }
 
 // parse iso8601 string format into time since epoch (seconds)
-std::string get_timestamp_iso8601_string(long seconds) {
-    time_t now {seconds}; // limited to long by time_t
+std::string get_timestamp_iso8601_string(unsigned long long seconds) {
+    std::string val = std::to_string(seconds);
+    time_t now {atoll(val.c_str())}; // limited to signed long by time_t
     char buf[sizeof "2021-12-02T21:47:42.717496Z"];
     strftime(buf, sizeof buf, "%FT%TZ", gmtime(&now));
     return buf;

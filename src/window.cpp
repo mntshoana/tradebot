@@ -381,8 +381,6 @@ void VALRHomeView::loadLocalTicks(std::string pair){
     if (pair == "DEFAULT")
         pair = "BTCZAR";
     
-    *TextPanel::textPanel << "TO DO LOAD LOCAL TICKS";
-    /*
     file.open(path + "valr_" + pair + ".csv" , std::ios::in);
     
     if (file.good()){
@@ -426,10 +424,10 @@ void VALRHomeView::loadLocalTicks(std::string pair){
     else {
         *timestamp = QDateTime::currentMSecsSinceEpoch();
         file.clear();
-    }*/
+    }
 }
 
-void VALRHomeView::downloadTicks(std::string pair){    
+void VALRHomeView::downloadTicks(std::string pair){
     moreticks = VALR::VALRClient::getTrades(pair, true, *timestamp); // order = newest to oldest
     
     while (ticks.size() > 0

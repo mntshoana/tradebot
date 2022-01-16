@@ -37,7 +37,7 @@ public:
 
 bool abortStatus();
 long long get_seconds_since_epoch(std::string time);
-std::string get_timestamp_iso8601_string(long seconds);
+std::string get_timestamp_iso8601_string(unsigned long long seconds);
 
 // marshalling helpers
 std::string createJSONlabel(std::string label, std::string key);

@@ -417,11 +417,11 @@ namespace VALR {
         int args = 0;
         if (since != 0){
             path += (args++ ? "&" : "?");
-            path += "startTime=" + get_timestamp_iso8601_string(since);// convert to ISO...
+            path += "startTime=" + get_timestamp_iso8601_string(since /*milliseconds*/ / 1000);// convert to ISO...
         }
         if (until != 0){
             path += (args++ ? "&" : "?");
-            path += "endTime=" + get_timestamp_iso8601_string(until); // convert to ISO...
+            path += "endTime=" + get_timestamp_iso8601_string(until  /*milliseconds*/ / 1000); // convert to ISO...
         }
         if (skip != 0){
             path += (args++ ? "&" : "?");
