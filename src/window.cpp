@@ -467,7 +467,7 @@ void VALRHomeView::downloadTicks(std::string pair){
 
 std::string VALRHomeView::lastTrades() {
     std::stringstream ss;
-    /*ss << std::fixed;
+    ss << std::fixed;
     ss << R"html(
             <style>
             table {width: 100%;}
@@ -497,13 +497,12 @@ std::string VALRHomeView::lastTrades() {
         ss << "<a href=\"" << ticks[i].price << "\">";
         ss  << ticks[i].price;
         ss << "</a></td>";
-        ss << "\n<td>" << std::setprecision(6)<< ticks[i].volume << "</td>";
+        ss << "\n<td>" << std::setprecision(6)<< ticks[i].quoteVolume << "</td>";
         ss << "\n</a></tr>";
         
     }
     ss << "</table>\n";
-    */
-    ss << "STILL TO DO";
+    
     return ss.str();
 }
 Task* VALRHomeView::toDownloadTicks(std::string pair) {
