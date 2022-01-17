@@ -101,7 +101,7 @@ namespace VALR {
         std::string pair;
         std::string id;
         bool isBuy;
-    std::string toString(std::string formatType = "") const;
+        std::string toString(std::string formatType = "") const;
     };
 
      std::fstream& operator << (std::fstream& stream, std::vector<Trade>& trades);

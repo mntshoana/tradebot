@@ -403,7 +403,7 @@ namespace VALR {
     
     // GET TRADES
     //
-    // Returns 100 trades only (cannot be changed), from a default of since the last 24 hours
+    // Returns 100 trades max (cannot be changed), from a default of since the last 24 hours
     std::vector<Trade> VALR::VALRClient::getTrades(std::string pair, bool useAuthenticatedAPI, unsigned long long since, unsigned long long until, unsigned skip, unsigned limit, std::string beforeID ){
         std::string path;
         if (useAuthenticatedAPI == false){
@@ -417,7 +417,7 @@ namespace VALR {
         int args = 0;
         if (since != 0){
             path += (args++ ? "&" : "?");
-            path += "startTime=" + get_timestamp_iso8601_string(since /*milliseconds*/ / 1000);// convert to ISO...
+            path += "startTime=" + get_timestamp_iso8601_string(since);// convert to ISO...
         }
         if (until != 0){
             path += (args++ ? "&" : "?");
@@ -427,7 +427,7 @@ namespace VALR {
             path += (args++ ? "&" : "?");
             path += "skip=" + std::to_string(skip);
         }
-        if (limit != 0){
+        if (limit != 0){ // defaults to 20
             path += (args++ ? "&" : "?");
             path += "limit=" + std::to_string(limit);
         }
@@ -459,8 +459,9 @@ namespace VALR {
         while (last < res.length() && (last = res.find("{", last)) != std::string::npos) {
             Trade trade;
             std::string tradeString;
-            try { // For some reason, returns inconsistently corrupt data (maybe it is being update)
             tradeString = extractNextStringBlock(res, last, "{", "}", last, "");
+
+            try { // For some reason, returns inconsistently corrupt json data (e.g. a missing quotation mark (") eg "quantity:"0.000"
             size_t pos = 0;
             // price
             std::string token = extractNextString(tradeString, pos, pos, "price");
@@ -500,6 +501,7 @@ namespace VALR {
                 *TextPanel::textPanel << exception.what();
                 *TextPanel::textPanel << "last: " + std::to_string(last) + " res.length: " + std::to_string(res.length()) ;
                 *TextPanel::textPanel << tradeString;
+                return trades;
             }
         }
         

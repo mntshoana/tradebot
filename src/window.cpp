@@ -49,6 +49,7 @@ void HomeView::lightTheme() {
     nightmode = false;
 }
 
+
 void HomeView::updateTheme(){
     //Theme
     if (nightmode && !isDarkMode())
@@ -261,7 +262,7 @@ std::string LunoHomeView::lastTrades() {
     )html";
     
     
-    for (int i = ticks.size() -1, limit = 1000; i >= 0 && limit >= 0; i--, limit--){
+    for (int i = ((int)ticks.size()) -1, limit = 1000; i >= 0 && limit >= 0; i--, limit--){
         ss << "\n<tr> <a href=\"" << ticks[i].price << "\">";
         ss << "\n<td>" << QDateTime::fromMSecsSinceEpoch(ticks[i].timestamp).toString("hh:mm").toStdString() << "</td>";
         ss << (ticks[i].isBuy ? "\n<td class=Ask>" : "\n<td class=Bid>" ) ;
@@ -390,8 +391,9 @@ void VALRHomeView::loadLocalTicks(std::string pair){
         if (!closing && moreticks.size() > 0) {
             unsigned long long now = QDateTime::currentMSecsSinceEpoch();
             size_t i  = 0;
+            const unsigned long long hour = 60ull * 60ull * 1000ull;
             while (i < moreticks.size()
-            && (moreticks[i].timestamp  <= (now - 60 * 60 * 1000))){
+            && (moreticks[i].timestamp  <= (now - hour))){
                 i++;
             }
                 
@@ -419,7 +421,7 @@ void VALRHomeView::loadLocalTicks(std::string pair){
             *timestamp = ticks.back().timestamp;
         }
         else
-            *timestamp = QDateTime::currentMSecsSinceEpoch();
+            *timestamp = QDateTime::currentMSecsSinceEpoch() ; 
     }
     else {
         *timestamp = QDateTime::currentMSecsSinceEpoch();
@@ -489,7 +491,7 @@ std::string VALRHomeView::lastTrades() {
     )html";
     
     
-    for (int i = ticks.size() -1, limit = 1000; i >= 0 && limit >= 0; i--, limit--){
+    for (int i = ((int)ticks.size()) -1, limit = 1000; i >= 0 && limit >= 0; i--, limit--){
         ss << "\n<tr> <a href=\"" << ticks[i].price << "\">";
         ss << "\n<td>" << QDateTime::fromMSecsSinceEpoch(ticks[i].timestamp).toString("hh:mm").toStdString() << "</td>";
         ss << (ticks[i].isBuy ? "\n<td class=Ask>" : "\n<td class=Bid>" ) ;

@@ -28,7 +28,7 @@ protected:
     int exchange;
     std::fstream file;
     std::string path;
-    unsigned long long *timestamp;
+    unsigned long long *timestamp; /*milliseconds sinc epoch*/
 public:
     HomeView (QWidget *parent = nullptr, int exchange = LUNO_EXCHANGE);
     virtual ~HomeView();
