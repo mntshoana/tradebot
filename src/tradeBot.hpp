@@ -32,6 +32,8 @@ private:
     
     size_t* timerCount;
     
+    void downloadTickData();
+    void loadTickData();
     
     bool eventFilter(QObject *obj, QEvent *event)override;
     void enqueueJob(Task* job);

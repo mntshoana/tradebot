@@ -25,7 +25,9 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
         cleanup();
     });
     
+    
     // begin job manager
+    loadTickData();
     manager.enqueue(home->toUpdateOrderBook());
     manager.enqueue(home->toUpdateOpenUserOrders());
     
@@ -51,10 +53,6 @@ void TradeBot::cleanup(){
 }
 
 void TradeBot::onFinishedUpdate(){
-    if (*timerCount == 0){
-        manager.enqueue(home->toDownloadTicks());
-    }
-    
     *timerCount = *timerCount +1;
     if (!home->closing)
         timer->start(1000);
@@ -71,12 +69,7 @@ void TradeBot::onUpdate() {
     }
     
     if (*timerCount == 0) { // Initiate ticks
-        home->livePanel->tradeview->setHtml(home->lastTrades().c_str());
-        thread = std::thread([this]{
-            home->loadLocalTicks();
             emit finishedUpdate();
-        });
-        thread.detach();
     }
     
     else if (*timerCount % 5 == 0){
@@ -94,19 +87,40 @@ void TradeBot::onUpdate() {
         
         emit finishedUpdate();
     }
-    else if (*timerCount % 2 == 1 ){
-        auto y = home->livePanel->tradeview->verticalScrollBar()->value();
-        home->livePanel->tradeview->setHtml(home->lastTrades().c_str());
-        home->livePanel->tradeview->verticalScrollBar()->setValue(y);
-        
-        emit finishedUpdate();
-    }
     else {
         emit finishedUpdate();
     }
 }
 
-
+void TradeBot::downloadTickData(){
+    manager.enqueue(home->toDownloadTicks() );
+   
+    // display ticks
+    Task* job = new Task( [this]() {
+        auto y = home->livePanel->tradeview->verticalScrollBar()->value();
+        home->livePanel->tradeview->setHtml(home->lastTrades().c_str());
+        home->livePanel->tradeview->verticalScrollBar()->setValue(y);
+    }, true);
+    job->updateWaitTime(2);
+    job->wait = 0;
+    job->setRepeat(true);
+    
+    manager.enqueue(job);
+}
+void TradeBot::loadTickData(){
+    Task* job = new Task( [this]() {
+        thread = std::thread([this]() {
+            home->loadLocalTicks();
+            downloadTickData();
+        });
+        thread.detach();
+    });
+    job->updateWaitTime(0);
+    job->setRepeat(false);
+    job->setToAlwaysExecute();
+    
+    manager.enqueue(job);
+}
 
 bool TradeBot::eventFilter(QObject *obj, QEvent *event){
     if (event->type() == QEvent::KeyPress){
