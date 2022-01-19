@@ -4,30 +4,24 @@
 TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EXCHANGE) {
     current = home = new LunoHomeView(this); // active home screen window
     
-    // on update event
-    connect(this, &TradeBot::finishedUpdate,
-            this, &TradeBot::onFinishedUpdate);
-    
     // on enqueueUserOrder
     connect(home->livePanel->livetrade, &TradePanel::enqueueUserOrder,
             this, &TradeBot::onEnqueueUserOrder);
     
-    timer = new QTimer(this);
-    timer->setSingleShot(true);
-    connect(timer, &QTimer::timeout, this, &TradeBot::onUpdate);
-    timerCount = new size_t(0); // counts the timeouts triggered by timer
-    timer->start(100);
-    
-    
     
     connect(qApp, &QApplication::aboutToQuit, this, [this] (){
         home->closing=true;
+        // TODO: Empty the job manager
+        // jobmanager.clear()
+        
         cleanup();
     });
     
     
     // begin job manager
     loadTickData();
+    updateTheme();
+    updatePanels();
     manager.enqueue(home->toUpdateOrderBook());
     manager.enqueue(home->toUpdateOpenUserOrders());
     
@@ -40,9 +34,6 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
 void TradeBot::cleanup(){
     Client::abort = true;
     manager.stop();
-    
-    delete timer;
-    delete timerCount;
 
     if (home)
         delete home;
@@ -52,72 +43,74 @@ void TradeBot::cleanup(){
     emit close();
 }
 
-void TradeBot::onFinishedUpdate(){
-    *timerCount = *timerCount +1;
-    if (!home->closing)
-        timer->start(1000);
-}
 
 void TradeBot::onEnqueueUserOrder(std::string orderID){
     manager.enqueue(home->toAppendOpenUserOrder(orderID));
 }
 
-void TradeBot::onUpdate() {
-    timer->stop();
-    if (*timerCount > 60) {
-        *timerCount = 1;
-    }
+
+void TradeBot::loadTickData(){
+    // Loading local data could take a long time
+    Task* job = new Task( [this]() {
+        thread = std::thread([this]() {
+            home->loadLocalTicks();
+            downloadTickData();
+            displayTickData();
+        });
+        thread.detach();
+    });
+    job->updateWaitTime(0); // no delay
+    job->setRepeat(false);
+    job->setToAlwaysExecute();
     
-    if (*timerCount == 0) { // Initiate ticks
-            emit finishedUpdate();
-    }
-    
-    else if (*timerCount % 5 == 0){
-        //Theme
-        current->updateTheme();
-    
-        if (*timerCount % 10 == 0){
-          //  home->workPanel->autoPlayground->runScript();
-        }
-            
-        if (*timerCount % 30 == 0){
-            home->workPanel->userBalances->reloadItems();
-            home->workPanel->withdrawals->reloadItemsUsing(home->workPanel->userBalances->userBalances);
-        }
-        
-        emit finishedUpdate();
-    }
-    else {
-        emit finishedUpdate();
-    }
+    manager.enqueue(job);
 }
 
 void TradeBot::downloadTickData(){
     manager.enqueue(home->toDownloadTicks() );
-   
-    // display ticks
+}
+
+void TradeBot::displayTickData(){
+    // display ticks within application
     Task* job = new Task( [this]() {
         auto y = home->livePanel->tradeview->verticalScrollBar()->value();
         home->livePanel->tradeview->setHtml(home->lastTrades().c_str());
         home->livePanel->tradeview->verticalScrollBar()->setValue(y);
     }, true);
-    job->updateWaitTime(2);
+    job->updateWaitTime(2); // every two seconds
     job->wait = 0;
     job->setRepeat(true);
+    job->setToAlwaysExecute();
     
     manager.enqueue(job);
 }
-void TradeBot::loadTickData(){
+
+void TradeBot::updateTheme(){
+    // display ticks within application
     Task* job = new Task( [this]() {
-        thread = std::thread([this]() {
-            home->loadLocalTicks();
-            downloadTickData();
-        });
-        thread.detach();
-    });
-    job->updateWaitTime(0);
-    job->setRepeat(false);
+        current->updateTheme();
+    }, true);
+    job->updateWaitTime(5); // every five seconds
+    job->wait = 0;
+    job->setRepeat(true);
     job->setToAlwaysExecute();
+    
+    manager.enqueue(job);
+}
+
+void TradeBot::updatePanels(){
+    
+    Task* job = new Task( [this]() {
+        // Balance Panel
+        // TODO: seperate api call function from the following
+        home->workPanel->userBalances->reloadItems();
+        
+        //  Withdrawal Panel
+        home->workPanel->withdrawals->reloadItemsUsing(home->workPanel->userBalances->userBalances);
+    }, true);
+    job->updateWaitTime(30); // every 30 seconds
+    job->wait = 0;
+    job->setRepeat(true);
     
     manager.enqueue(job);
 }

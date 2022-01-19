@@ -23,17 +23,16 @@ private:
 private:
     std::thread thread;
     
-    QTimer* timer;
-    
     HomeView* home;
     Window* current;
     
     JobManager manager;
     
-    size_t* timerCount;
-    
-    void downloadTickData();
     void loadTickData();
+    void downloadTickData();
+    void displayTickData();
+    void updateTheme();
+    void updatePanels();
     
     bool eventFilter(QObject *obj, QEvent *event)override;
     void enqueueJob(Task* job);
@@ -42,12 +41,7 @@ private:
     void onEnqueueUserOrder(std::string orderID);
     
     private slots:
-    void onFinishedUpdate();
-    void onUpdate();
     void cleanup();
-    
-    signals:
-    void finishedUpdate();
 
 };
 #endif /* TradeBot_hpp */
