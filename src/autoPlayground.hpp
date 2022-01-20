@@ -51,8 +51,7 @@ private:
 #if POSIX_ENVIRONMENT
     pid_t pid = -1;
 #endif
-    std::string file, filepath;
-    std::wstring wfilepath;
+    std::string scriptfile, tickFile, filepath;
 
     wchar_t** argv;
 public:
@@ -63,6 +62,7 @@ public:
     
     
     void setGeometry(int ax, int ay, int aw, int ah);
+
     void lightTheme();
     void darkTheme();
 public slots:

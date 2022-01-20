@@ -8,9 +8,10 @@
 class TextPanel : public QWidget {
     Q_OBJECT
     static QTextEdit* text;
-    static bool isInitialized;
+    static bool initialized;
     
     TextPanel (QWidget* parent);
+    ~TextPanel ();
 public:
     static TextPanel* textPanel;
     
@@ -18,6 +19,8 @@ public:
     void setGeometry(int ax, int ay, int aw, int ah);
     
     static void init(QWidget* parent);
+    static void destroy();
+    static bool isInitialized();
 };
 
 QTextEdit& operator << (QTextEdit& stream, const std::string& variable);

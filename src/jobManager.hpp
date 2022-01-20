@@ -15,10 +15,9 @@
 class JobManager : public QObject {
 Q_OBJECT
 public:
-    JobManager(QObject* parent = nullptr, int exchange = LUNO_EXCHANGE);
+    JobManager();
     ~JobManager();
 private:
-    int exchange;
     int timeElapsed;
     bool abort, busy;
     QTimer* timer;
@@ -29,6 +28,7 @@ private:
 public:
     void enqueue(Task* job);
     void stop();
+    void restart();
     
 };
 

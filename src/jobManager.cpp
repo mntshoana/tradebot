@@ -1,13 +1,12 @@
 #include "jobManager.hpp"
-
+#include "window.hpp"
 // LUNO allows 1 public request p/sec and
 //             5 authenticated requests p/sec
 // VALR allows 10 public requests p/min and (1 every 10 seconds)
 //             3 authenticated requests p/sec
 
 
-JobManager::JobManager(QObject *parent, int exchange) : QObject(parent) {
-    this->exchange = exchange;
+JobManager::JobManager() : QObject(nullptr) {
     timeElapsed = 0;
     abort = false;
     busy = false;
@@ -27,6 +26,7 @@ void JobManager::onUpdate(){
     if (abort)
         return;
     busy = true;
+    int exchange = HomeView::getExchangeVal();
     /*Slow Queue*/
     // dequeue 1 per 10 seconds (VALR slow queue) #wait == false once every 10 seconds
     // dequeue 1 per second (Luno slow queue) #wait always == false
@@ -130,8 +130,12 @@ void JobManager::stop(){
     abort = true;
     while (busy)
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    delete timer;
     while (!marketQueue.empty()) {
         marketQueue.pop();
     }
+}
+
+void JobManager::restart(){
+    timer->stop();
+    timer->start(1000);
 }

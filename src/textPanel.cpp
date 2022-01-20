@@ -26,7 +26,7 @@ QTextBrowser* operator<< (QTextBrowser* stream, std::string& str){
     return stream;
 }
 
-bool TextPanel::isInitialized = false;
+bool TextPanel::initialized = false;
 QTextEdit* TextPanel::text = nullptr;
 TextPanel* TextPanel::textPanel = nullptr;
 
@@ -37,13 +37,30 @@ TextPanel::TextPanel (QWidget* parent) : QWidget(parent){
     text->setStyleSheet("QTextEdit { border:0;}");
     text->setText("");
 }
-
+TextPanel::~TextPanel (){
+    if (text) {
+        delete text;
+        text = nullptr;
+    }
+}
 
 void TextPanel::init(QWidget* parent){
-    if (isInitialized)
+    if (initialized)
         return;
     textPanel = new TextPanel(parent);
-    isInitialized = true;
+    initialized = true;
+}
+
+void TextPanel::destroy(){
+    if (initialized && textPanel){
+        delete TextPanel::textPanel;
+        textPanel = nullptr;
+        initialized = false;
+    }
+}
+
+static bool isInitialized(){
+    return isInitialized;
 }
 
 QTextEdit& TextPanel::getQText() const{

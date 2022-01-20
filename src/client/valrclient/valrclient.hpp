@@ -11,6 +11,8 @@ enum class VALR_PAY_NOTIFICATION {
 };
 
 namespace VALR {
+    static std::vector<CurrencyInfo> currencies;
+
     class VALRClient : public Client {
     public:
         /* Market Functions */

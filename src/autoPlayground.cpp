@@ -19,7 +19,7 @@ AutoPlaygroundPanel::AutoPlaygroundPanel(QWidget* parent) : QWidget(parent) {
     viewLayout->setSpacing(0);
     setLayout(viewLayout);
     
-    file = "autoPlayGroundScript.py";
+    scriptfile = "autoPlayGroundScript.py";
     filepath = absolutePath();
     // NEED ABSOLUTE PATH TO "src/data/"
     // which is a few directories backwards
@@ -27,6 +27,7 @@ AutoPlaygroundPanel::AutoPlaygroundPanel(QWidget* parent) : QWidget(parent) {
     pos = filepath.find_last_of("/", pos-1);
     pos = filepath.find_last_of("/", pos-1);
     filepath = filepath.substr(0, pos) + "/src/data/";
+    this->tickFile = HomeView::getTickFileName();
     
     imageData = nullptr;
     timer = new QTimer(parent);
@@ -96,8 +97,8 @@ int AutoPlaygroundPanel::runScript() {
         else if (pid == 0){ // child
             execl("/usr/bin/python3",
                   "python3",
-                  (filepath + file).c_str(),
-                  (filepath + "XBTZAR.csv").c_str(),
+                  (filepath + scriptfile).c_str(),
+                  (filepath + tickFile).c_str(),
                   NULL);
             // if it fails
             int failed = -1;

@@ -14,4 +14,4 @@ public:
     void keyPressEvent(QKeyEvent *event) override;
 };
 
-#endif /* exceptions_hpp */
+#endif /* line_block_header */

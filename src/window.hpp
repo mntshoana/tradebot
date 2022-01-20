@@ -25,12 +25,12 @@ protected:
     virtual void darkTheme();
     virtual void lightTheme();
     
-    int exchange;
+    static int exchange;
     std::fstream file;
     std::string path;
     unsigned long long *timestamp; /*milliseconds sinc epoch*/
 public:
-    HomeView (QWidget *parent = nullptr, int exchange = LUNO_EXCHANGE);
+    HomeView (int exchange, QWidget *parent = nullptr);
     virtual ~HomeView();
     
     QWebEngineView *view;
@@ -42,6 +42,9 @@ public:
     
     virtual void updateTheme();
     virtual void forceDarkTheme();
+    
+    static int getExchangeVal(){ return exchange; }
+    static std::string getTickFileName();
     
     virtual void loadLocalTicks(std::string = "DEFAULT") {/*does nothing*/};
     virtual std::string lastTrades() { return "This is just a HomeView template!";}

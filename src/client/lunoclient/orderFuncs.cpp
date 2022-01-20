@@ -3,7 +3,6 @@
 extern Client client;
 
 namespace Luno {
-    std::vector<CurrencyPairInfo> currencies;
 
     // GET FEE INFO
     //

@@ -5,6 +5,8 @@
 #include "client.hpp"
 
 namespace Luno {
+    static  std::vector<CurrencyPairInfo> currencies;
+
     class LunoClient : public Client {
     public:
         /* Market Functions */

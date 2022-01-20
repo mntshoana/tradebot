@@ -6,6 +6,7 @@
 #include "withdrawPanel.hpp"
 #include "textPanel.hpp"
 #include "autoPlayground.hpp"
+#include "dropDownBox.hpp"
 
 //
 class WorkspacePanel : public QWidget {
@@ -19,8 +20,10 @@ public:
     BalancePanel *userBalances;
     WithdrawPanel *withdrawals;
     AutoPlaygroundPanel *autoPlayground;
+    DropDownBox *dropDownBox;
     
     WorkspacePanel(QWidget* parent = nullptr);
+    virtual ~WorkspacePanel();
     
     void setGeometry(int ax, int ay, int aw, int ah);
     void lightTheme();

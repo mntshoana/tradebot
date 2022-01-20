@@ -1,13 +1,12 @@
 #include "tradeBot.hpp"
 
+TradeBot* TradeBot::staticThis = nullptr;
+
 // Constructor
-TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EXCHANGE) {
-    current = home = new LunoHomeView(this); // active home screen window
+TradeBot::TradeBot () : QWidget(nullptr), manager() {
+    staticThis = this;
     
-    // on enqueueUserOrder
-    connect(home->livePanel->livetrade, &TradePanel::enqueueUserOrder,
-            this, &TradeBot::onEnqueueUserOrder);
-    
+    updateExchange(-1);
     
     connect(qApp, &QApplication::aboutToQuit, this, [this] (){
         home->closing=true;
@@ -17,29 +16,16 @@ TradeBot::TradeBot (QWidget *parent ) : QWidget(parent), manager(parent, LUNO_EX
         cleanup();
     });
     
-    
-    // begin job manager
-    loadTickData();
-    updateTheme();
-    updatePanels();
-    manager.enqueue(home->toUpdateOrderBook());
-    manager.enqueue(home->toUpdateOpenUserOrders());
-    
-    // # only testing
-    //*home->workPanel->text  << Luno::LunoClient::listBeneficiaries();
-    
     installEventFilter(this);
+    
 }
 
 void TradeBot::cleanup(){
     Client::abort = true;
     manager.stop();
-
-    if (home)
-        delete home;
-    
-    // Not clean, but not important
     home->workPanel->autoPlayground->deleteSharedMem();
+
+    // Not clean, but not important
     emit close();
 }
 
@@ -88,7 +74,7 @@ void TradeBot::displayTickData(){
 void TradeBot::updateTheme(){
     // display ticks within application
     Task* job = new Task( [this]() {
-        current->updateTheme();
+        home->updateTheme();
     }, true);
     job->updateWaitTime(5); // every five seconds
     job->wait = 0;
@@ -96,6 +82,36 @@ void TradeBot::updateTheme(){
     job->setToAlwaysExecute();
     
     manager.enqueue(job);
+}
+
+void TradeBot::updateExchange(int exchange){
+    
+    if (exchange > -1){
+        manager.restart();
+        home->workPanel->autoPlayground->deleteSharedMem();
+    
+        if (exchange == LUNO_EXCHANGE)
+            home = new LunoHomeView(this); // active home screen window;
+        if (exchange == VALR_EXCHANGE)
+            home = new VALRHomeView(this); // active home screen window;
+    }
+    else
+        home = new LunoHomeView(this); // default
+    
+    // on enqueueUserOrder
+    connect(home->livePanel->livetrade, &TradePanel::enqueueUserOrder,
+            this, &TradeBot::onEnqueueUserOrder);
+    
+    // begin job manager
+    loadTickData();
+    updateTheme();
+    updatePanels();
+    manager.enqueue(home->toUpdateOrderBook());
+    manager.enqueue(home->toUpdateOpenUserOrders());
+    
+    // # only testing
+    //*home->workPanel->text  << Luno::LunoClient::listBeneficiaries();
+    
 }
 
 void TradeBot::updatePanels(){

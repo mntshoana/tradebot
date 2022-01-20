@@ -17,8 +17,13 @@ CONFIG(debug, debug|release) {
 }
 
 
+SOURCES += label.cpp \
+            lineBlock.cpp \
+            dropDownBox.cpp
+HEADERS += label.hpp \
+            lineBlock.hpp \
+            dropDownBox.hpp  
 SOURCES += tradeBot.cpp \
-            label.cpp lineBlock.cpp \
             orderPanel.cpp tradePanel.cpp \
             livePanel.cpp \
             pendingOrders.cpp \
@@ -27,7 +32,6 @@ SOURCES += tradeBot.cpp \
             workspacePanel.cpp \
             window.cpp
 HEADERS += tradeBot.hpp \
-            label.hpp lineBlock.hpp \
             orderPanel.hpp tradePanel.hpp \
             livePanel.hpp \
             pendingOrders.hpp \

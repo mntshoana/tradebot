@@ -5,8 +5,6 @@ extern Client client;
 namespace VALR {
     extern std::string host;
     
-    std::vector<CurrencyInfo> currencies;
-
     // SIMPLE BUY/SELL QUOTE
     // Request a quote for an instant buy or sell order
     //     action   expects string {  "BID" or "ASK" }

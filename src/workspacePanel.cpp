@@ -1,9 +1,10 @@
 #include "workspacePanel.hpp"
 
 WorkspacePanel::WorkspacePanel(QWidget* parent) {
-    TextPanel::init(parent);
     text = TextPanel::textPanel;
     text->setParent(this);
+    text->show();
+    // TODO: Fix text (TextPanel) which dissappears after switching to another exchage
     
     pendingOrders = new PendingOrdersPanel(this);
     
@@ -19,6 +20,18 @@ WorkspacePanel::WorkspacePanel(QWidget* parent) {
     tabWidget->addTab(userBalances, tr("User Balances"));
     tabWidget->addTab(withdrawals, tr("Withdrawals"));
     tabWidget->addTab(autoPlayground, tr("Auto Playground"));
+    
+    dropDownBox = new DropDownBox(parent);
+}
+WorkspacePanel::~WorkspacePanel(){
+    delete pendingOrders;
+    delete userBalances;
+    delete withdrawals;
+    autoPlayground->deleteSharedMem();
+    delete autoPlayground;
+    delete tabWidget;
+    delete dropDownBox;
+    TextPanel::destroy();
 }
 
 void WorkspacePanel::setGeometry(int ax, int ay, int aw, int ah) {

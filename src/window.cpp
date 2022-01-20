@@ -1,9 +1,10 @@
 #include "window.hpp"
 #include <QTimer>
+int HomeView::exchange = LUNO_EXCHANGE;
 
-HomeView::HomeView (QWidget *parent, int exchange) : QWidget(parent) {
+HomeView::HomeView (int exchange, QWidget *parent) : QWidget(parent) {
     this->timestamp = new unsigned long long();
-    this->exchange = exchange;
+    HomeView::exchange = exchange;
     
     // for xcode, app is built in relative path "./build/Debug/" which is undesired
     // find absolute path to resource folder  "../../src/data/";
@@ -31,6 +32,9 @@ HomeView::HomeView (QWidget *parent, int exchange) : QWidget(parent) {
 HomeView::~HomeView(){
     delete livePanel;
     livePanel = nullptr;
+    
+    delete workPanel;
+    workPanel = nullptr;
     
     delete timestamp;
 }
@@ -62,9 +66,15 @@ void HomeView::forceDarkTheme(){
     darkTheme();
 }
 
+std::string HomeView::getTickFileName(){
+    if (exchange == LUNO_EXCHANGE)
+        return "luno_" "XBTZAR"/* + pair + */".csv";
+    if (exchange == VALR_EXCHANGE)
+        return "valr_" "BTCZAR"/*+ pair +*/ ".csv";
+}
 
-LunoHomeView::LunoHomeView (QWidget *parent) : HomeView(parent) {
-    this->exchange = LUNO_EXCHANGE;
+LunoHomeView::LunoHomeView (QWidget *parent) : HomeView(LUNO_EXCHANGE, parent) {
+    HomeView::exchange = LUNO_EXCHANGE;
 
     std::string chartUrl = "https://d32exi8v9av3ux.cloudfront.net/static/scripts/tradingview.prod.html?symbol=XBTZAR&res=60&lang=en";
     view->load(QUrl(chartUrl.c_str()));
@@ -156,7 +166,8 @@ void LunoHomeView::loadLocalTicks(std::string pair){
     if (pair == "DEFAULT")
         pair = "XBTZAR";
     
-    file.open(path + "luno_" + pair + ".csv" , std::ios::in);
+    
+    file.open(path + getTickFileName() , std::ios::in);
     
     if (file.good()){
         file >> moreticks; // <- may take extremely long
@@ -288,8 +299,8 @@ Task* LunoHomeView::toDownloadTicks(std::string pair){
     return job;
 }
 
-VALRHomeView::VALRHomeView (QWidget *parent) : HomeView(parent) {
-    this->exchange = VALR_EXCHANGE;
+VALRHomeView::VALRHomeView (QWidget *parent) : HomeView(VALR_EXCHANGE, parent) {
+    HomeView::exchange = VALR_EXCHANGE;
 
     std::string chartUrl = "https://www.valr.com/exchange/BTC/ZAR";
     view->load(QUrl(chartUrl.c_str()));
@@ -382,7 +393,7 @@ void VALRHomeView::loadLocalTicks(std::string pair){
     if (pair == "DEFAULT")
         pair = "BTCZAR";
     
-    file.open(path + "valr_" + pair + ".csv" , std::ios::in);
+    file.open(path + getTickFileName() , std::ios::in);
     
     if (file.good()){
         file >> moreticks; // <- may take extremely long

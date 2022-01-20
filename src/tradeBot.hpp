@@ -16,7 +16,11 @@ class TradeBot : public QWidget
 {
     Q_OBJECT
 public:
-    TradeBot (QWidget *parent = 0);
+    TradeBot ();
+    
+    static TradeBot* staticThis;
+    void updateExchange(int exchange);
+    
 private:
     void updateInterval(const std::string& period);
     
@@ -24,7 +28,6 @@ private:
     std::thread thread;
     
     HomeView* home;
-    Window* current;
     
     JobManager manager;
     
