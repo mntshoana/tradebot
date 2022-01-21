@@ -10,9 +10,6 @@ TradeBot::TradeBot () : QWidget(nullptr), manager() {
     
     connect(qApp, &QApplication::aboutToQuit, this, [this] (){
         home->closing=true;
-        // TODO: Empty the job manager
-        // jobmanager.clear()
-        
         cleanup();
     });
     
@@ -89,7 +86,8 @@ void TradeBot::updateExchange(int exchange){
     if (exchange > -1){
         manager.restart();
         home->workPanel->autoPlayground->deleteSharedMem();
-    
+        home->workPanel->close();
+        
         if (exchange == LUNO_EXCHANGE)
             home = new LunoHomeView(this); // active home screen window;
         if (exchange == VALR_EXCHANGE)
@@ -108,9 +106,6 @@ void TradeBot::updateExchange(int exchange){
     updatePanels();
     manager.enqueue(home->toUpdateOrderBook());
     manager.enqueue(home->toUpdateOpenUserOrders());
-    
-    // # only testing
-    //*home->workPanel->text  << Luno::LunoClient::listBeneficiaries();
     
 }
 

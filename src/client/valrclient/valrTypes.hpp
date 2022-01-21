@@ -142,11 +142,17 @@ namespace VALR {
         std::string toString() const;
     };
     
-    class AccountSummary {
+    class AccountSummary : public BalanceType {
     public:
         AccountSummary(){}
         Account account;
         std::vector<Balance> balances;
+        
+        virtual std::string getAccountID() const override;
+        virtual std::string getAsset() const override;
+        virtual float getBalance() const override;
+        virtual float getReserved() const override;
+        virtual float getUncomfirmed() const override;
         std::string toString() const;
     };
 

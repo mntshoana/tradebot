@@ -137,5 +137,6 @@ void JobManager::stop(){
 
 void JobManager::restart(){
     timer->stop();
+    abort = false;
     timer->start(1000);
 }

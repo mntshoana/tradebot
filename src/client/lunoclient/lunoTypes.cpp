@@ -374,6 +374,21 @@ namespace Luno {
 
 
     /* Account Functions Types*/
+    std::string Balance::getAccountID() const {
+        return accountID;
+    }
+    std::string Balance::getAsset() const {
+        return asset;
+    }
+    float Balance::getBalance() const {
+        return balance;
+    }
+    float Balance::getReserved() const {
+        return reserved;
+    }
+    float Balance::getUncomfirmed() const {
+        return uncomfirmed;
+    }
     std::string Balance::toString() const{
         std::stringstream ss;
         ss << "ID: : " << accountID << "\n";

@@ -207,7 +207,7 @@ namespace Luno {
     };
    
     /* Account Functions Types*/
-    class Balance {
+    class Balance : public BalanceType{
     public:
         Balance(){}
         std::string accountID;
@@ -215,6 +215,12 @@ namespace Luno {
         float balance;
         float reserved;
         float uncomfirmed;
+        
+        virtual std::string getAccountID() const override;
+        virtual std::string getAsset() const override;
+        virtual float getBalance() const override;
+        virtual float getReserved() const override;
+        virtual float getUncomfirmed() const override;
         std::string toString() const;
     };
 }

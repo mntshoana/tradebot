@@ -290,6 +290,31 @@ namespace VALR {
         return ss.str();
     }
 
+    std::string AccountSummary::getAccountID() const {
+        return std::to_string(account.id);
+    }
+    std::string AccountSummary::getAsset() const {
+        if (balances.size() > 0)
+            return balances.front().asset;
+        else
+            return "NO DATA";
+    }
+    float AccountSummary::getBalance() const {
+        if (balances.size() > 0)
+            return balances.front().balance;
+        else
+            return NAN;
+    }
+    float AccountSummary::getReserved() const {
+        if (balances.size() > 0)
+            return balances.front().reserved;
+        else
+            return NAN;
+    }
+    float AccountSummary::getUncomfirmed() const {
+        //"NO DATA"
+        return NAN;
+    }
     std::string AccountSummary::toString() const{
         std::stringstream ss;
         ss << "Account Info... " << "\n";

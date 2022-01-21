@@ -24,7 +24,7 @@ public:
     std::vector<Luno::Balance> userBalances;
     
     void reloadItems();
-    void createItem (Luno::Balance&);
+    void createItem (BalanceType&);
     void createTitle ();
     void loadItems ();
     BalancePanel(QWidget* parent = nullptr);

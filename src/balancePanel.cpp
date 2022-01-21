@@ -70,25 +70,25 @@ std::string BalancePanel::floatToString(float val, const int decimals )
     return out.str();
 }
 
-void BalancePanel::createItem (Luno::Balance& balance)
+void BalancePanel::createItem (BalanceType& balance)
 {
     QFont big( "Helvetica", 15, QFont::Normal);
     QFont normal( "Helvetica", 13, QFont::Normal);
     
-    QLabel *lblAsset = new QLabel ( QString::fromStdString(balance.asset ) );
+    QLabel *lblAsset = new QLabel ( QString::fromStdString(balance.getAsset() ) );
     lblAsset->setFont(big);
     
-    bool isZar = balance.asset == "ZAR";
+    bool isZar = balance.getAsset() == "ZAR";
     std::string prefixR = (isZar ? "R " : "");
-    QLabel *lblBalance = new QLabel ( QString::fromStdString(prefixR + floatToString(balance.balance, isZar ? 2 : 6 )) );
+    QLabel *lblBalance = new QLabel ( QString::fromStdString(prefixR + floatToString(balance.getBalance(), isZar ? 2 : 6 )) );
     lblBalance->setFont(normal);
     
-    QLabel *lblReserved = new QLabel ( QString::fromStdString(prefixR +floatToString(balance.reserved, isZar ? 2 : 6 ) ) );
+    QLabel *lblReserved = new QLabel ( QString::fromStdString(prefixR +floatToString(balance.getReserved(), isZar ? 2 : 6 ) ) );
     lblReserved->setFont(normal);
-    QLabel *lblUncomfirmed = new QLabel ( QString::fromStdString(prefixR +floatToString(balance.uncomfirmed, isZar ? 2 : 6 ) ) );
+    QLabel *lblUncomfirmed = new QLabel ( QString::fromStdString(prefixR +floatToString(balance.getUncomfirmed(), isZar ? 2 : 6 ) ) );
     lblUncomfirmed->setFont(normal);
     
-    QLabel *lblAccountID = new QLabel ( QString::fromStdString(balance.accountID ) );
+    QLabel *lblAccountID = new QLabel ( QString::fromStdString(balance.getAccountID() ) );
     lblAccountID->setFont(normal);
     
 

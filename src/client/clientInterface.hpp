@@ -15,4 +15,13 @@ public:
     
 };
 
+class BalanceType {
+public:
+    virtual std::string getAccountID() const = 0;
+    virtual std::string getAsset() const = 0;
+    virtual float getBalance() const = 0;
+    virtual float getReserved() const = 0;
+    virtual float getUncomfirmed() const = 0;
+};
+
 #endif /*CLIENT_INTERFACE_HEADER*/
