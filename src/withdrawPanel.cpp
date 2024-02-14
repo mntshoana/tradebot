@@ -6,6 +6,8 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
     TextPanel::init(parent);
     text = TextPanel::textPanel;
     
+    beneficiaryPanel = nullptr;
+    
     loadItems();
     
     QStringList assetList;
@@ -64,17 +66,44 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
     connect(withdraw,
             &QPushButton::clicked, this,[this](){
         *text << "Withdraw button clicked. To Widthraw " + txtAmount->text().toStdString();
+        
+        bool isFastWithdrawl = cbxFastWithdraw->isChecked();
+        float amount = atof(txtAmount->text().toStdString().c_str()); // ZAR
+        std::vector<Luno::Beneficiary> beneficiaries;
+        
         try {
-            bool isFastWithdrawl = cbxFastWithdraw->isChecked();
-            float amount = atof(txtAmount->text().toStdString().c_str()); // ZAR
-            Luno::Withdrawal w = Luno::LunoClient::withdraw(amount, isFastWithdrawl);
-            pending->pushBack(w);
-            
-            text->getQText() << w;
+            beneficiaries = Luno::LunoClient::listBeneficiaries();
+        } catch (ResponseEx ex){
+            *TextPanel::textPanel << errorLiner + ex.String().c_str();
+            return;
+        } catch (std::invalid_argument ex) {
+            *text << errorLiner + ex.what();
         }
-        catch (ResponseEx ex){
-            *text << " [Error] Unable to withdraw! At " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
-            *text << ex.String();
+        
+        if (beneficiaries.size() == 1){
+            try {
+                Luno::Withdrawal w = Luno::LunoClient::withdraw(amount, isFastWithdrawl);
+                pending->pushBack(w);
+                
+                text->getQText() << w;
+            }
+            catch (ResponseEx ex){
+                *text << errorLinerWithMessage("Unable to withdraw!") + ex.String();
+            } catch (std::invalid_argument ex) {
+                *text << errorLiner + ex.what();
+            }
+        }
+        else {
+            if (beneficiaryPanel == nullptr){
+                beneficiaryPanel = new WithdrawalBeneficiaryPanel(amount, isFastWithdrawl, beneficiaries, pending->userWithdrawals);
+                    beneficiaryPanel->show();
+            } else {
+                beneficiaryPanel->close();
+                beneficiaryPanel = new WithdrawalBeneficiaryPanel(amount, isFastWithdrawl, beneficiaries,
+                                                                  pending->userWithdrawals);
+                beneficiaryPanel->show();
+            }
+            
         }
     });
 }
@@ -101,7 +130,9 @@ void WithdrawPanel::loadItems (){
     try{
         userBalances = Luno::LunoClient::getBalances();
     } catch (ResponseEx ex){
-            *text << ex.String().c_str();
+            *text << errorLiner +  ex.String().c_str();
+    } catch (std::invalid_argument ex) {
+        *text << errorLiner + ex.what();
     }
 }
 
@@ -235,8 +266,9 @@ void PendingWithdrawals::createItem (Luno::Withdrawal& withdrawal){
             *text << ("COMPLETE: " + result).c_str();
         }
         catch (ResponseEx& ex){
-            *text << " [Error] Unable to cancel withdrawal! at " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
-            *text << ex.String();
+            *text << errorLinerWithMessage("Unable to cancel withdrawal!") + ex.String();
+        } catch (std::invalid_argument ex) {
+            *text << errorLiner + ex.what();
         }
     });
 }
@@ -272,7 +304,9 @@ void PendingWithdrawals::loadItems (){
             }
         }
     } catch (ResponseEx ex){
-            *text << ex.String().c_str(); // To do:: should be an error stream here
+            *text << errorLiner + ex.String().c_str();
+    } catch (std::invalid_argument ex) {
+        *text << errorLiner + ex.what();
     }
 }
 void PendingWithdrawals::paintEvent(QPaintEvent *){

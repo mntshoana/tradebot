@@ -129,7 +129,9 @@ void BalancePanel::loadItems (){
         }
         
     } catch (ResponseEx ex){
-            *text << ex.String().c_str(); // To do:: should be an error stream here
+            *text << errorLiner + ex.String().c_str();
+    } catch (std::invalid_argument ex) {
+        *text << errorLiner + ex.what();
     }
 }
 

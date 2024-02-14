@@ -15,10 +15,10 @@ namespace Luno {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
+        res.erase(std::remove(res.begin(), res.end(), '\n'), res.cend()); // '\n' breaks parsing
         std::vector<Withdrawal> withdrawals;
         size_t last = 0;
         last = res.find("[", last) + 1;
-        
         while ((last = res.find("{", last)) != std::string::npos) {
             withdrawals.push_back(Withdrawal());
             
@@ -58,7 +58,7 @@ namespace Luno {
     // REQUEST WITHDRAW
     //
     //
-    Withdrawal LunoClient::withdraw(float amount, bool isFast){
+    Withdrawal LunoClient::withdraw(float amount, bool isFast, std::string beneficiaryID){
         std::string uri = "https://api.mybitx.com/api/1/withdrawals";
         uri += "?type=ZAR_EFT";
         
@@ -70,8 +70,12 @@ namespace Luno {
         if (isFast)
             uri += "&fast=true";
         
+        if (beneficiaryID != "")
+            uri += "&beneficiary_id=" + beneficiaryID;
+        
         std::string res = client.request("POST", uri.c_str(), true);
         
+        res.erase(std::remove(res.begin(), res.end(), '\n'), res.cend()); // '\n' breaks parsing
         int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);

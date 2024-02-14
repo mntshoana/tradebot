@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.8
 import sys
 sys.path = ['', '/Library/Frameworks/Python.framework/Versions/3.8/lib/python38.zip', '/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8', '/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/lib-dynload', '/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages']
 import io
@@ -23,6 +24,14 @@ MEMSIZE = IMGMEMSIZE + IMGLENGTH + RGBMEMSIZE
 # Shared Memory - existing
 shm_a = shared_memory.SharedMemory(name='autoPG', create=False)
 
+def writeIntToMem(startIndex, endIndex, value):
+    shm_a.buf[startIndex:endIndex] = value.to_bytes(endIndex-startIndex, byteorder=sys.byteorder, signed=True)
+    return
+    
+def readIntFromMem(startIndex, endIndex):
+    value = int.from_bytes(shm_a.buf[startIndex:endIndex], byteorder=sys.byteorder, signed=True)
+    return value
+    
 class Autoplayground():
     def __init__(self = None):
         self.buf = io.BytesIO()
@@ -74,13 +83,7 @@ class Autoplayground():
 
         plt.close(fig)
 
-def writeIntToMem(startIndex, endIndex, value):
-    shm_a.buf[startIndex:endIndex] = value.to_bytes(endIndex-startIndex, byteorder=sys.byteorder, signed=True)
-    return
-    
-def readIntFromMem(startIndex, endIndex):
-    value = int.from_bytes(shm_a.buf[startIndex:endIndex], byteorder=sys.byteorder, signed=True)
-    return value
+
     
 if __name__ == "__main__":
     print("\nAutoplayground: Child process initiated")
@@ -98,7 +101,7 @@ if __name__ == "__main__":
         app.load()
         i =  i+1
         if (i>7):
-            i = 0;
+            i = 0
         time.sleep(4)
 
     buf.close()

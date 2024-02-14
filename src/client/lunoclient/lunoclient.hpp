@@ -61,7 +61,7 @@ namespace Luno {
 
         /* Transfers Functions */
         static std::vector<Withdrawal> getWithdrawalList();
-        static Withdrawal withdraw(float amount, bool isFast);
+        static Withdrawal withdraw(float amount, bool isFast, std::string beneficiaryID = "");
         static std::string getWithdrawal(std::string id);
         static std::string cancelWithdrawal(std::string id);
         // getTransfers (not needed)

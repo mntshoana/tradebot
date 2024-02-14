@@ -15,7 +15,9 @@ void Task::performJob() {
     try{
         lamdaFunction();
     } catch (ResponseEx ex){
-        TextPanel::textPanel << ex.String();
+        TextPanel::textPanel << errorLiner + ex.String();
+    } catch (std::invalid_argument ex) {
+        TextPanel::textPanel << errorLiner + ex.what();
     }
 }
 

@@ -141,6 +141,8 @@ namespace VALR {
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
         
+        res.erase(std::remove(res.begin(), res.end(), '\n'), res.cend()); // '\n' breaks parsing
+        
         size_t last = 0;
         
         std::string token;

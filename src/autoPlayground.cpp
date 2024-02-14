@@ -72,7 +72,7 @@ int AutoPlaygroundPanel::runScript() {
         }
         else if (pid > 0){ // parent
             this->pid = pid;
-            sleep(2);
+            sleep(3);
             int responded;
             memcpy(&responded, memptr, sizeof(responded));
             *text << ("read response " + std::to_string(responded)).c_str();
@@ -95,15 +95,15 @@ int AutoPlaygroundPanel::runScript() {
             }
         }
         else if (pid == 0){ // child
-            execl("/usr/bin/python3",
-                  "python3",
+            execlp("python3.8",
+                  "python3.8",
                   (filepath + scriptfile).c_str(),
                   (filepath + tickFile).c_str(),
                   NULL);
-            // if it fails
+            // only reaches here if it fails
             int failed = -1;
             memcpy(memptr, (void*)&failed, sizeof(failed));
-            *text << "Error! Failed to run execl. Autoplayground failed to execute script";
+            std::cout << "Error! Failed to run execl. Autoplayground failed to execute script";
             exit(-1);
         }
     }

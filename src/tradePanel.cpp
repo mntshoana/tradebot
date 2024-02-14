@@ -93,13 +93,19 @@ void TradePanel::executeTrade(){
     const char *action = (isBuy) ? "BID" : "ASK";
     
         if (amount == 0.0f){
-            if (isBuy){
-                auto balances = Luno::LunoClient::getBalances("ZAR");
-                amount = (balances[0].balance - balances[0].reserved) / float(price);
-            }
-            else if (!isBuy){
-                auto balances = Luno::LunoClient::getBalances("XBT");
-                amount = balances[0].balance - balances[0].reserved;
+            try {
+                if (isBuy){
+                    auto balances = Luno::LunoClient::getBalances("ZAR");
+                    amount = (balances[0].balance - balances[0].reserved) / float(price);
+                }
+                else if (!isBuy){
+                    auto balances = Luno::LunoClient::getBalances("XBT");
+                    amount = balances[0].balance - balances[0].reserved;
+                }
+            } catch (ResponseEx ex){
+                    *text << errorLiner + ex.String().c_str();
+            } catch (std::invalid_argument ex) {
+                *text << errorLiner + ex.what();
             }
         }
        
@@ -116,7 +122,8 @@ void TradePanel::executeTrade(){
         *text << "COMPLETE: " + ordrID;
         emit enqueueUserOrder(ordrID);
     } catch (ResponseEx ex){
-        *text << " [Error] Unable to place order! at " + std::string(__FILE__) + ", line: " + std::to_string(__LINE__);
-        *text << ex.String();
+        *text << errorLinerWithMessage("Unable to place order!") + ex.String();
+    } catch (std::invalid_argument ex) {
+        *text << errorLiner + ex.what();
     }
 }

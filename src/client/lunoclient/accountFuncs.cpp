@@ -340,6 +340,7 @@ namespace Luno {
         
         std::string res = client.request("GET", uri.c_str(), true);
         
+        res.erase(std::remove(res.begin(), res.end(), '\n'), res.cend()); // '\n' breaks parsing
         int httpCode = client.getHttpCode();
         if (httpCode != 200)
             throw ResponseEx("Error " + std::to_string(httpCode) + " - " + res);
@@ -391,6 +392,7 @@ namespace Luno {
         uri += "&limit=" + std::to_string(limit);
         
         std::string res = client.request("GET", uri.c_str(), true);
+        res.erase(std::remove(res.begin(), res.end(), '\n'), res.cend()); // '\n' breaks parsing
         
         int httpCode = client.getHttpCode();
         if (httpCode != 200)

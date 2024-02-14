@@ -62,8 +62,11 @@ void verifyLabel(const char* label, std::string source, size_t colonPos){
     size_t pos = colonPos - length - spaceAdjustment;
    
     std::string expectedString = source.substr(pos, length);
-    if (strcmp(label, expectedString.c_str()) != 0)
+    if (strcmp(label, expectedString.c_str()) != 0){
+        
+        //*TextPanel::textPanel << source;
         throw std::invalid_argument("Expecting json label \"" + std::string(label) + "\" but encountered \"" + expectedString +"\"!");
+    }
 
     return;
 }
@@ -194,7 +197,7 @@ std::string Client::request (const char* method, const char* uri, bool auth, int
             // Please note the following file is not included. ADD IT YOURSELF. It is a header file within in the src folder and it defines the following string literals
             //      LUNO_USERNAME, LUNO_PASSWORD, VALR_PASSWORD, VALR_USERNAME, LKEY (localbitcoin) and LSECRET.
             //      If you intend not to them, define them in ur file to be empty strings ""
-            #include "credentials.hpp"
+            #include "../credentials.hpp"
             if (exchange == LUNO_EXCHANGE){
                 // HTTP basic authentication
                 curl_easy_setopt(curl, CURLOPT_USERNAME, LUNO_USERNAME);

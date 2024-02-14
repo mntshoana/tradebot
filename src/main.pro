@@ -1,6 +1,6 @@
 ###QT project file
 
-QT += widgets network webenginewidgets
+QT += core widgets network webenginewidgets
 QMAKE_CXXFLAGS += -std=c++17
 CONFIG += c++17
 
@@ -28,6 +28,7 @@ SOURCES += tradeBot.cpp \
             livePanel.cpp \
             pendingOrders.cpp \
             balancePanel.cpp withdrawPanel.cpp \
+            withdrawalBeneficiaries.cpp \
             textPanel.cpp \
             workspacePanel.cpp \
             window.cpp
@@ -36,6 +37,7 @@ HEADERS += tradeBot.hpp \
             livePanel.hpp \
             pendingOrders.hpp \
             balancePanel.hpp withdrawPanel.hpp \
+            withdrawalBeneficiaries.hpp \
             textPanel.hpp \
             workspacePanel.hpp \
             window.hpp

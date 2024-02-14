@@ -17,13 +17,15 @@
 #include "client/valrclient/valrclient.hpp"
 #include "lineBlock.hpp"
 #include "textPanel.hpp"
+#include "withdrawalBeneficiaries.hpp"
 
 class PendingWithdrawals : public QWidget {
-    std::vector<Luno::Withdrawal> userWithdrawals;
     TextPanel* text;
 public:
     QVBoxLayout *format;
     QHBoxLayout *line;
+    
+    std::vector<Luno::Withdrawal> userWithdrawals;
     
     PendingWithdrawals(QWidget* parent = nullptr);
     void loadItems();
@@ -52,6 +54,7 @@ private:
     QPushButton* withdraw;
     
     PendingWithdrawals *pending;
+    WithdrawalBeneficiaryPanel* beneficiaryPanel;
     
 public:
     QGroupBox *boundingBox;

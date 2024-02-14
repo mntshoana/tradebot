@@ -120,8 +120,14 @@ Task* LunoHomeView::toUpdateOrderBook(std::string pair) {
     if (pair == "DEFAULT")
         pair = "XBTZAR";
     Task* job = new Task( [this, pair]() {
+        try {
         Luno::OrderBook orderBook = Luno::LunoClient::getOrderBook(pair);
         livePanel->orderview << orderBook.FormatHTMLWith(&lunoOrders);
+        } catch (ResponseEx ex){
+                *TextPanel::textPanel << errorLiner + ex.String().c_str();;
+        } catch (std::invalid_argument ex) {
+            *TextPanel::textPanel << errorLiner + ex.what();
+        }
     });
     job->updateWaitTime(2);
     job->setRepeat(true);
@@ -130,15 +136,21 @@ Task* LunoHomeView::toUpdateOrderBook(std::string pair) {
 
 Task* LunoHomeView::toUpdateOpenUserOrders() {
     Task* job = new Task( [this]() {
-        workPanel->pendingOrders->clearItems();
-        lunoOrders = Luno::LunoClient::getUserOrders("XBTZAR", "PENDING");
-        
-        std::vector<OrderType*> temp;
-        std::for_each(lunoOrders.begin(), lunoOrders.end(), [&temp](Luno::UserOrder& entry){
-            temp.push_back( &entry);
-        });
-        workPanel->pendingOrders->addOrders(&temp);
-        temp.clear();
+        try {
+            workPanel->pendingOrders->clearItems();
+            lunoOrders = Luno::LunoClient::getUserOrders("XBTZAR", "PENDING");
+            
+            std::vector<OrderType*> temp;
+            std::for_each(lunoOrders.begin(), lunoOrders.end(), [&temp](Luno::UserOrder& entry){
+                temp.push_back( &entry);
+            });
+            workPanel->pendingOrders->addOrders(&temp);
+            temp.clear();
+        } catch (ResponseEx ex){
+            *TextPanel::textPanel << errorLiner + ex.String().c_str();;
+        } catch (std::invalid_argument ex) {
+            *TextPanel::textPanel  << errorLiner + ex.what();
+        }
     });
     job->updateWaitTime(5);
     job->wait = 0; // execute one time immediately before waiting
@@ -148,15 +160,21 @@ Task* LunoHomeView::toUpdateOpenUserOrders() {
 
 Task* LunoHomeView::toAppendOpenUserOrder(std::string orderID) {
     Task* job = new Task( [this, orderID]() {
-        Luno::UserOrder details = Luno::LunoClient::getOrderDetails(orderID);
-        
-        TextPanel::textPanel << details;
-        std::vector<OrderType*> temp;
-        
-        temp.push_back( &details);
-        
-        workPanel->pendingOrders->addOrders(&temp);
-        temp.clear();
+        try {
+            Luno::UserOrder details = Luno::LunoClient::getOrderDetails(orderID);
+            
+            TextPanel::textPanel << details;
+            std::vector<OrderType*> temp;
+            
+            temp.push_back( &details);
+            
+            workPanel->pendingOrders->addOrders(&temp);
+            temp.clear();
+        } catch (ResponseEx ex){
+            *TextPanel::textPanel << errorLiner + ex.String().c_str();;
+        } catch (std::invalid_argument ex) {
+            *TextPanel::textPanel  << errorLiner + ex.what();
+        }
     });
     
     return job;
@@ -214,7 +232,15 @@ void LunoHomeView::loadLocalTicks(std::string pair){
 }
 
 void LunoHomeView::downloadTicks(std::string pair){
-    moreticks = Luno::LunoClient::getTrades(pair, *timestamp); // order = newest to oldest
+    try {
+        moreticks = Luno::LunoClient::getTrades(pair, *timestamp); // order = newest to oldest
+    } catch (ResponseEx ex){
+            *TextPanel::textPanel << errorLiner + ex.String().c_str();
+        return;
+    } catch (std::invalid_argument ex) {
+        *TextPanel::textPanel << errorLiner + ex.what();
+        return;
+    }
     while (ticks.size() > 0
             && moreticks.size() > 0
             && moreticks.back().sequence <= ticks.back().sequence)

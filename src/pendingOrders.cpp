@@ -100,8 +100,15 @@ void PendingOrdersPanel::createItem (OrderType& order)
     connect(but, &QPushButton::clicked, this, [this, &order] () {
         auto it = std::find(orderIds.begin(), orderIds.end(), order.getID());
         int index = it - orderIds.begin() + 1; // plus title row
-        bool result = Luno::LunoClient::cancelOrder(order.getID());
+        bool result = false;
         
+        try{
+            result = Luno::LunoClient::cancelOrder(order.getID());
+        } catch (ResponseEx ex){
+                *text << errorLiner + ex.String().c_str();
+        } catch (std::invalid_argument ex) {
+            *text << errorLiner + ex.what();
+        }
         QLayout *level = format->takeAt(index)->layout();
         while(!level->isEmpty()) {
             QWidget *w = level->takeAt(0)->widget();
@@ -151,7 +158,14 @@ void PendingOrdersPanel::popFrontOrder(){
     int displayedOrderListCount = list.size();
     displayedOrderListCount--; // Must exclude the title row
     if (orderIds.size() > 0 && orderIds.size() == displayedOrderListCount){
-        bool result = Luno::LunoClient::cancelOrder(orderIds[0]);
+        bool result = false;
+        try {
+            bool result = Luno::LunoClient::cancelOrder(orderIds[0]);
+        } catch (ResponseEx ex){
+                *text << errorLiner + ex.String().c_str();
+        } catch (std::invalid_argument ex) {
+            *text << errorLiner + ex.what();
+        }
         
         QLayout *level = format->takeAt(1)->layout();
         while(!level->isEmpty()) {
