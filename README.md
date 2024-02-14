@@ -4,9 +4,9 @@ This project is aimed at having an understanding of trading through code. The pr
 Feel free to use this source code however you please. #Learn c++.
 
 ## Requirements
-The project mostly uses c++. To be able to use this code, you will need to have a Qt compiler as well as libcurl installed in your system. The make.pro file is configured to use c++17, this is not a requirement. This code was only tested on MacOS (Catalina and Big Sur). I will continue using Qt version 6. 
+The project mostly uses c++. To be able to use this code, you will need to have a Qt compiler as well as libcurl installed in your system. The make.pro file is configured to use c++17, this is not a requirement. This code was only tested on MacOS (Sonoma). I will continue using Qt version 6. 
 
-Another requirement you must have already installed on your computer is libcurl. http requests are invoked using this library and it must be present. 
+A cruicial requirement you must have already installed on your computer is libcurl. http requests are invoked using this library and it must be present. 
 
 Note: Python will also be used for financial machine learning in future, it is now also a required in order to compile.
 
