@@ -5,5 +5,8 @@ src/credentials.hpp
 bin/
 build/
 
+# Go
+goserver/goserver
+
 # macOS
 .DS_Store

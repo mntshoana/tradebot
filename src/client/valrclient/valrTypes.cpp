@@ -1,6 +1,6 @@
 #include "valrTypes.hpp"
 
-bool abortStatus();
+static bool abortStatus() { return false; }
 namespace VALR {
     /* Account Functions Types*/
     std::string OrderBook::toString() const{

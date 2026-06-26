@@ -95,11 +95,11 @@ void TradePanel::executeTrade(){
         if (amount == 0.0f){
             try {
                 if (isBuy){
-                    auto balances = Luno::LunoClient::getBalances("ZAR");
+                    auto balances = Sidecar::getLunoBalances("ZAR");
                     amount = (balances[0].balance - balances[0].reserved) / float(price);
                 }
                 else if (!isBuy){
-                    auto balances = Luno::LunoClient::getBalances("XBT");
+                    auto balances = Sidecar::getLunoBalances("XBT");
                     amount = balances[0].balance - balances[0].reserved;
                 }
             } catch (ResponseEx ex){
@@ -115,7 +115,8 @@ void TradePanel::executeTrade(){
         }
     try {
         // output
-        std::string ordrID = Luno::LunoClient::postLimitOrder("XBTZAR", action, amount, price);
+        const std::string side = isBuy ? "buy" : "sell";
+        std::string ordrID = Sidecar::postLunoLimitOrder("XBTZAR", side, (float)price, amount);
         *text << std::string(action) + " order at price: " + std::to_string(price);
         *text << "   Amount: " + std::to_string(amount);
         *text << "   Valued: " + std::to_string(amount * price);

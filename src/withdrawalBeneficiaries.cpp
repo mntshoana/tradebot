@@ -108,7 +108,7 @@ void WithdrawalBeneficiaryPanel::paintEvent(QPaintEvent *){
 
 void WithdrawalBeneficiaryPanel::withdraw(std::string beneficiaryID){
     try {
-        Luno::Withdrawal w = Luno::LunoClient::withdraw(amount, isFastWithdrawal, beneficiaryID);
+        Luno::Withdrawal w = Sidecar::lunoWithdraw(amount, isFastWithdrawal, beneficiaryID);
         userWithdrawals.push_back(w);
         
         text->getQText() << w;

@@ -122,7 +122,7 @@ void BalancePanel::createItem (BalanceType& balance)
 
 void BalancePanel::loadItems (){
     try{
-        userBalances = Luno::LunoClient::getBalances();
+        userBalances = Sidecar::getLunoBalances();
         for (Luno::Balance& balance : userBalances){
                 accountIDs.push_back(balance.accountID);
                 createItem( balance );

@@ -2,7 +2,6 @@
 #define JobManager_hpp
 
 #include "job.hpp"
-#include "client.hpp"
 
 #include <queue>
 

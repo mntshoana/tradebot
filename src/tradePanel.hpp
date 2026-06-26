@@ -10,7 +10,7 @@
 #include "textPanel.hpp"
 #include "label.hpp"
 #include "lineBlock.hpp"
-#include "client/lunoclient/lunoclient.hpp"
+#include "sidecar.hpp"
 #include "exceptions.hpp"
 
 class TradePanel : public QWidget {

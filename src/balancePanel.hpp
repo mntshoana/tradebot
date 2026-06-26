@@ -7,8 +7,7 @@
 #include <QPaintEvent>
 #include <QStyleOption>
 
-#include "client/lunoclient/lunoclient.hpp"
-#include "client/valrclient/valrclient.hpp"
+#include "sidecar.hpp"
 #include "textPanel.hpp"
 
 class BalancePanel : public QWidget {

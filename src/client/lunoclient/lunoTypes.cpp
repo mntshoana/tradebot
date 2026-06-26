@@ -1,6 +1,6 @@
 #include "lunoTypes.hpp"
 
-bool abortStatus();
+static bool abortStatus() { return false; }
 namespace Luno {
 
     /* Market Functions Types */

@@ -121,7 +121,7 @@ Task* LunoHomeView::toUpdateOrderBook(std::string pair) {
         pair = "XBTZAR";
     Task* job = new Task( [this, pair]() {
         try {
-        Luno::OrderBook orderBook = Luno::LunoClient::getOrderBook(pair);
+        Luno::OrderBook orderBook = Sidecar::getLunoOrderBook(pair);
         livePanel->orderview << orderBook.FormatHTMLWith(&lunoOrders);
         } catch (ResponseEx ex){
                 *TextPanel::textPanel << errorLiner + ex.String().c_str();;
@@ -138,7 +138,7 @@ Task* LunoHomeView::toUpdateOpenUserOrders() {
     Task* job = new Task( [this]() {
         try {
             workPanel->pendingOrders->clearItems();
-            lunoOrders = Luno::LunoClient::getUserOrders("XBTZAR", "PENDING");
+            lunoOrders = Sidecar::getLunoOpenOrders("XBTZAR");
             
             std::vector<OrderType*> temp;
             std::for_each(lunoOrders.begin(), lunoOrders.end(), [&temp](Luno::UserOrder& entry){
@@ -161,7 +161,7 @@ Task* LunoHomeView::toUpdateOpenUserOrders() {
 Task* LunoHomeView::toAppendOpenUserOrder(std::string orderID) {
     Task* job = new Task( [this, orderID]() {
         try {
-            Luno::UserOrder details = Luno::LunoClient::getOrderDetails(orderID);
+            Luno::UserOrder details = Sidecar::getLunoOrderDetails(orderID);
             
             TextPanel::textPanel << details;
             std::vector<OrderType*> temp;
@@ -233,7 +233,7 @@ void LunoHomeView::loadLocalTicks(std::string pair){
 
 void LunoHomeView::downloadTicks(std::string pair){
     try {
-        moreticks = Luno::LunoClient::getTrades(pair, *timestamp); // order = newest to oldest
+        moreticks = Sidecar::getLunoTrades(pair, *timestamp); // order = newest to oldest
     } catch (ResponseEx ex){
             *TextPanel::textPanel << errorLiner + ex.String().c_str();
         return;
@@ -364,7 +364,7 @@ Task* VALRHomeView::toUpdateOrderBook(std::string pair) {
     if (pair == "DEFAULT")
         pair = "BTCZAR";
     Task* job = new Task( [this, pair]() {
-        VALR::OrderBook orderBook = VALR::VALRClient::getOrderBook(pair, true);
+        VALR::OrderBook orderBook = Sidecar::getVALROrderBook(pair);
         livePanel->orderview << orderBook.FormatHTMLWith(&valrOrders);
     });
     
@@ -467,7 +467,7 @@ void VALRHomeView::loadLocalTicks(std::string pair){
 }
 
 void VALRHomeView::downloadTicks(std::string pair){
-    moreticks = VALR::VALRClient::getTrades(pair, true, *timestamp); // order = newest to oldest
+    moreticks = Sidecar::getVALRTrades(pair, *timestamp); // order = newest to oldest
     
     while (ticks.size() > 0
             && moreticks.size() > 0

@@ -12,8 +12,7 @@
 #include <chrono>
 #include <thread>
 
-#include "client/lunoclient/lunoclient.hpp"
-#include "client/valrclient/valrclient.hpp"
+#include "sidecar.hpp"
 #include "textPanel.hpp"
 
 class PendingOrdersPanel : public QWidget {

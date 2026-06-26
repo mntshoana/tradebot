@@ -72,7 +72,7 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
         std::vector<Luno::Beneficiary> beneficiaries;
         
         try {
-            beneficiaries = Luno::LunoClient::listBeneficiaries();
+            beneficiaries = Sidecar::listLunoBeneficiaries();
         } catch (ResponseEx ex){
             *TextPanel::textPanel << errorLiner + ex.String().c_str();
             return;
@@ -82,7 +82,7 @@ WithdrawPanel::WithdrawPanel(QWidget* parent) : QWidget(parent) {
         
         if (beneficiaries.size() == 1){
             try {
-                Luno::Withdrawal w = Luno::LunoClient::withdraw(amount, isFastWithdrawl);
+                Luno::Withdrawal w = Sidecar::lunoWithdraw(amount, isFastWithdrawl);
                 pending->pushBack(w);
                 
                 text->getQText() << w;
@@ -128,7 +128,7 @@ std::string WithdrawPanel::floatToString(float val, const int decimals )
 
 void WithdrawPanel::loadItems (){
     try{
-        userBalances = Luno::LunoClient::getBalances();
+        userBalances = Sidecar::getLunoBalances();
     } catch (ResponseEx ex){
             *text << errorLiner +  ex.String().c_str();
     } catch (std::invalid_argument ex) {
@@ -251,7 +251,7 @@ void PendingWithdrawals::createItem (Luno::Withdrawal& withdrawal){
         }
         
         try{
-            std::string result = Luno::LunoClient::cancelWithdrawal(std::to_string(withdrawal.id));
+            std::string result = Sidecar::cancelLunoWithdrawal(std::to_string(withdrawal.id));
             
             QLayout *level = format->takeAt(index+1 /*jump title*/)->layout();
             while(!level->isEmpty()) {
@@ -297,7 +297,7 @@ void PendingWithdrawals::createTitle (){
 
 void PendingWithdrawals::loadItems (){
     try {
-        std::vector<Luno::Withdrawal> retrieved = Luno::LunoClient::getWithdrawalList();
+        std::vector<Luno::Withdrawal> retrieved = Sidecar::getLunoWithdrawals();
         for (Luno::Withdrawal& w : retrieved){
             if (w.status == "PENDING"){
                 pushBack(w);

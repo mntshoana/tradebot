@@ -103,7 +103,7 @@ void PendingOrdersPanel::createItem (OrderType& order)
         bool result = false;
         
         try{
-            result = Luno::LunoClient::cancelOrder(order.getID());
+            result = Sidecar::cancelLunoOrder(order.getID());
         } catch (ResponseEx ex){
                 *text << errorLiner + ex.String().c_str();
         } catch (std::invalid_argument ex) {
@@ -160,7 +160,7 @@ void PendingOrdersPanel::popFrontOrder(){
     if (orderIds.size() > 0 && orderIds.size() == displayedOrderListCount){
         bool result = false;
         try {
-            bool result = Luno::LunoClient::cancelOrder(orderIds[0]);
+            bool result = Sidecar::cancelLunoOrder(orderIds[0]);
         } catch (ResponseEx ex){
                 *text << errorLiner + ex.String().c_str();
         } catch (std::invalid_argument ex) {

@@ -1,6 +1,0 @@
-#define LUNO_USERNAME ""
-#define LUNO_PASSWORD ""
-#define VALR_USERNAME ""
-#define VALR_PASSWORD ""
-#define LKEY ""
-#define LSECRET ""

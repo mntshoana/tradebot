@@ -18,7 +18,6 @@ TradeBot::TradeBot () : QWidget(nullptr), manager() {
 }
 
 void TradeBot::cleanup(){
-    Client::abort = true;
     manager.stop();
     home->workPanel->autoPlayground->deleteSharedMem();
 
