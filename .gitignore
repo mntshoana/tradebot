@@ -1,3 +1,6 @@
+# Credentials - never commit
+src/credentials.hpp
+
 # Build output
 bin/
 build/
