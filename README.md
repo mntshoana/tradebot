@@ -1,33 +1,60 @@
 # Tradebot
-This project is aimed at having an understanding of trading through code. The project was created using c++ mainly for more experience in building an application from scratch. Ideas can be inspiring but they are useless if are not willed into existance. This will soon grow into an automated trading bot.
 
-Feel free to use this source code however you please. #Learn c++.
+A macOS cryptocurrency trading app. The architecture is a **Go backend** (exchange API client + WebSocket scheduler) with a **Qt/C++ frontend** that subscribes to live market data over WebSocket and handles account operations via REST.
+
+Supported exchanges: **Luno** and **VALR**.
+
+## Architecture
+
+```
+Go sidecar (goserver)
+  ├── REST API  :8080   — account operations (balances, orders, withdrawals)
+  └── WebSocket :8080/ws — pushes live orderbook + trades to Qt
+
+Qt app (C++)
+  ├── QWebSocket subscriber — renders orderbook and trade feed
+  └── QTimers — polls REST for balances, open orders, theme
+```
 
 ## Requirements
-The project mostly uses c++. To be able to use this code, you will need to have a Qt compiler as well as libcurl installed in your system. The make.pro file is configured to use c++17, this is not a requirement. This code was only tested on MacOS (Sonoma). I will continue using Qt version 6. 
 
-A cruicial requirement you must have already installed on your computer is libcurl. http requests are invoked using this library and it must be present. 
+- **macOS** (tested on Sonoma and later)
+- **Go 1.22+** — `brew install go`
+- **Qt 6** with `WebEngineWidgets` and `WebSockets` modules — `brew install qt@6`
+- **go-task** — `brew install go-task`
+- **Xcode Command Line Tools** — `xcode-select --install`
 
-Note: Python will also be used for financial machine learning in future, it is now also a required in order to compile.
+### Credentials
 
-## Usage
-Compile using
+Exchange API keys are read from environment variables at runtime by the Go sidecar — no credentials are compiled into the binary:
 
-````
-git git@github.com:mntshoana/tradebot.git 
+```
+export LUNO_API_KEY=...
+export LUNO_API_SECRET=...
+export VALR_API_KEY=...
+export VALR_API_SECRET=...
+export PORT=8080          # optional, defaults to 8080
+```
+
+## Build
+
+```bash
+git clone git@github.com:mntshoana/tradebot.git
 cd tradebot
-mkdir build && cd build
-````
-then
-````
-qmake ../src
-make
-````
-or
-````
-qmake ../src -spec macx-xcode
-````
+mkdir -p build && cd build
+qmake ../src/main.pro CONFIG+=sdk_no_version_check
+cd ..
+task build
+```
 
-Note: A few files have been excluded from the repository.
- - The header file containing the login credentials has been excluded as it contains my private login info.
- - You will also need to update the Qt main.pro project file with the paths for libcurl, (i.e, include paths, libs).
+`task build` compiles the Qt app and the Go sidecar in parallel, producing:
+- `bin/release/tradebot.app` — Qt frontend
+- `bin/goserver` — Go backend
+
+## Run
+
+```bash
+task run
+```
+
+This starts the Go sidecar in the background (port 8080), then launches the Qt app. The Qt app connects to `ws://localhost:8080/ws` for live market data automatically.
