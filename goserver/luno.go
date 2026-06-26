@@ -86,18 +86,18 @@ func (c *lunoClient) GetOrderBook(pair string) (*OrderBookResponse, error) {
 
 	ob := &OrderBookResponse{
 		Exchange:  "luno",
-		Pair:      pair,
+		Symbol:    pair,
 		Timestamp: raw.Timestamp,
 	}
 	for _, a := range raw.Asks {
 		p, _ := strconv.ParseFloat(a.Price, 64)
 		v, _ := strconv.ParseFloat(a.Volume, 64)
-		ob.Asks = append(ob.Asks, OrderLevel{Price: p, Volume: v})
+		ob.Asks = append(ob.Asks, [2]float64{p, v})
 	}
 	for _, b := range raw.Bids {
 		p, _ := strconv.ParseFloat(b.Price, 64)
 		v, _ := strconv.ParseFloat(b.Volume, 64)
-		ob.Bids = append(ob.Bids, OrderLevel{Price: p, Volume: v})
+		ob.Bids = append(ob.Bids, [2]float64{p, v})
 	}
 	return ob, nil
 }
@@ -127,13 +127,13 @@ func (c *lunoClient) GetTicker(pair string) (*TickerResponse, error) {
 	vol, _ := strconv.ParseFloat(raw.Rolling24HourVolume, 64)
 
 	return &TickerResponse{
-		Exchange:  "luno",
-		Pair:      pair,
-		Timestamp: raw.Timestamp,
-		Bid:       bid,
-		Ask:       ask,
-		LastTrade: last,
-		Volume:    vol,
+		Exchange:   "luno",
+		Symbol:     pair,
+		Timestamp:  raw.Timestamp,
+		Bid:        bid,
+		Ask:        ask,
+		Last:       last,
+		BaseVolume: vol,
 	}, nil
 }
 
@@ -162,16 +162,21 @@ func (c *lunoClient) GetTrades(pair string, since int64) (*TradesResponse, error
 		return nil, err
 	}
 
-	resp := &TradesResponse{Exchange: "luno", Pair: pair}
+	resp := &TradesResponse{Exchange: "luno", Symbol: pair}
 	for _, t := range raw.Trades {
 		p, _ := strconv.ParseFloat(t.Price, 64)
 		v, _ := strconv.ParseFloat(t.Volume, 64)
+		side := "buy"
+		if !t.IsBuy {
+			side = "sell"
+		}
 		resp.Trades = append(resp.Trades, TradeItem{
 			Sequence:  t.Sequence,
 			Timestamp: t.Timestamp,
 			Price:     p,
-			Volume:    v,
-			IsBuy:     t.IsBuy,
+			Amount:    v,
+			Cost:      p * v,
+			Side:      side,
 		})
 	}
 	return resp, nil
@@ -205,8 +210,9 @@ func (c *lunoClient) GetBalances() (*BalancesResponse, error) {
 		resp.Balances = append(resp.Balances, Balance{
 			AccountID:   b.AccountID,
 			Asset:       b.Asset,
-			Available:   avail,
-			Reserved:    res,
+			Free:        avail,
+			Used:        res,
+			Total:       avail + res,
 			Unconfirmed: unconf,
 		})
 	}
@@ -242,19 +248,20 @@ func (c *lunoClient) GetOpenOrders(pair string) (*OpenOrdersResponse, error) {
 	resp := &OpenOrdersResponse{Exchange: "luno"}
 	for _, o := range raw.Orders {
 		price, _ := strconv.ParseFloat(o.LimitPrice, 64)
-		vol, _ := strconv.ParseFloat(o.LimitVolume, 64)
-		remaining, _ := strconv.ParseFloat(o.Base, 64)
+		amount, _ := strconv.ParseFloat(o.LimitVolume, 64)
+		filled, _ := strconv.ParseFloat(o.Base, 64)
 		side := "buy"
 		if o.Type == "ASK" {
 			side = "sell"
 		}
 		resp.Orders = append(resp.Orders, OpenOrder{
 			ID:        o.OrderID,
-			Pair:      o.Pair,
+			Symbol:    o.Pair,
 			Side:      side,
 			Price:     price,
-			Volume:    vol,
-			Remaining: remaining,
+			Amount:    amount,
+			Filled:    filled,
+			Remaining: amount - filled,
 			CreatedAt: o.CreationTimestamp,
 		})
 	}
@@ -318,19 +325,20 @@ func (c *lunoClient) GetOrderDetails(orderID string) (*OpenOrder, error) {
 	}
 
 	price, _ := strconv.ParseFloat(raw.LimitPrice, 64)
-	vol, _ := strconv.ParseFloat(raw.LimitVolume, 64)
-	base, _ := strconv.ParseFloat(raw.Base, 64)
+	amount, _ := strconv.ParseFloat(raw.LimitVolume, 64)
+	filled, _ := strconv.ParseFloat(raw.Base, 64)
 	side := "buy"
 	if raw.Type == "ASK" {
 		side = "sell"
 	}
 	return &OpenOrder{
 		ID:        raw.OrderID,
-		Pair:      raw.Pair,
+		Symbol:    raw.Pair,
 		Side:      side,
 		Price:     price,
-		Volume:    vol,
-		Remaining: vol - base,
+		Amount:    amount,
+		Filled:    filled,
+		Remaining: amount - filled,
 		Status:    raw.State,
 		CreatedAt: raw.CreationTime,
 	}, nil

@@ -78,96 +78,6 @@ static QJsonObject parseObj(const std::string& json) {
 
 namespace Sidecar {
 
-// ── Market ────────────────────────────────────────────────────────────────────
-
-Luno::OrderBook getLunoOrderBook(const std::string& pair) {
-    auto obj = parseObj(doRequest("GET",
-        BASE + "/market/orderbook?exchange=luno&pair=" + pair));
-
-    Luno::OrderBook ob;
-    ob.timestamp = obj["timestamp"].toVariant().toLongLong();
-    for (const QJsonValue& v : obj["asks"].toArray()) {
-        Luno::Order o;
-        o.price  = (float)v["price"].toDouble();
-        o.volume = (float)v["volume"].toDouble();
-        ob.asks.push_back(o);
-    }
-    for (const QJsonValue& v : obj["bids"].toArray()) {
-        Luno::Order o;
-        o.price  = (float)v["price"].toDouble();
-        o.volume = (float)v["volume"].toDouble();
-        ob.bids.push_back(o);
-    }
-    return ob;
-}
-
-VALR::OrderBook getVALROrderBook(const std::string& pair) {
-    auto obj = parseObj(doRequest("GET",
-        BASE + "/market/orderbook?exchange=valr&pair=" + pair));
-
-    VALR::OrderBook ob;
-    ob.timestamp = (unsigned long long)obj["timestamp"].toVariant().toLongLong();
-    for (const QJsonValue& v : obj["asks"].toArray()) {
-        VALR::Order o;
-        o.price  = (float)v["price"].toDouble();
-        o.volume = (float)v["volume"].toDouble();
-        o.count  = 0;
-        ob.asks.push_back(o);
-    }
-    for (const QJsonValue& v : obj["bids"].toArray()) {
-        VALR::Order o;
-        o.price  = (float)v["price"].toDouble();
-        o.volume = (float)v["volume"].toDouble();
-        o.count  = 0;
-        ob.bids.push_back(o);
-    }
-    return ob;
-}
-
-std::vector<Luno::Trade> getLunoTrades(const std::string& pair,
-                                        unsigned long long since) {
-    std::string url = BASE + "/market/trades?exchange=luno&pair=" + pair;
-    if (since > 0)
-        url += "&since=" + std::to_string(since);
-    auto obj = parseObj(doRequest("GET", url));
-
-    std::vector<Luno::Trade> trades;
-    for (const QJsonValue& v : obj["trades"].toArray()) {
-        Luno::Trade t;
-        t.sequence  = (unsigned long long)v["sequence"].toVariant().toLongLong();
-        t.timestamp = (unsigned long long)v["timestamp"].toVariant().toLongLong();
-        t.price     = (float)v["price"].toDouble();
-        t.volume    = (float)v["volume"].toDouble();
-        t.isBuy     = v["isBuy"].toBool();
-        trades.push_back(t);
-    }
-    return trades;
-}
-
-std::vector<VALR::Trade> getVALRTrades(const std::string& pair,
-                                        unsigned long long since) {
-    std::string url = BASE + "/market/trades?exchange=valr&pair=" + pair;
-    if (since > 0)
-        url += "&since=" + std::to_string(since);
-    auto obj = parseObj(doRequest("GET", url));
-
-    std::vector<VALR::Trade> trades;
-    for (const QJsonValue& v : obj["trades"].toArray()) {
-        VALR::Trade t;
-        t.sequence    = (unsigned long long)v["sequence"].toVariant().toLongLong();
-        t.timestamp   = (unsigned long long)v["timestamp"].toVariant().toLongLong();
-        t.price       = (float)v["price"].toDouble();
-        t.baseVolume  = (float)v["volume"].toDouble();
-        t.quoteVolume = 0.0f;
-        t.pair        = pair;
-        t.isBuy       = v["isBuy"].toBool();
-        trades.push_back(t);
-    }
-    return trades;
-}
-
-// ── Account — Luno ────────────────────────────────────────────────────────────
-
 std::vector<Luno::Balance> getLunoBalances(const std::string& asset) {
     auto obj = parseObj(doRequest("GET",
         BASE + "/account/balances?exchange=luno"));
@@ -179,8 +89,8 @@ std::vector<Luno::Balance> getLunoBalances(const std::string& asset) {
         Luno::Balance b;
         b.accountID   = v["accountId"].toString().toStdString();
         b.asset       = v["asset"].toString().toStdString();
-        b.balance     = (float)v["available"].toDouble();
-        b.reserved    = (float)v["reserved"].toDouble();
+        b.balance     = (float)v["free"].toDouble();
+        b.reserved    = (float)v["used"].toDouble();
         b.uncomfirmed = (float)v["unconfirmed"].toDouble();
         result.push_back(b);
     }
@@ -197,12 +107,12 @@ std::vector<Luno::UserOrder> getLunoOpenOrders(const std::string& pair) {
     for (const QJsonValue& v : obj["orders"].toArray()) {
         Luno::UserOrder o;
         o.orderID      = v["id"].toString().toStdString();
-        o.pair         = v["pair"].toString().toStdString();
+        o.pair         = v["symbol"].toString().toStdString();
         o.type         = (v["side"].toString() == "buy") ? "BID" : "ASK";
         o.state        = "PENDING";
         o.price        = (float)v["price"].toDouble();
-        o.volume       = (float)v["volume"].toDouble();
-        o.baseValue    = o.volume - (float)v["remaining"].toDouble();
+        o.volume       = (float)v["amount"].toDouble();
+        o.baseValue    = (float)v["filled"].toDouble();
         o.createdTime  = v["createdAt"].toVariant().toLongLong();
         o.counterValue = 0.0f;
         o.baseFee      = 0.0f;
@@ -218,12 +128,12 @@ Luno::UserOrder getLunoOrderDetails(const std::string& orderID) {
 
     Luno::UserOrder o;
     o.orderID      = obj["id"].toString().toStdString();
-    o.pair         = obj["pair"].toString().toStdString();
+    o.pair         = obj["symbol"].toString().toStdString();
     o.type         = (obj["side"].toString() == "buy") ? "BID" : "ASK";
     o.state        = obj["status"].toString().toStdString();
     o.price        = (float)obj["price"].toDouble();
-    o.volume       = (float)obj["volume"].toDouble();
-    o.baseValue    = o.volume - (float)obj["remaining"].toDouble();
+    o.volume       = (float)obj["amount"].toDouble();
+    o.baseValue    = (float)obj["filled"].toDouble();
     o.createdTime  = obj["createdAt"].toVariant().toLongLong();
     o.counterValue = 0.0f;
     o.baseFee      = 0.0f;
@@ -260,7 +170,7 @@ std::string postLunoLimitOrder(const std::string& pair,
     std::string body = "{\"exchange\":\"luno\",\"pair\":\"" + pair
                      + "\",\"side\":\"" + side
                      + "\",\"price\":" + std::to_string(price)
-                     + ",\"volume\":" + std::to_string(volume) + "}";
+                     + ",\"amount\":" + std::to_string(volume) + "}";
     auto obj = parseObj(doRequest("POST", BASE + "/account/orders/limit", body));
     return obj["orderId"].toString().toStdString();
 }

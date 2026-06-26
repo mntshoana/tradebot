@@ -10,7 +10,9 @@
 
 #include "window.hpp"
 
-#include "jobManager.hpp"
+#include <QWebSocket>
+#include <QTimer>
+#include <QJsonDocument>
 
 class TradeBot : public QWidget
 {
@@ -29,21 +31,22 @@ private:
     
     HomeView* home;
     
-    JobManager manager;
+    QWebSocket*  ws            = nullptr;
+    QTimer*      displayTimer  = nullptr;
+    QTimer*      balanceTimer  = nullptr;
+    QTimer*      ordersTimer   = nullptr;
+    QTimer*      themeTimer    = nullptr;
     
-    void loadTickData();
-    void downloadTickData();
-    void displayTickData();
-    void updateTheme();
-    void updatePanels();
+    void connectWebSocket();
+    void setupTimers();
     
     bool eventFilter(QObject *obj, QEvent *event)override;
-    void enqueueJob(Task* job);
     
     public slots:
     void onEnqueueUserOrder(std::string orderID);
     
     private slots:
+    void onWsMessage(const QString& msg);
     void cleanup();
 
 };

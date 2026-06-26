@@ -116,68 +116,64 @@ void LunoHomeView::lightTheme() {
                                     )javascript");
 }
 
-Task* LunoHomeView::toUpdateOrderBook(std::string pair) {
-    if (pair == "DEFAULT")
-        pair = "XBTZAR";
-    Task* job = new Task( [this, pair]() {
-        try {
-        Luno::OrderBook orderBook = Sidecar::getLunoOrderBook(pair);
-        livePanel->orderview << orderBook.FormatHTMLWith(&lunoOrders);
-        } catch (ResponseEx ex){
-                *TextPanel::textPanel << errorLiner + ex.String().c_str();;
-        } catch (std::invalid_argument ex) {
-            *TextPanel::textPanel << errorLiner + ex.what();
-        }
-    });
-    job->updateWaitTime(2);
-    job->setRepeat(true);
-    return job;
+void LunoHomeView::onOrderBook(const QJsonObject& data) {
+    Luno::OrderBook ob;
+    ob.timestamp = data["timestamp"].toVariant().toLongLong();
+    for (const QJsonValue& v : data["asks"].toArray()) {
+        Luno::Order o;
+        o.price  = (float)v[0].toDouble();
+        o.volume = (float)v[1].toDouble();
+        ob.asks.push_back(o);
+    }
+    for (const QJsonValue& v : data["bids"].toArray()) {
+        Luno::Order o;
+        o.price  = (float)v[0].toDouble();
+        o.volume = (float)v[1].toDouble();
+        ob.bids.push_back(o);
+    }
+    livePanel->orderview << ob.FormatHTMLWith(&lunoOrders);
 }
 
-Task* LunoHomeView::toUpdateOpenUserOrders() {
-    Task* job = new Task( [this]() {
-        try {
-            workPanel->pendingOrders->clearItems();
-            lunoOrders = Sidecar::getLunoOpenOrders("XBTZAR");
-            
-            std::vector<OrderType*> temp;
-            std::for_each(lunoOrders.begin(), lunoOrders.end(), [&temp](Luno::UserOrder& entry){
-                temp.push_back( &entry);
-            });
-            workPanel->pendingOrders->addOrders(&temp);
-            temp.clear();
-        } catch (ResponseEx ex){
-            *TextPanel::textPanel << errorLiner + ex.String().c_str();;
-        } catch (std::invalid_argument ex) {
-            *TextPanel::textPanel  << errorLiner + ex.what();
-        }
-    });
-    job->updateWaitTime(5);
-    job->wait = 0; // execute one time immediately before waiting
-    job->setRepeat(true);
-    return job;
+void LunoHomeView::onTrades(const QJsonArray& tradesArray) {
+    std::vector<Luno::Trade> newTrades;
+    for (const QJsonValue& v : tradesArray) {
+        unsigned long long seq = (unsigned long long)v["sequence"].toVariant().toLongLong();
+        if (!ticks.empty() && seq <= ticks.back().sequence)
+            continue;
+        Luno::Trade t;
+        t.sequence  = seq;
+        t.timestamp = (unsigned long long)v["timestamp"].toVariant().toLongLong();
+        t.price     = (float)v["price"].toDouble();
+        t.volume    = (float)v["amount"].toDouble();
+        t.isBuy     = (v["side"].toString() == "buy");
+        newTrades.push_back(t);
+    }
+    if (newTrades.empty()) return;
+    ticks.insert(ticks.end(), newTrades.begin(), newTrades.end());
+    *timestamp = ticks.back().timestamp;
+    file.open(path + "luno_XBTZAR.csv", std::ios::out | std::ios::app);
+    if (file.good()) {
+        file << newTrades;
+        file.close();
+    } else {
+        file.clear();
+    }
 }
 
-Task* LunoHomeView::toAppendOpenUserOrder(std::string orderID) {
-    Task* job = new Task( [this, orderID]() {
-        try {
-            Luno::UserOrder details = Sidecar::getLunoOrderDetails(orderID);
-            
-            TextPanel::textPanel << details;
-            std::vector<OrderType*> temp;
-            
-            temp.push_back( &details);
-            
-            workPanel->pendingOrders->addOrders(&temp);
-            temp.clear();
-        } catch (ResponseEx ex){
-            *TextPanel::textPanel << errorLiner + ex.String().c_str();;
-        } catch (std::invalid_argument ex) {
-            *TextPanel::textPanel  << errorLiner + ex.what();
-        }
-    });
-    
-    return job;
+void LunoHomeView::refreshOpenOrders() {
+    try {
+        workPanel->pendingOrders->clearItems();
+        lunoOrders = Sidecar::getLunoOpenOrders("XBTZAR");
+        std::vector<OrderType*> temp;
+        std::for_each(lunoOrders.begin(), lunoOrders.end(), [&temp](Luno::UserOrder& entry){
+            temp.push_back(&entry);
+        });
+        workPanel->pendingOrders->addOrders(&temp);
+    } catch (ResponseEx& ex) {
+        *TextPanel::textPanel << errorLiner + ex.String().c_str();
+    } catch (std::invalid_argument& ex) {
+        *TextPanel::textPanel << errorLiner + ex.what();
+    }
 }
 
 void LunoHomeView::loadLocalTicks(std::string pair){
@@ -231,49 +227,6 @@ void LunoHomeView::loadLocalTicks(std::string pair){
     }
 }
 
-void LunoHomeView::downloadTicks(std::string pair){
-    try {
-        moreticks = Sidecar::getLunoTrades(pair, *timestamp); // order = newest to oldest
-    } catch (ResponseEx ex){
-            *TextPanel::textPanel << errorLiner + ex.String().c_str();
-        return;
-    } catch (std::invalid_argument ex) {
-        *TextPanel::textPanel << errorLiner + ex.what();
-        return;
-    }
-    while (ticks.size() > 0
-            && moreticks.size() > 0
-            && moreticks.back().sequence <= ticks.back().sequence)
-        moreticks.pop_back();
-    
-    std::reverse(moreticks.begin(), moreticks.end()); // order = oldest to newest
-    
-    for (int i = 0; moreticks.size() > 0 && i < ((int) moreticks.size()) -2; i++){
-        // ensure ordered oldest to newest sequence is in tact
-        if (moreticks[i].sequence +1 != moreticks[i+1].sequence){
-            do {
-                moreticks.pop_back();
-            } while (i < ((int) moreticks.size()) -2);
-        }
-    }
-    
-    if (moreticks.size() > 0){
-        ticks.insert(ticks.end(), moreticks.begin(), moreticks.end());
-        *timestamp = ticks.back().timestamp;
-        file.open( path + "luno_" + pair + ".csv", std::ios::out | std::ios::app);
-        if (file.good()){
-            file << moreticks;
-            file.close();
-        }
-        else {
-            file.clear();
-            *TextPanel::textPanel << std::string("[Error] : At ")
-                            + __FILE__ + ": line " + std::to_string(__LINE__)
-                        + ". Couldn't write ticks to file.";
-        }
-        moreticks.clear();
-    }
-}
 
 std::string LunoHomeView::lastTrades() {
     std::stringstream ss;
@@ -316,15 +269,6 @@ std::string LunoHomeView::lastTrades() {
     return ss.str();
 }
 
-Task* LunoHomeView::toDownloadTicks(std::string pair){
-    if (pair == "DEFAULT")
-        pair = "XBTZAR";
-    Task* job = new Task( [this, pair]() {downloadTicks(pair);}, false);
-    job->updateWaitTime(3);
-    job->setRepeat(true);
-    return job;
-}
-
 VALRHomeView::VALRHomeView (QWidget *parent) : HomeView(VALR_EXCHANGE, parent) {
     HomeView::exchange = VALR_EXCHANGE;
 
@@ -360,59 +304,53 @@ void VALRHomeView::lightTheme() {
     // Theme
     HomeView::lightTheme();
 }
-Task* VALRHomeView::toUpdateOrderBook(std::string pair) {
-    if (pair == "DEFAULT")
-        pair = "BTCZAR";
-    Task* job = new Task( [this, pair]() {
-        VALR::OrderBook orderBook = Sidecar::getVALROrderBook(pair);
-        livePanel->orderview << orderBook.FormatHTMLWith(&valrOrders);
-    });
-    
-    job->updateWaitTime(2);
-    job->setAsFast();
-    return job;
+void VALRHomeView::onOrderBook(const QJsonObject& data) {
+    VALR::OrderBook ob;
+    ob.timestamp = (unsigned long long)data["timestamp"].toVariant().toLongLong();
+    for (const QJsonValue& v : data["asks"].toArray()) {
+        VALR::Order o;
+        o.price  = (float)v[0].toDouble();
+        o.volume = (float)v[1].toDouble();
+        o.count  = 0;
+        ob.asks.push_back(o);
+    }
+    for (const QJsonValue& v : data["bids"].toArray()) {
+        VALR::Order o;
+        o.price  = (float)v[0].toDouble();
+        o.volume = (float)v[1].toDouble();
+        o.count  = 0;
+        ob.bids.push_back(o);
+    }
+    livePanel->orderview << ob.FormatHTMLWith(&valrOrders);
 }
 
-Task* VALRHomeView::toUpdateOpenUserOrders() {
-    Task* job = new Task( [this]() {
-        // TODO: this, but for VALR
-        *TextPanel::textPanel << "TODO: toUpdateOpenUserOrders but for VALR";
-        /*
-        workPanel->pendingOrders->clearItems();
-        lunoOrders = Luno::LunoClient::getUserOrders("XBTZAR", "PENDING");
-        
-        std::vector<OrderType*> temp;
-        std::for_each(lunoOrders.begin(), lunoOrders.end(), [&temp](Luno::UserOrder& entry){
-            temp.push_back( &entry);
-        });
-        workPanel->pendingOrders->addOrders(&temp);
-        temp.clear();
-         */
-    });
-    job->updateWaitTime(5);
-    job->wait = 0; // execute one time immediately before waiting
-    job->setRepeat(true);
-    return job;
-}
-
-Task* VALRHomeView::toAppendOpenUserOrder(std::string orderID) {
-    Task* job = new Task( [this, orderID]() {
-        // TODO: this, but for VALR
-        *TextPanel::textPanel << "TODO: toAppendOpenUserOrder but for VALR";
-        /*
-        Luno::UserOrder details = Luno::LunoClient::getOrderDetails(orderID);
-        
-        TextPanel::textPanel << details;
-        std::vector<OrderType*> temp;
-        
-        temp.push_back( &details);
-        
-        workPanel->pendingOrders->addOrders(&temp);
-        temp.clear();
-         */
-    });
-    
-    return job;
+void VALRHomeView::onTrades(const QJsonArray& tradesArray) {
+    std::vector<VALR::Trade> newTrades;
+    for (const QJsonValue& v : tradesArray) {
+        unsigned long long seq = (unsigned long long)v["sequence"].toVariant().toLongLong();
+        if (!ticks.empty() && seq <= ticks.back().sequence)
+            continue;
+        VALR::Trade t;
+        t.sequence    = seq;
+        t.timestamp   = (unsigned long long)v["timestamp"].toVariant().toLongLong();
+        t.price       = (float)v["price"].toDouble();
+        t.baseVolume  = (float)v["amount"].toDouble();
+        t.quoteVolume = t.price * t.baseVolume;
+        t.pair        = "BTCZAR";
+        t.id          = "";
+        t.isBuy       = (v["side"].toString() == "buy");
+        newTrades.push_back(t);
+    }
+    if (newTrades.empty()) return;
+    ticks.insert(ticks.end(), newTrades.begin(), newTrades.end());
+    *timestamp = ticks.back().timestamp;
+    file.open(path + "valr_BTCZAR.csv", std::ios::out | std::ios::app);
+    if (file.good()) {
+        file << newTrades;
+        file.close();
+    } else {
+        file.clear();
+    }
 }
 
 void VALRHomeView::loadLocalTicks(std::string pair){
@@ -466,43 +404,7 @@ void VALRHomeView::loadLocalTicks(std::string pair){
     }
 }
 
-void VALRHomeView::downloadTicks(std::string pair){
-    moreticks = Sidecar::getVALRTrades(pair, *timestamp); // order = newest to oldest
-    
-    while (ticks.size() > 0
-            && moreticks.size() > 0
-            && moreticks.back().sequence <= ticks.back().sequence)
-        moreticks.pop_back();
-    
-    std::reverse(moreticks.begin(), moreticks.end()); // order = oldest to newest
-    
-    for (int i = 0; moreticks.size() > 0 && i < ((int) moreticks.size()) -2; i++){
-        // ensure ordered oldest to newest sequence is in tact
-        if (moreticks[i].sequence +1 != moreticks[i+1].sequence){
-            do {
-                moreticks.pop_back();
-            } while (i < ((int) moreticks.size()) -2);
-        }
-    }
-    
-    if (moreticks.size() > 0){
-        ticks.insert(ticks.end(), moreticks.begin(), moreticks.end());
-        *timestamp = ticks.back().timestamp;
-        file.open( path + "valr_" + pair + ".csv", std::ios::out | std::ios::app);
-        if (file.good()){
-            file << moreticks;
-            file.close();
-        }
-        else {
-            file.clear();
-            *TextPanel::textPanel << std::string("[Error] : At ")
-                            + __FILE__ + ": line " + std::to_string(__LINE__)
-                        + ". Couldn't write ticks to file.";
-        }
-        moreticks.clear();
-    }
-     
-}
+
 
 std::string VALRHomeView::lastTrades() {
     std::stringstream ss;
@@ -543,14 +445,6 @@ std::string VALRHomeView::lastTrades() {
     ss << "</table>\n";
     
     return ss.str();
-}
-Task* VALRHomeView::toDownloadTicks(std::string pair) {
-    if (pair == "DEFAULT")
-        pair = "BTCZAR";
-    Task* job = new Task( [this, pair]() {downloadTicks(pair);}, true);
-    job->updateWaitTime(3);
-    job->setRepeat(true);
-    return job;
 }
 
 /*

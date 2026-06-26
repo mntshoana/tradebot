@@ -1,6 +1,6 @@
-// TradeBot Go sidecar — Phase 1
+// TradeBot Go sidecar — Phase 2
 //
-// Exchange-agnostic REST API that sits alongside the C++ Qt app.
+// Exchange-agnostic REST + WebSocket API alongside the C++ Qt app.
 // Credentials are loaded from environment variables:
 //
 //	LUNO_API_KEY / LUNO_API_SECRET
@@ -9,6 +9,7 @@
 //
 // Routes:
 //
+//	GET  /ws                             WebSocket: streams orderbook + trades
 //	GET  /market/orderbook?exchange=luno&pair=XBTZAR
 //	GET  /market/ticker?exchange=luno&pair=XBTZAR
 //	GET  /market/trades?exchange=luno&pair=XBTZAR[&since=<seq>]
@@ -35,7 +36,12 @@ func main() {
 	luno = newLunoClient(cfg)
 	valr = newVALRClient(cfg)
 
+	startScheduler(luno, valr)
+
 	mux := http.NewServeMux()
+
+	// WebSocket push stream
+	mux.HandleFunc("GET /ws", handleWs)
 
 	// Market — public, no credentials needed
 	mux.HandleFunc("GET /market/orderbook", handleOrderBook)
@@ -222,7 +228,7 @@ func handlePostLimitOrder(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid JSON body: "+err.Error())
 		return
 	}
-	if req.Exchange == "" || req.Pair == "" || req.Side == "" || req.Price <= 0 || req.Volume <= 0 {
+	if req.Exchange == "" || req.Pair == "" || req.Side == "" || req.Price <= 0 || req.Amount <= 0 {
 		writeError(w, http.StatusBadRequest, "exchange, pair, side, price and volume are all required")
 		return
 	}
@@ -233,14 +239,14 @@ func handlePostLimitOrder(w http.ResponseWriter, r *http.Request) {
 
 	switch req.Exchange {
 	case "luno":
-		resp, err := luno.PostLimitOrder(req.Pair, req.Side, req.Price, req.Volume)
+		resp, err := luno.PostLimitOrder(req.Pair, req.Side, req.Price, req.Amount)
 		if err != nil {
 			writeError(w, http.StatusBadGateway, err.Error())
 			return
 		}
 		writeJSON(w, http.StatusCreated, resp)
 	case "valr":
-		resp, err := valr.PostLimitOrder(req.Pair, req.Side, req.Price, req.Volume)
+		resp, err := valr.PostLimitOrder(req.Pair, req.Side, req.Price, req.Amount)
 		if err != nil {
 			writeError(w, http.StatusBadGateway, err.Error())
 			return

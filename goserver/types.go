@@ -2,55 +2,52 @@
 // These are the shapes the future web UI (and CCXT backend) will consume.
 package main
 
-// OrderLevel is a single price level in an order book.
-type OrderLevel struct {
-	Price  float64 `json:"price"`
-	Volume float64 `json:"volume"`
-}
-
 // OrderBookResponse is the normalised order book for any exchange/pair.
+// Bids and Asks are [price, amount] pairs matching the CCXT unified format.
 type OrderBookResponse struct {
 	Exchange  string       `json:"exchange"`
-	Pair      string       `json:"pair"`
+	Symbol    string       `json:"symbol"`
 	Timestamp int64        `json:"timestamp"`
-	Asks      []OrderLevel `json:"asks"`
-	Bids      []OrderLevel `json:"bids"`
+	Asks      [][2]float64 `json:"asks"`
+	Bids      [][2]float64 `json:"bids"`
 }
 
 // TickerResponse is the normalised ticker for any exchange/pair.
 type TickerResponse struct {
-	Exchange  string  `json:"exchange"`
-	Pair      string  `json:"pair"`
-	Timestamp int64   `json:"timestamp"`
-	Bid       float64 `json:"bid"`
-	Ask       float64 `json:"ask"`
-	LastTrade float64 `json:"lastTrade"`
-	Volume    float64 `json:"volume"`
+	Exchange   string  `json:"exchange"`
+	Symbol     string  `json:"symbol"`
+	Timestamp  int64   `json:"timestamp"`
+	Bid        float64 `json:"bid"`
+	Ask        float64 `json:"ask"`
+	Last       float64 `json:"last"`
+	BaseVolume float64 `json:"baseVolume"`
 }
 
-// TradeItem is a single completed trade.
+// TradeItem is a single completed trade — field names match CCXT unified trade.
 type TradeItem struct {
 	Sequence  int64   `json:"sequence"`
 	Timestamp int64   `json:"timestamp"`
 	Price     float64 `json:"price"`
-	Volume    float64 `json:"volume"`
-	IsBuy     bool    `json:"isBuy"`
+	Amount    float64 `json:"amount"`
+	Cost      float64 `json:"cost"`  // price × amount
+	Side      string  `json:"side"`  // "buy" or "sell"
 }
 
 // TradesResponse is a list of recent trades for any exchange/pair.
 type TradesResponse struct {
 	Exchange string      `json:"exchange"`
-	Pair     string      `json:"pair"`
+	Symbol   string      `json:"symbol"`
 	Trades   []TradeItem `json:"trades"`
 }
 
-// Balance is a single asset balance.
+// Balance is a single asset balance — field names match CCXT unified balance.
 type Balance struct {
 	Asset       string  `json:"asset"`
 	AccountID   string  `json:"accountId"`
-	Available   float64 `json:"available"`
-	Reserved    float64 `json:"reserved"`
-	Unconfirmed float64 `json:"unconfirmed"`
+	Free        float64 `json:"free"`        // available to trade
+	Used        float64 `json:"used"`        // reserved / in open orders
+	Total       float64 `json:"total"`       // free + used
+	Unconfirmed float64 `json:"unconfirmed"` // Luno-specific pending deposits
 }
 
 // BalancesResponse is a list of account balances for any exchange.
@@ -59,14 +56,15 @@ type BalancesResponse struct {
 	Balances []Balance `json:"balances"`
 }
 
-// OpenOrder is a single open/pending order.
+// OpenOrder is a single open/pending order — field names match CCXT unified order.
 type OpenOrder struct {
 	ID        string  `json:"id"`
-	Pair      string  `json:"pair"`
+	Symbol    string  `json:"symbol"`
 	Side      string  `json:"side"`      // "buy" or "sell"
 	Price     float64 `json:"price"`
-	Volume    float64 `json:"volume"`
-	Remaining float64 `json:"remaining"`
+	Amount    float64 `json:"amount"`    // total order size
+	Filled    float64 `json:"filled"`    // amount executed so far
+	Remaining float64 `json:"remaining"` // amount - filled
 	Status    string  `json:"status"`
 	CreatedAt int64   `json:"createdAt"` // ms since epoch
 }
@@ -83,7 +81,7 @@ type PostLimitOrderRequest struct {
 	Pair     string  `json:"pair"`
 	Side     string  `json:"side"`   // "buy" or "sell"
 	Price    float64 `json:"price"`
-	Volume   float64 `json:"volume"`
+	Amount   float64 `json:"amount"`
 }
 
 // PostOrderResponse is returned after a successful order placement.

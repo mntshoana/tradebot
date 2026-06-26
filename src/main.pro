@@ -1,6 +1,6 @@
 ###QT project file
 
-QT += core widgets network webenginewidgets
+QT += core widgets network webenginewidgets websockets
 QMAKE_CXXFLAGS += -std=c++17
 CONFIG += c++17
 CONFIG += object_parallel_to_source
@@ -42,8 +42,6 @@ HEADERS += tradeBot.hpp \
             textPanel.hpp \
             workspacePanel.hpp \
             window.hpp
-SOURCES += job.cpp jobManager.cpp
-HEADERS += job.hpp jobManager.hpp
 SOURCES += sidecar.cpp
 HEADERS += sidecar.hpp
 SOURCES += client/lunoclient/lunoTypes.cpp

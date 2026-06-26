@@ -101,18 +101,18 @@ func (c *valrClient) GetOrderBook(pair string) (*OrderBookResponse, error) {
 
 	ob := &OrderBookResponse{
 		Exchange:  "valr",
-		Pair:      pair,
+		Symbol:    pair,
 		Timestamp: time.Now().UnixMilli(),
 	}
 	for _, a := range raw.Asks {
 		p, _ := strconv.ParseFloat(a.Price, 64)
 		v, _ := strconv.ParseFloat(a.Quantity, 64)
-		ob.Asks = append(ob.Asks, OrderLevel{Price: p, Volume: v})
+		ob.Asks = append(ob.Asks, [2]float64{p, v})
 	}
 	for _, b := range raw.Bids {
 		p, _ := strconv.ParseFloat(b.Price, 64)
 		v, _ := strconv.ParseFloat(b.Quantity, 64)
-		ob.Bids = append(ob.Bids, OrderLevel{Price: p, Volume: v})
+		ob.Bids = append(ob.Bids, [2]float64{p, v})
 	}
 	return ob, nil
 }
@@ -148,13 +148,13 @@ func (c *valrClient) GetTicker(pair string) (*TickerResponse, error) {
 	}
 
 	return &TickerResponse{
-		Exchange:  "valr",
-		Pair:      pair,
-		Timestamp: ts,
-		Bid:       bid,
-		Ask:       ask,
-		LastTrade: last,
-		Volume:    vol,
+		Exchange:   "valr",
+		Symbol:     pair,
+		Timestamp:  ts,
+		Bid:        bid,
+		Ask:        ask,
+		Last:       last,
+		BaseVolume: vol,
 	}, nil
 }
 
@@ -177,7 +177,7 @@ func (c *valrClient) GetTrades(pair string, _ int64) (*TradesResponse, error) {
 		return nil, err
 	}
 
-	resp := &TradesResponse{Exchange: "valr", Pair: pair}
+	resp := &TradesResponse{Exchange: "valr", Symbol: pair}
 	for _, t := range raw {
 		p, _ := strconv.ParseFloat(t.Price, 64)
 		v, _ := strconv.ParseFloat(t.Quantity, 64)
@@ -187,12 +187,17 @@ func (c *valrClient) GetTrades(pair string, _ int64) (*TradesResponse, error) {
 			ts = tradedAt.UnixMilli()
 		}
 
+		side := "buy"
+		if t.TakerSide != "buy" {
+			side = "sell"
+		}
 		resp.Trades = append(resp.Trades, TradeItem{
 			Sequence:  t.SequenceID,
 			Timestamp: ts,
 			Price:     p,
-			Volume:    v,
-			IsBuy:     t.TakerSide == "buy",
+			Amount:    v,
+			Cost:      p * v,
+			Side:      side,
 		})
 	}
 	return resp, nil
@@ -220,9 +225,10 @@ func (c *valrClient) GetBalances() (*BalancesResponse, error) {
 		avail, _ := strconv.ParseFloat(b.Available, 64)
 		res, _ := strconv.ParseFloat(b.Reserved, 64)
 		resp.Balances = append(resp.Balances, Balance{
-			Asset:     b.Currency,
-			Available: avail,
-			Reserved:  res,
+			Asset: b.Currency,
+			Free:  avail,
+			Used:  res,
+			Total: avail + res,
 		})
 	}
 	return resp, nil
@@ -255,7 +261,7 @@ func (c *valrClient) GetOpenOrders(pair string) (*OpenOrdersResponse, error) {
 			continue
 		}
 		price, _ := strconv.ParseFloat(o.Price, 64)
-		vol, _ := strconv.ParseFloat(o.OriginalQuantity, 64)
+		amount, _ := strconv.ParseFloat(o.OriginalQuantity, 64)
 		remaining, _ := strconv.ParseFloat(o.RemainingQuantity, 64)
 
 		var ts int64
@@ -265,10 +271,11 @@ func (c *valrClient) GetOpenOrders(pair string) (*OpenOrdersResponse, error) {
 
 		resp.Orders = append(resp.Orders, OpenOrder{
 			ID:        o.OrderID,
-			Pair:      o.CurrencyPair,
+			Symbol:    o.CurrencyPair,
 			Side:      strings.ToLower(o.Side),
 			Price:     price,
-			Volume:    vol,
+			Amount:    amount,
+			Filled:    amount - remaining,
 			Remaining: remaining,
 			CreatedAt: ts,
 		})

@@ -22,15 +22,6 @@
 
 namespace Sidecar {
 
-    // ── Market (public, no credentials) ──────────────────────────────────────
-    Luno::OrderBook              getLunoOrderBook(const std::string& pair);
-    VALR::OrderBook              getVALROrderBook(const std::string& pair);
-
-    std::vector<Luno::Trade>     getLunoTrades(const std::string& pair,
-                                               unsigned long long since = 0);
-    std::vector<VALR::Trade>     getVALRTrades(const std::string& pair,
-                                               unsigned long long since = 0);
-
     // ── Account — Luno (authenticated) ───────────────────────────────────────
     std::vector<Luno::Balance>     getLunoBalances(const std::string& asset = "");
     std::vector<Luno::UserOrder>   getLunoOpenOrders(const std::string& pair = "");

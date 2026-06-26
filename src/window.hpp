@@ -5,7 +5,8 @@
 #include <QWebEngineView>
 #include "livePanel.hpp"
 #include "workspacePanel.hpp"
-#include "job.hpp"
+#include <QJsonObject>
+#include <QJsonArray>
 
 QTextEdit& operator<< (QTextEdit& stream, std::string str);
 QTextBrowser& operator<< (QTextBrowser& stream, std::string str);
@@ -48,17 +49,14 @@ public:
     
     virtual void loadLocalTicks(std::string = "DEFAULT") {/*does nothing*/};
     virtual std::string lastTrades() { return "This is just a HomeView template!";}
-    virtual Task* toUpdateOrderBook(std::string = "DEFAULT") { return new Task( []() {/*does nothing*/});}
-    virtual Task* toUpdateOpenUserOrders() { return new Task( []() {/*does nothing*/});}
-    virtual Task* toAppendOpenUserOrder(std::string ) { return new Task( []() {/*does nothing*/});}
-    virtual Task* toDownloadTicks(std::string = "DEFAULT") { return new Task( []() {/*does nothing*/});}
+    virtual void onOrderBook(const QJsonObject& /*data*/) {}
+    virtual void onTrades(const QJsonArray& /*trades*/) {}
+    virtual void refreshOpenOrders() {}
         
 };
 
 class LunoHomeView : public HomeView {
 private:
-    void downloadTicks(std::string pair);
-    
     std::vector<Luno::Trade> ticks, moreticks;
     std::vector<Luno::UserOrder> lunoOrders;
 protected:
@@ -71,17 +69,13 @@ public:
     
     virtual void loadLocalTicks(std::string pair) override;
     virtual std::string lastTrades() override;
-    
-    virtual Task* toUpdateOrderBook(std::string pair) override;
-    virtual Task* toUpdateOpenUserOrders() override;
-    virtual Task* toAppendOpenUserOrder(std::string orderID) override;
-    virtual Task* toDownloadTicks(std::string pair) override;
+    virtual void onOrderBook(const QJsonObject& data) override;
+    virtual void onTrades(const QJsonArray& trades) override;
+    virtual void refreshOpenOrders() override;
 };
 
 class VALRHomeView : public HomeView {
 private:
-    void downloadTicks(std::string pair);
-    
     std::vector<VALR::Trade> ticks, moreticks;
     std::vector<VALR::UserOrder> valrOrders;
 protected:
@@ -94,10 +88,7 @@ public:
     
     virtual void loadLocalTicks(std::string pair) override;
     virtual std::string lastTrades() override;
-    
-    virtual Task* toUpdateOrderBook(std::string pair) override;
-    virtual Task* toUpdateOpenUserOrders() override;
-    virtual Task* toAppendOpenUserOrder(std::string orderID) override;
-    virtual Task* toDownloadTicks(std::string pair) override;
+    virtual void onOrderBook(const QJsonObject& data) override;
+    virtual void onTrades(const QJsonArray& trades) override;
 };
 #endif /* Window_hpp */
