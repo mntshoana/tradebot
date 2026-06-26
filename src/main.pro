@@ -3,6 +3,7 @@
 QT += core widgets network webenginewidgets
 QMAKE_CXXFLAGS += -std=c++17
 CONFIG += c++17
+CONFIG += object_parallel_to_source
 
 LIBS += -framework SystemConfiguration
 
@@ -71,8 +72,10 @@ HEADERS += objectivec.h
 HEADERS += autoPlayground.hpp
 SOURCES += autoPlayground.cpp
 SOURCES += main.cpp
-SOURCES += $$files(data/*.py, true)
-SOURCES += $$files(data/*.csv, true)
+OTHER_FILES += $$files(data/*.py, true)
+OTHER_FILES += $$files(data/*.csv, true)
+
+INCLUDEPATH += client/
 
 ### External #####
 #libcurl#
