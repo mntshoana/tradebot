@@ -2,29 +2,15 @@ version: "3"
 
 tasks:
   build:
-    desc: Build both the Qt app and the Go sidecar (parallel)
-    deps: [build:qt, build:go]
+    desc: Build TradeBot (npm → tsc/vite → go build → bin/tradebot-ui)
+    dir: src
+    cmds:
+      - npm --prefix frontend install --silent
+      - npm --prefix frontend run build
+      - go build -o {{.ROOT_DIR}}/bin/tradebot-ui .
 
   run:
-    desc: Start the Go sidecar, then launch the Qt app
-    deps: [run:sidecar]
+    desc: Launch TradeBot (Go backend + React UI — single binary)
+    deps: [build]
     cmds:
-      - "{{.ROOT_DIR}}/bin/release/tradebot.app/Contents/MacOS/tradebot"
-
-  build:qt:
-    desc: Compile the Qt/C++ app via qmake Makefile
-    dir: build
-    cmds:
-      - make -j$(sysctl -n hw.logicalcpu)
-
-  build:go:
-    desc: Compile the Go sidecar binary to bin/goserver
-    dir: goserver
-    cmds:
-      - go build -o {{.ROOT_DIR}}/bin/goserver .
-
-  run:sidecar:
-    desc: Start the Go sidecar in the background
-    cmds:
-      - "{{.ROOT_DIR}}/bin/goserver &"
-    background: true
+      - "{{.ROOT_DIR}}/bin/tradebot-ui"
