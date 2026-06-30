@@ -1,5 +1,6 @@
 # Credentials - never commit
 src/credentials.hpp
+.env
 
 # Build output
 bin/

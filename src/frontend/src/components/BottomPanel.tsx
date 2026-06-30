@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/client";
 import type { Balance, OpenOrder } from "../types";
+import type { PriceCache } from "../hooks/usePriceCache";
+import { toZAR, fmtZAR } from "../utils/currency";
 
 type Tab = "Output" | "Open Orders" | "User Balances" | "Withdrawals" | "Auto Playground";
 
@@ -20,7 +22,17 @@ function fmtDate(ms: number): string {
   return new Date(ms * 1000).toLocaleDateString();
 }
 
-export function BottomPanel({ connected, exchange }: { connected: boolean; exchange: string }) {
+// Formats a balance number without exponential notation and without trailing zeros.
+function fmtBalance(n: number): string {
+  if (n === 0) return "0";
+  const abs = Math.abs(n);
+  const decimals = abs < 1 && abs > 0
+    ? Math.min(Math.max(8, Math.ceil(-Math.log10(abs)) + 4), 20)
+    : 8;
+  return n.toFixed(decimals).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
+}
+
+export function BottomPanel({ connected, exchange, prices }: { connected: boolean; exchange: string; prices: PriceCache }) {
   const [active,  setActive]  = useState<Tab>("Output");
   const [orders,  setOrders]  = useState<OpenOrder[]    | null>(null);
   const [ordErr,  setOrdErr]  = useState<string         | null>(null);
@@ -114,22 +126,55 @@ export function BottomPanel({ connected, exchange }: { connected: boolean; excha
           balErr   ? <div className="err">{balErr}</div>
           : !bals  ? <div className="muted">Loading…</div>
           : bals.length === 0 ? <div className="muted">No balances found.</div>
-          : <table>
-              <thead><tr>
-                <th>Asset</th><th>Free</th><th>Used</th><th>Total</th><th>Unconfirmed</th>
-              </tr></thead>
-              <tbody>
-                {bals.filter(b => b.total > 0 || b.unconfirmed > 0).map(b => (
-                  <tr key={b.asset + b.accountId}>
-                    <td>{b.asset}</td>
-                    <td>{b.free}</td>
-                    <td>{b.used}</td>
-                    <td>{b.total}</td>
-                    <td>{b.unconfirmed > 0 ? b.unconfirmed : "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          : (() => {
+              const visible = bals.filter(b => b.total > 0 || b.unconfirmed > 0);
+              const rows = visible.map(b => ({
+                b,
+                showZAR: b.asset.toUpperCase() !== "ZAR",
+                freeZAR:  toZAR(b.asset, b.free,        prices),
+                usedZAR:  toZAR(b.asset, b.used,        prices),
+                totalZAR: toZAR(b.asset, b.total,       prices),
+                uncZAR:   toZAR(b.asset, b.unconfirmed, prices),
+              }));
+
+              let unusedGrand = 0, usedGrand = 0, totalGrand = 0;
+              let unusedPartial = false, totalPartial = false;
+              for (const { freeZAR, usedZAR, totalZAR } of rows) {
+                if (freeZAR  != null) unusedGrand += freeZAR;  else unusedPartial = true;
+                if (usedZAR  != null) usedGrand  += usedZAR;
+                if (totalZAR != null) totalGrand  += totalZAR;  else totalPartial  = true;
+              }
+
+              const zarSubtext = (val: number | null) =>
+                val != null ? <div className="zar-est">(~{fmtZAR(val)})</div> : null;
+
+              return (
+                <table>
+                  <thead><tr>
+                    <th>Asset</th><th>Unused</th><th>Used</th><th>Total</th><th>Unconfirmed</th>
+                  </tr></thead>
+                  <tbody>
+                    {rows.map(({ b, showZAR, freeZAR, usedZAR, totalZAR, uncZAR }) => (
+                      <tr key={b.asset + b.accountId}>
+                        <td>{b.asset}</td>
+                        <td>{fmtBalance(b.free)}{showZAR && zarSubtext(freeZAR)}</td>
+                        <td>{fmtBalance(b.used)}{showZAR && zarSubtext(usedZAR)}</td>
+                        <td>{fmtBalance(b.total)}{showZAR && zarSubtext(totalZAR)}</td>
+                        <td>{b.unconfirmed > 0 ? <>{fmtBalance(b.unconfirmed)}{showZAR && zarSubtext(uncZAR)}</> : "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="bal-total">
+                      <td colSpan={5}>
+                        <span>Est. Total: <strong>{totalPartial ? "≈ " : ""}{fmtZAR(totalGrand)}</strong></span>
+                        <span className="muted">  (Unused: {unusedPartial ? "≈ " : ""}{fmtZAR(unusedGrand)})</span>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              );
+            })()
         )}
 
         {active === "Withdrawals" && (

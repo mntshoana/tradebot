@@ -28,7 +28,7 @@ func newVALRClient(cfg Config) *valrClient {
 	return &valrClient{
 		apiKey:    cfg.VALRAPIKey,
 		apiSecret: cfg.VALRAPISecret,
-		http:      &http.Client{},
+		http:      &http.Client{Timeout: 15 * time.Second},
 	}
 }
 
@@ -158,6 +158,32 @@ func (c *valrClient) GetTicker(pair string) (*TickerResponse, error) {
 	}, nil
 }
 
+// GetZARPrices fetches all *ZAR pair last-traded prices from the public
+// /v1/public/marketsummary endpoint and returns them as a symbol→price map.
+// Used by the frontend price cache to estimate ZAR values of any asset.
+func (c *valrClient) GetZARPrices() (map[string]float64, error) {
+	data, err := c.doRequest("GET", "/v1/public/marketsummary", false, "")
+	if err != nil {
+		return nil, err
+	}
+	var raw []struct {
+		CurrencyPair    string `json:"currencyPair"`
+		LastTradedPrice string `json:"lastTradedPrice"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return nil, err
+	}
+	prices := make(map[string]float64)
+	for _, item := range raw {
+		if strings.HasSuffix(item.CurrencyPair, "ZAR") {
+			if p, err := strconv.ParseFloat(item.LastTradedPrice, 64); err == nil && p > 0 {
+				prices[item.CurrencyPair] = p
+			}
+		}
+	}
+	return prices, nil
+}
+
 // GetTrades returns recent public trades for a currency pair.
 func (c *valrClient) GetTrades(pair string, _ int64) (*TradesResponse, error) {
 	path := "/v1/public/" + pair + "/trades"
@@ -255,7 +281,7 @@ func (c *valrClient) GetOpenOrders(pair string) (*OpenOrdersResponse, error) {
 		return nil, err
 	}
 
-	resp := &OpenOrdersResponse{Exchange: "valr"}
+	resp := &OpenOrdersResponse{Exchange: "valr", Orders: []OpenOrder{}}
 	for _, o := range raw {
 		if pair != "" && o.CurrencyPair != pair {
 			continue
@@ -284,11 +310,11 @@ func (c *valrClient) GetOpenOrders(pair string) (*OpenOrdersResponse, error) {
 }
 
 // PostLimitOrder places a limit order. Requires auth.
-func (c *valrClient) PostLimitOrder(pair, side string, price, volume float64) (*PostOrderResponse, error) {
+func (c *valrClient) PostLimitOrder(pair, side string, price, volume float64, postOnly bool) (*PostOrderResponse, error) {
 	path := "/v1/orders/limit"
 	payload := fmt.Sprintf(
-		`{"pair":"%s","side":"%s","price":"%.8f","quantity":"%.8f","postOnly":false,"reduceOnly":false}`,
-		pair, strings.ToUpper(side), price, volume,
+		`{"pair":"%s","side":"%s","price":"%.8f","quantity":"%.8f","postOnly":%t,"reduceOnly":false}`,
+		pair, strings.ToUpper(side), price, volume, postOnly,
 	)
 
 	data, err := c.doRequest("POST", path, true, payload)
@@ -311,4 +337,75 @@ func (c *valrClient) CancelOrder(pair, orderID string) error {
 	payload := fmt.Sprintf(`{"orderId":"%s","pair":"%s"}`, orderID, pair)
 	_, err := c.doRequest("DELETE", path, true, payload)
 	return err
+}
+
+// GetFeeInfo returns Tier-1 maker/taker rates for the given pair, classified
+// by market type using the public pairs endpoint.
+// The actual personalised rates live at /account/fees/tier-info which requires
+// a Bearer JWT (web session token) — not accessible via API keys.
+func (c *valrClient) GetFeeInfo(pair string) (*FeeInfo, error) {
+	data, err := c.doRequest("GET", "/v1/public/pairs", false, "")
+	if err == nil {
+		var pairs []struct {
+			Symbol        string `json:"symbol"`
+			BaseCurrency  string `json:"baseCurrency"`
+			QuoteCurrency string `json:"quoteCurrency"`
+		}
+		if json.Unmarshal(data, &pairs) == nil {
+			for _, p := range pairs {
+				if p.Symbol != pair {
+					continue
+				}
+				maker, taker := valrTier1Fees(p.BaseCurrency, p.QuoteCurrency)
+				return &FeeInfo{Exchange: "valr", Symbol: pair, Maker: maker, Taker: taker}, nil
+			}
+		}
+	}
+	// Pair not found — default to spot-fiat rates (most common ZAR pairs).
+	return &FeeInfo{Exchange: "valr", Symbol: pair, Maker: 0.0018, Taker: 0.0035}, nil
+}
+
+// valrTier1Fees returns the Tier-1 maker/taker rates based on market type.
+// Source: https://support.valr.com/hc/en-us/articles/360015777451
+func valrTier1Fees(base, quote string) (maker, taker float64) {
+	fiatCurrencies := map[string]bool{"ZAR": true, "USD": true, "EUR": true, "GBP": true}
+	stableCoins := map[string]bool{"USDT": true, "USDC": true, "DAI": true, "BUSD": true, "TUSD": true}
+
+	if fiatCurrencies[quote] {
+		return 0.0018, 0.0035 // Spot Fiat Quote
+	}
+	if stableCoins[base] && stableCoins[quote] {
+		return 0.0005, 0.001 // Stable-to-Stable
+	}
+	return 0.0008, 0.001 // Spot Crypto
+}
+
+// GetPairs returns all active ZAR trading pairs from the VALR public pairs endpoint.
+func (c *valrClient) GetPairs() ([]PairInfo, error) {
+	data, err := c.doRequest("GET", "/v1/public/pairs", false, "")
+	if err != nil {
+		return nil, err
+	}
+	var raw []struct {
+		Symbol        string `json:"symbol"`
+		BaseCurrency  string `json:"baseCurrency"`
+		QuoteCurrency string `json:"quoteCurrency"`
+		Active        bool   `json:"active"`
+		MinBaseAmount string `json:"minBaseAmount"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return nil, err
+	}
+	var pairs []PairInfo
+	for _, p := range raw {
+		if p.Active {
+			minBase, _ := strconv.ParseFloat(p.MinBaseAmount, 64)
+			pairs = append(pairs, PairInfo{
+				PairId:  p.Symbol,
+				Label:   p.BaseCurrency + "/" + p.QuoteCurrency,
+				MinBase: minBase,
+			})
+		}
+	}
+	return pairs, nil
 }

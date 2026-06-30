@@ -1,47 +1,77 @@
 export interface PairCfg {
-  label:     string;   // shown in the pair selector, e.g. "USDT/ZAR"
-  pairId:    string;   // REST / WS identifier, e.g. "USDTZAR"
-  chartUrl?: string;   // direct iframe URL (Luno CloudFront — no X-Frame-Options)
-  tvSymbol?: string;   // TradingView symbol for widget-embed srcDoc (everything else)
+  label:        string;   // shown in the pair selector, e.g. "USDT/ZAR"
+  pairId:       string;   // REST / WS identifier, e.g. "USDTZAR"
+  minBase:      number;   // minimum base-asset order quantity (0 = unknown)
+  chartUrl?:    string;
+  tvSymbol?:    string;
+  externalUrl?: string;
 }
 
-export interface ExchangeCfg {
-  label:       string;
-  defaultPair: string;
-  pairs:       Record<string, PairCfg>;
+// Exchange-level metadata — pairs are loaded dynamically from /market/pairs.
+export interface ExchangeMeta {
+  label:        string;
+  isP2P?:       boolean;   // true for P2P exchanges; skips pair loading + spot UI
+  p2pDefaults?: { crypto: string; fiat: string; paymentMethod: string; tradeType: "buy" | "sell" };
+  buildPairCfg: (pairId: string, label: string, minBase: number) => PairCfg;
 }
 
 const LUNO_BASE = "https://d32exi8v9av3ux.cloudfront.net/static/scripts/tradingview.prod.html";
 const lunoChart = (symbol: string) =>
   `${LUNO_BASE}?symbol=${symbol}&res=60&lang=en&hidesidetoolbar=1`;
 
-// Add new exchanges / pairs here — they appear automatically in the selectors.
-export const EXCHANGES: Record<string, ExchangeCfg> = {
+export const EXCHANGE_META: Record<string, ExchangeMeta> = {
   luno: {
-    label:       "Luno",
-    defaultPair: "USDTZAR",
-    pairs: {
-      USDTZAR: { label: "USDT/ZAR", pairId: "USDTZAR", chartUrl: lunoChart("USDTZAR") },
-      XBTZAR:  { label: "XBT/ZAR",  pairId: "XBTZAR",  chartUrl: lunoChart("XBTZAR")  },
-      ETHZAR:  { label: "ETH/ZAR",  pairId: "ETHZAR",  chartUrl: lunoChart("ETHZAR")  },
-      XRPZAR:  { label: "XRP/ZAR",  pairId: "XRPZAR",  chartUrl: lunoChart("XRPZAR")  },
-      LTCZAR:  { label: "LTC/ZAR",  pairId: "LTCZAR",  chartUrl: lunoChart("LTCZAR")  },
-      BCHZAR:  { label: "BCH/ZAR",  pairId: "BCHZAR",  chartUrl: lunoChart("BCHZAR")  },
-    },
+    label:        "Luno",
+    buildPairCfg: (pairId, label, minBase) => ({ pairId, label, minBase, chartUrl: lunoChart(pairId) }),
   },
   valr: {
-    label:       "VALR",
-    defaultPair: "BTCZAR",
-    // tvSymbol → rendered via TradingView widget srcDoc (avoids VALR iframe restrictions)
-    pairs: {
-      BTCZAR:  { label: "BTC/ZAR",  pairId: "BTCZAR",  tvSymbol: "VALR:BTCZAR"  },
-      ETHZAR:  { label: "ETH/ZAR",  pairId: "ETHZAR",  tvSymbol: "VALR:ETHZAR"  },
-      USDTZAR: { label: "USDT/ZAR", pairId: "USDTZAR", tvSymbol: "VALR:USDTZAR" },
-      XRPZAR:  { label: "XRP/ZAR",  pairId: "XRPZAR",  tvSymbol: "VALR:XRPZAR"  },
-      SOLZAR:  { label: "SOL/ZAR",  pairId: "SOLZAR",  tvSymbol: "VALR:SOLZAR"  },
-      BNBZAR:  { label: "BNB/ZAR",  pairId: "BNBZAR",  tvSymbol: "VALR:BNBZAR"  },
-    },
+    label:        "VALR",
+    buildPairCfg: (pairId, label, minBase) => ({
+      pairId, label, minBase,
+      externalUrl: `https://www.valr.com/en/exchange/${label}`,
+    }),
+  },
+  bybit: {
+    label:        "Bybit",
+    buildPairCfg: (pairId, label, minBase) => ({
+      pairId, label, minBase,
+      externalUrl: `https://www.bybit.com/en/trade/spot/${label}`,
+    }),
+  },
+  "bybit-p2p": {
+    label:        "Bybit P2P",
+    isP2P:        true,
+    p2pDefaults:  { crypto: "USDT", fiat: "ZAR", paymentMethod: "", tradeType: "buy" },
+    buildPairCfg: (pairId, label, minBase) => ({ pairId, label, minBase }),
+  },
+  binance: {
+    label:        "Binance",
+    buildPairCfg: (pairId, label, minBase) => ({
+      pairId, label, minBase,
+      externalUrl: `https://www.binance.com/en/trade/${label.replace("/", "_")}`,
+    }),
+  },
+  "binance-p2p": {
+    label:        "Binance P2P",
+    isP2P:        true,
+    p2pDefaults:  { crypto: "USDT", fiat: "ZAR", paymentMethod: "", tradeType: "buy" },
+    buildPairCfg: (pairId, label, minBase) => ({ pairId, label, minBase }),
+  },
+  "localcoinswap-p2p": {
+    label:        "LocalCoinSwap P2P",
+    isP2P:        true,
+    p2pDefaults:  { crypto: "USDT-TRC20", fiat: "ZAR", paymentMethod: "", tradeType: "buy" },
+    buildPairCfg: (pairId, label, minBase) => ({ pairId, label, minBase }),
   },
 };
 
 export const DEFAULT_EXCHANGE = "luno";
+
+// Preferred pair shown immediately while the pair list loads from the server.
+export const DEFAULT_PAIR: Record<string, string> = {
+  luno:    "USDTZAR",
+  valr:    "USDTZAR",
+  bybit:   "USDTUSD",
+  binance: "BTCUSDT",
+};
+

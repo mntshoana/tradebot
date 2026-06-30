@@ -30,8 +30,24 @@ type TradeItem struct {
 	Timestamp int64   `json:"timestamp"`
 	Price     float64 `json:"price"`
 	Amount    float64 `json:"amount"`
-	Cost      float64 `json:"cost"`  // price × amount
-	Side      string  `json:"side"`  // "buy" or "sell"
+	Cost      float64 `json:"cost"` // price × amount
+	Side      string  `json:"side"` // "buy" or "sell"
+}
+
+// FeeInfo holds the maker and taker fee rates for a specific exchange/pair.
+// Rates are stored as decimals (e.g. 0.001 = 0.1%).
+type FeeInfo struct {
+	Exchange string  `json:"exchange"`
+	Symbol   string  `json:"symbol"`
+	Maker    float64 `json:"maker"`
+	Taker    float64 `json:"taker"`
+}
+
+// PairInfo is a single tradable pair returned by the /market/pairs endpoint.
+type PairInfo struct {
+	PairId  string  `json:"pairId"`
+	Label   string  `json:"label"`
+	MinBase float64 `json:"minBase"` // minimum base-asset order quantity (0 = unknown)
 }
 
 // TradesResponse is a list of recent trades for any exchange/pair.
@@ -61,7 +77,7 @@ type BalancesResponse struct {
 type OpenOrder struct {
 	ID        string  `json:"id"`
 	Symbol    string  `json:"symbol"`
-	Side      string  `json:"side"`      // "buy" or "sell"
+	Side      string  `json:"side"` // "buy" or "sell"
 	Price     float64 `json:"price"`
 	Amount    float64 `json:"amount"`    // total order size
 	Filled    float64 `json:"filled"`    // amount executed so far
@@ -80,9 +96,10 @@ type OpenOrdersResponse struct {
 type PostLimitOrderRequest struct {
 	Exchange string  `json:"exchange"`
 	Pair     string  `json:"pair"`
-	Side     string  `json:"side"`   // "buy" or "sell"
+	Side     string  `json:"side"` // "buy" or "sell"
 	Price    float64 `json:"price"`
 	Amount   float64 `json:"amount"`
+	PostOnly bool    `json:"postOnly"`
 }
 
 // PostOrderResponse is returned after a successful order placement.
@@ -93,6 +110,84 @@ type PostOrderResponse struct {
 // ErrorResponse wraps a plain error message as JSON.
 type ErrorResponse struct {
 	Error string `json:"error"`
+}
+
+// P2POption is a single selectable item for P2P crypto/fiat/payment dropdowns.
+// Slug is the exchange-internal identifier used for search API calls (LCS only).
+type P2POption struct {
+	Symbol string `json:"symbol"`
+	Label  string `json:"label"`
+	Slug   string `json:"slug,omitempty"`
+}
+
+// P2POptionsResponse is returned by /p2p/cryptos, /p2p/fiats.
+type P2POptionsResponse struct {
+	Exchange string      `json:"exchange"`
+	Options  []P2POption `json:"options"`
+}
+
+// P2PPaymentMethodsResponse is returned by /p2p/payment-methods.
+// HasMore is true when further pages are available (use NextOffset to fetch them).
+type P2PPaymentMethodsResponse struct {
+	Exchange   string      `json:"exchange"`
+	Options    []P2POption `json:"options"`
+	HasMore    bool        `json:"hasMore"`
+	NextOffset int         `json:"nextOffset"`
+}
+
+// LCSAdCreator is a trimmed profile attached to every ad/offer from LCS.
+type LCSAdCreator struct {
+	Username        string  `json:"username"`
+	FeedbackScore   float64 `json:"feedbackScore"`
+	CompletedTrades int     `json:"completedTrades"`
+	AvgResponseTime int     `json:"avgResponseTime"`
+	ActivityStatus  string  `json:"activityStatus"`
+}
+
+// LCSAd is a single public offer (ad) returned by the search or my-ads endpoints.
+type LCSAd struct {
+	UUID          string       `json:"uuid"`
+	Slug          string       `json:"slug"`
+	CreatedBy     LCSAdCreator `json:"createdBy"`
+	TradingType   string       `json:"tradingType"` // "buy" or "sell"
+	CryptoSymbol  string       `json:"cryptoSymbol"`
+	FiatSymbol    string       `json:"fiatSymbol"`
+	PaymentMethod string       `json:"paymentMethod"`
+	Headline      string       `json:"headline"`
+	MinTradeSize  string       `json:"minTradeSize"`
+	MaxTradeSize  string       `json:"maxTradeSize"`
+	CurrentPrice  string       `json:"currentPrice"`
+	IsActive      bool         `json:"isActive"`
+}
+
+// LCSAdsResponse wraps a paginated list of LCS ads.
+type LCSAdsResponse struct {
+	Total      int     `json:"total"`
+	Ads        []LCSAd `json:"ads"`
+	HasMore    bool    `json:"hasMore"`
+	NextOffset int     `json:"nextOffset"`
+}
+
+// LCSTrade is a single P2P trade from the authenticated user's history.
+type LCSTrade struct {
+	UUID          string `json:"uuid"`
+	Status        string `json:"status"`
+	TradingType   string `json:"tradingType"` // "buy" or "sell" (from the user's perspective)
+	CryptoSymbol  string `json:"cryptoSymbol"`
+	FiatSymbol    string `json:"fiatSymbol"`
+	PaymentMethod string `json:"paymentMethod"`
+	Partner       string `json:"partner"` // counterparty username
+	FiatAmount    string `json:"fiatAmount"`
+	CoinAmount    string `json:"coinAmount"`
+	TimeCreated   int64  `json:"timeCreated"`
+}
+
+// LCSTradesResponse wraps a paginated list of LCS trades.
+type LCSTradesResponse struct {
+	Total      int        `json:"total"`
+	Trades     []LCSTrade `json:"trades"`
+	HasMore    bool       `json:"hasMore"`
+	NextOffset int        `json:"nextOffset"`
 }
 
 // BeneficiaryItem is a single withdrawal beneficiary.

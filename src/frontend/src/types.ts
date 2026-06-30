@@ -44,3 +44,70 @@ export interface OpenOrder {
 export type WsFrame =
   | { type: "orderbook"; exchange: string; symbol: string; data: OrderBook }
   | { type: "trades";    exchange: string; symbol: string; data: Trade[] };
+
+// P2P dropdown option — used for crypto, fiat, and payment method selectors.
+export interface P2POption {
+  symbol: string;
+  label:  string;
+  slug?:  string; // LCS currency/payment slug used for search API calls
+}
+
+// Response type for /p2p/payment-methods — includes pagination info.
+export interface P2PPaymentMethodsResponse {
+  exchange:   string;
+  options:    P2POption[];
+  hasMore:    boolean;
+  nextOffset: number;
+}
+
+// LCS public ad (offer) from /p2p/lcs/ads
+export interface LCSAdCreator {
+  username:        string;
+  feedbackScore:   number;
+  completedTrades: number;
+  avgResponseTime: number;
+  activityStatus:  string;
+}
+
+export interface LCSAd {
+  uuid:          string;
+  slug:          string;
+  createdBy:     LCSAdCreator;
+  tradingType:   string; // "buy" | "sell"
+  cryptoSymbol:  string;
+  fiatSymbol:    string;
+  paymentMethod: string;
+  headline:      string;
+  minTradeSize:  string;
+  maxTradeSize:  string;
+  currentPrice:  string;
+  isActive:      boolean;
+}
+
+export interface LCSAdsResponse {
+  total:      number;
+  ads:        LCSAd[];
+  hasMore:    boolean;
+  nextOffset: number;
+}
+
+// LCS trade from /p2p/lcs/trades
+export interface LCSTrade {
+  uuid:          string;
+  status:        string;
+  tradingType:   string;
+  cryptoSymbol:  string;
+  fiatSymbol:    string;
+  paymentMethod: string;
+  partner:       string;
+  fiatAmount:    string;
+  coinAmount:    string;
+  timeCreated:   number;
+}
+
+export interface LCSTradesResponse {
+  total:      number;
+  trades:     LCSTrade[];
+  hasMore:    boolean;
+  nextOffset: number;
+}

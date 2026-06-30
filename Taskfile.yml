@@ -1,5 +1,9 @@
 version: "3"
 
+vars:
+  EXT:
+    sh: 'go env GOEXE'
+
 tasks:
   build:
     desc: Build TradeBot (npm → tsc/vite → go build → bin/tradebot-ui)
@@ -7,10 +11,10 @@ tasks:
     cmds:
       - npm --prefix frontend install --silent
       - npm --prefix frontend run build
-      - go build -o {{.ROOT_DIR}}/bin/tradebot-ui .
+      - go build -o {{.ROOT_DIR}}/bin/tradebot-ui{{.EXT}} .
 
   run:
     desc: Launch TradeBot (Go backend + React UI — single binary)
     deps: [build]
     cmds:
-      - "{{.ROOT_DIR}}/bin/tradebot-ui"
+      - "{{.ROOT_DIR}}/bin/tradebot-ui{{.EXT}}"

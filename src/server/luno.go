@@ -11,9 +11,10 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 )
 
-const lunoBaseURL = "https://api.mybitx.com/api/1"
+const lunoBaseURL = "https://api.luno.com/api/1"
 
 type lunoClient struct {
 	apiKey    string
@@ -25,7 +26,7 @@ func newLunoClient(cfg Config) *lunoClient {
 	return &lunoClient{
 		apiKey:    cfg.LunoAPIKey,
 		apiSecret: cfg.LunoAPISecret,
-		http:      &http.Client{},
+		http:      &http.Client{Timeout: 15 * time.Second},
 	}
 }
 
@@ -245,7 +246,7 @@ func (c *lunoClient) GetOpenOrders(pair string) (*OpenOrdersResponse, error) {
 		return nil, err
 	}
 
-	resp := &OpenOrdersResponse{Exchange: "luno"}
+	resp := &OpenOrdersResponse{Exchange: "luno", Orders: []OpenOrder{}}
 	for _, o := range raw.Orders {
 		price, _ := strconv.ParseFloat(o.LimitPrice, 64)
 		amount, _ := strconv.ParseFloat(o.LimitVolume, 64)
@@ -269,7 +270,7 @@ func (c *lunoClient) GetOpenOrders(pair string) (*OpenOrdersResponse, error) {
 }
 
 // PostLimitOrder places a limit order. Requires auth.
-func (c *lunoClient) PostLimitOrder(pair, side string, price, volume float64) (*PostOrderResponse, error) {
+func (c *lunoClient) PostLimitOrder(pair, side string, price, volume float64, postOnly bool) (*PostOrderResponse, error) {
 	orderType := "BID"
 	if side == "sell" {
 		orderType = "ASK"
@@ -280,6 +281,9 @@ func (c *lunoClient) PostLimitOrder(pair, side string, price, volume float64) (*
 	form.Set("type", orderType)
 	form.Set("volume", strconv.FormatFloat(volume, 'f', -1, 64))
 	form.Set("price", strconv.FormatFloat(price, 'f', -1, 64))
+	if postOnly {
+		form.Set("post_only", "true")
+	}
 
 	data, err := c.doRequest("POST", "/postorder", true, form.Encode())
 	if err != nil {
@@ -421,28 +425,31 @@ func (c *lunoClient) GetWithdrawals() (*WithdrawalsResponse, error) {
 
 	var raw struct {
 		Withdrawals []struct {
-			ID        int64   `json:"id"`
-			Status    string  `json:"status"`
-			Type      string  `json:"type"`
-			Currency  string  `json:"currency"`
-			Amount    float64 `json:"amount"`
-			Fee       float64 `json:"fee"`
-			CreatedAt int64   `json:"created_at"`
+			ID        string `json:"id"`
+			Status    string `json:"status"`
+			Type      string `json:"type"`
+			Currency  string `json:"currency"`
+			Amount    string `json:"amount"`
+			Fee       string `json:"fee"`
+			CreatedAt int64  `json:"created_at"`
 		} `json:"withdrawals"`
 	}
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return nil, err
 	}
 
-	resp := &WithdrawalsResponse{Exchange: "luno"}
+	resp := &WithdrawalsResponse{Exchange: "luno", Withdrawals: []WithdrawalItem{}}
 	for _, w := range raw.Withdrawals {
+		id, _ := strconv.ParseInt(w.ID, 10, 64)
+		amount, _ := strconv.ParseFloat(w.Amount, 64)
+		fee, _ := strconv.ParseFloat(w.Fee, 64)
 		resp.Withdrawals = append(resp.Withdrawals, WithdrawalItem{
-			ID:        w.ID,
+			ID:        id,
 			Status:    w.Status,
 			Type:      w.Type,
 			Currency:  w.Currency,
-			Amount:    w.Amount,
-			Fee:       w.Fee,
+			Amount:    amount,
+			Fee:       fee,
 			CreatedAt: w.CreatedAt,
 		})
 	}
@@ -453,4 +460,77 @@ func (c *lunoClient) GetWithdrawals() (*WithdrawalsResponse, error) {
 func (c *lunoClient) CancelWithdrawal(id string) error {
 	_, err := c.doRequest("DELETE", "/withdrawals/"+id, true, "")
 	return err
+}
+
+// GetFeeInfo returns the maker and taker fee rates for a currency pair. Requires auth.
+// Luno returns fee rates as decimal strings, e.g. "0" (0%) and "0.001" (0.1%).
+func (c *lunoClient) GetFeeInfo(pair string) (*FeeInfo, error) {
+	data, err := c.doRequest("GET", "/fee_info?pair="+pair, true, "")
+	if err != nil {
+		return nil, err
+	}
+	var raw struct {
+		MakerFee string `json:"maker_fee"`
+		TakerFee string `json:"taker_fee"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return nil, err
+	}
+	maker, _ := strconv.ParseFloat(raw.MakerFee, 64)
+	taker, _ := strconv.ParseFloat(raw.TakerFee, 64)
+	return &FeeInfo{Exchange: "luno", Symbol: pair, Maker: maker, Taker: taker}, nil
+}
+
+// GetPairs returns all active trading pairs with their minimum order size.
+// Pair list comes from /api/1/tickers (stable); min volumes from
+// /api/exchange/1/markets (different base path, public endpoint).
+func (c *lunoClient) GetPairs() ([]PairInfo, error) {
+	// ── step 1: active pairs from tickers ──────────────────────────────────
+	data, err := c.doRequest("GET", "/tickers", false, "")
+	if err != nil {
+		return nil, err
+	}
+	var tickers struct {
+		Tickers []struct {
+			Pair   string `json:"pair"`
+			Status string `json:"status"`
+		} `json:"tickers"`
+	}
+	if err := json.Unmarshal(data, &tickers); err != nil {
+		return nil, err
+	}
+
+	// ── step 2: min volumes from the exchange markets endpoint ─────────────
+	minBase := map[string]float64{}
+	resp, err := c.http.Get("https://api.luno.com/api/exchange/1/markets")
+	if err == nil {
+		defer resp.Body.Close()
+		raw, _ := io.ReadAll(resp.Body)
+		var markets struct {
+			Markets []struct {
+				MarketID  string `json:"market_id"`
+				MinVolume string `json:"min_volume"`
+			} `json:"markets"`
+		}
+		if json.Unmarshal(raw, &markets) == nil {
+			for _, m := range markets.Markets {
+				if v, err := strconv.ParseFloat(m.MinVolume, 64); err == nil {
+					minBase[m.MarketID] = v
+				}
+			}
+		}
+	}
+
+	// ── step 3: merge ──────────────────────────────────────────────────────
+	var pairs []PairInfo
+	for _, t := range tickers.Tickers {
+		if t.Status == "ACTIVE" {
+			pairs = append(pairs, PairInfo{
+				PairId:  t.Pair,
+				Label:   t.Pair,
+				MinBase: minBase[t.Pair],
+			})
+		}
+	}
+	return pairs, nil
 }
